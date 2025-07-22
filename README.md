@@ -44,9 +44,9 @@ jupyter notebook notebooks/X-ray_attenuation_calculator.ipynb
 ---
 
 ## 📝 Features
-- Mole % to weight % conversion
-- Automatic calculation of X-ray attenuation
-- Plotting of transmission vs. energy
+- In built Mole % to weight % conversion
+- Automatic calculation of X-ray attenuation coefficient (1/e)
+- Plotting of energy dependent X-ray attenuation / transmission by materials for single and multi component system
 - Example notebook for interactive analysis
 
 ---
@@ -57,6 +57,6 @@ jupyter notebook notebooks/X-ray_attenuation_calculator.ipynb
 ---
 
 ## 💡 Future Improvements
-- Any suggestions
+- Any suggestions are welcome
 
 ---
