@@ -12,7 +12,7 @@ This repository provides a Python implementation for calculating X-ray transmiss
 ├── data/                  # (Optional) Input data files
 ├── plots/                 # (Optional) Output plots
 ├── requirements.txt       # Python dependencies
-├── LICENSE                # License file (e.g., MIT)
+├── LICENSE                # License file
 └── README.md              # Project overview and instructions
 ```
 
