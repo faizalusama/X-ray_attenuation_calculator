@@ -7,10 +7,10 @@ This repository provides a Python implementation for calculating X-ray transmiss
 ## 📂 Project Structure
 
 ```
-├── notebooks/             # Interactive Jupyter notebooks with examples
-├── src/                   # Main Python scripts
-├── data/                  # (Optional) Input data files
-├── plots/                 # (Optional) Output plots
+├── src/    # Main Python scripts
+│ └── X-ray_attenuation_calculator_multi_component.py # Main interactive script
+├── notebooks/ # Interactive Jupyter notebooks with examples
+│ └── X-ray_attenuation_calculator.ipynb # Main interactive script# Main Python scripts
 ├── requirements.txt       # Python dependencies
 ├── LICENSE                # License file
 └── README.md              # Project overview and instructions
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ### 3. Run Python Script
 ```bash
-python src/X-ray_attenuation_calcuation.py
+python src/X-ray_attenuation_calculator_multi_component.py
 ```
 
 ### 4. Or Use the Jupyter Notebook
