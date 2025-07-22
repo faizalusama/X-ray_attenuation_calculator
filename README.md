@@ -22,8 +22,8 @@ This repository provides a Python implementation for calculating X-ray transmiss
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/faizalusama/xray_attenuation_calculator.git
-cd x-ray_attenuation_calculator
+git clone https://github.com/faizalusama/X-ray_attenuation_calculator.git
+cd X-ray_attenuation_calculator
 ```
 
 ### 2. Install dependencies
@@ -33,12 +33,12 @@ pip install -r requirements.txt
 
 ### 3. Run Python Script
 ```bash
-python src/x-ray_attenuation_calcuation.py
+python src/X-ray_attenuation_calcuation.py
 ```
 
 ### 4. Or Use the Jupyter Notebook
 ```bash
-jupyter notebook notebooks/x-ray_attenuation_calculation.ipynb
+jupyter notebook notebooks/X-ray_attenuation_calculator.ipynb
 ```
 
 ---
