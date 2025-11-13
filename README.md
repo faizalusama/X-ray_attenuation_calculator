@@ -1,5 +1,9 @@
 # X-ray Attenuation and Transmission Calculator for Multi-Component Systems
 
+[![DOI](https://zenodo.org/badge/1024199500.svg)](https://doi.org/10.5281/zenodo.17602370)
+
+A Python tool for calculating X-ray attenuation and transmission
+
 This repository provides a Python implementation for calculating X-ray transmission and / or attenuation in multi-component materials using mole and weight fractions. It uses the `xraydb` database for absorption coefficients and produces energy-dependent plots.
 
 ---
