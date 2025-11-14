@@ -4,7 +4,7 @@ authors:
 - family-names: Jalaludeen
   given-names: Mohamed Faizal Ussama
   orcid: https://orcid.org/0000-0003-0077-691X
-title:X-ray Attenuation Calculator for Oxide glasses
+  title:X-ray Attenuation Calculator for Oxide glasses
 version: v0.1.1
 date-released: 2025-11-13
 doi: 10.5281/zenodo.17602371
