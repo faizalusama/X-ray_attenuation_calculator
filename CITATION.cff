@@ -1,6 +1,6 @@
 cff-version: 1.0.0
 message: "If you use this software, please cite it as below."
-title: "Energy Dependent X-ray Attenuation"
+title: "Energy Dependent X-ray Attenuation Calculator for single/multi component systems"
 version: "0.1.1"
 date-released: 2025-11-13
 doi: 10.5281/zenodo.17602371
@@ -11,26 +11,5 @@ authors:
 
 abstract: >
   Software for calculating energy-dependent X-ray attenuation,
-  transmission, and 1/e attenuation depth for multi-component systems,
+  transmission, and 1/e attenuation depth for multi-component systems such as oxide glasses or ceramics,
   using Beer–Lambert law and mass attenuation coefficients from xraydb.
-
-
-
-
-
-
-
-#cff-version: 1.0.0
-#message: "If you use this software, please cite it as below."
-#authors:
-#- family-names: Jalaludeen
- # given-names: Mohamed Faizal Ussama
-
-
-#orcid: https://orcid.org/0000-0003-0077-691X
-#title: X-ray Attenuation Calculator for Oxide glasses
-#version: v0.1.1
-#date-released: 2025-11-13
-#doi: 10.5281/zenodo.17602371
-#url: "https://github.com/faizalusama/X-ray_attenuation_calculator"
-#year: 2025
