@@ -1,3 +1,5 @@
-numpy
-matplotlib
-xraydb
+numpy==2.5.3
+scipy==1.18.1
+xraydb==4.5.8
+fastapi==0.141.1
+uvicorn==0.53.0

@@ -1,0 +1,16 @@
+# Normalize line endings so the repository stores LF regardless of platform.
+* text=auto eol=lf
+
+# Windows launcher must keep CRLF or cmd.exe can mis-parse it.
+*.cmd text eol=crlf
+
+# Binary-ish assets: never diff or merge these by line.
+*.ipynb -diff -merge
+*.png binary
+*.svg -diff
+
+# Keep GitHub's language statistics about this project, not its dependencies.
+static/vendor/** linguist-vendored
+legacy/** linguist-documentation
+notebooks/** linguist-documentation
+docs/** linguist-documentation

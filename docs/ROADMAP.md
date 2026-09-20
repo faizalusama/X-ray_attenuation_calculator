@@ -1,0 +1,31 @@
+# Research roadmap
+
+Reviewed **19 September 2026**. The current workbench concentrates on reproducible primary-beam attenuation in multicomponent glasses, ceramics, composites, and multilayers. The items below are **planned research/development**, not currently implemented functions. A larger feature list does not by itself establish better physical accuracy.
+
+## Current foundation
+
+The local application provides formula-based composition, mass/mole/volume conversion, explicit density and porosity choices, planar layers and incidence angle, monochromatic transmission, interaction-component curves, edge-aware sampling, direct reference-energy evaluation, HVL/TVL/attenuation length, common stack-thickness scaling, imported discrete photon spectra, and propagation of density/thickness uncertainty. [Scientific methods](SCIENTIFIC_METHODS.md) defines their assumptions and limits. These capabilities are a foundation for validation, not a completed experimental validation study.
+
+## Priority 1: Publishable materials validation
+
+Build an openly inspectable benchmark dataset covering representative silica/borosilicate glasses, dense and porous ceramics, heavy-element glasses, and layered combinations. Preserve measured density, chemical analysis, thickness maps, energy calibration, incident spectra, collimation, detector acceptance, and raw count uncertainties. Include repeat measurements and held-out specimens. Compare residuals against energy, optical depth, composition, and angle; set acceptance criteria before drawing conclusions.
+
+Expand reference-data tests across elements and compound compositions, with explicit samples on each side of K/L edges. Preserve published table values and source versions. Current off-edge NIST examples test a small subset only. Differences near edges should be investigated against edge-energy conventions and sample chemistry rather than hidden by a broad tolerance.
+
+Add correlated uncertainty propagation for composition, density, thickness, angle, and energy. Composition samples must obey a simplex constraint; oxide assays must account for normalization and shared analytical errors. Propagate cross-section uncertainty separately where defensible data exist. Do not invent a universal percentage uncertainty for an atomic database.
+
+## Priority 2: Independent backends and source spectra
+
+**Alternate attenuation backends — planned.** Implement a common adapter contract for NIST/XCOM and xraylib with explicit energy bounds, units, edge conventions, dataset identifiers, and interaction definitions. Compare differences without silently averaging databases. XCOM covers 1 keV–100 GeV and includes pair production, which cannot be obtained merely by extending the current Elam input limit. See [NIST XCOM](https://physics.nist.gov/PhysRefData/Xcom/Text/intro.html). xraylib exposes attenuation, partial cross sections, fluorescence, scattering, and energy-absorption interfaces, with keV energy inputs; see its [official API](https://github.com/tschoonj/xraylib/wiki/The-xraylib-API-list-of-all-functions). Backend-specific domains require tests before becoming user options.
+
+**Validated X-ray tube spectra — planned.** An optional SpekPy adapter should preserve tube potential, anode material, target geometry, anode angle, filtration, energy-bin edges, model choice, and package version. SpekPy 2.5.4 was released on 31 March 2026; the 2.5 series includes transmission as well as reflection targets. Its current project description gives 10–500 kV for tungsten and narrower domains for several other anodes. Check model-specific support instead of treating that as a universal domain. See the [maintainer's release and documentation](https://pypi.org/project/spekpy/), the [2021 toolkit paper](https://doi.org/10.1002/mp.14945), and the [2020 validation paper](https://doi.org/10.1016/j.ejmp.2020.04.026). Measured spectra should remain a first-class input. Validate spectral discretization and polychromatic HVL against the selected source model and measurements.
+
+## Priority 3: Geometry and secondary radiation
+
+**Photon/electron transport — planned.** Use a separately validated Geant4 workflow for finite geometries, multiple scattering, fluorescence escape/reabsorption, detector acceptance, and deposited energy. Specify the electromagnetic physics list, production cuts, atomic relaxation settings, geometry, source, detector scoring, and statistical convergence. Compare the uncollided component with the present analytic solution before interpreting scattered or deposited-energy outputs. The [Geant4 documentation](https://geant4.org/docs/) and its [Livermore photoelectric model](https://geant4.web.cern.ch/documentation/pipelines/master/prm_html/PhysicsReferenceManual/electromagnetic/gamma_incident/photoelectric/livermore_photoelectric.html) document the relevant interaction models. A Monte Carlo run without a defined geometry and scoring quantity is not a generic accuracy upgrade.
+
+**Material-specific edge data — planned.** Permit experimentally calibrated attenuation spectra or an independently validated near-edge calculation when chemical bonding matters. Preserve absolute normalization, units, energy calibration, sample identity, and provenance. Splicing measured fine structure into an atomic background requires overlap checks and uncertainty estimates. The [2024 RefXAS paper](https://journals.iucr.org/s/issues/2024/05/00/up5002/) demonstrates the value of curated material-specific X-ray absorption reference data; its spectra must not be assumed to be absolute attenuation coefficients without examining their normalization and metadata.
+
+## Release preparation
+
+Before a public research release, freeze dependencies and data provenance; archive an example calculation and validation outputs; review the license and third-party data notices; retain the original author's credit; add contributor and citation metadata; complete accessibility and installation checks on supported platforms; and obtain an independent scientific review. State the tested domain and unresolved limitations in the paper and software documentation. Public repository creation, publication, and deployment remain separate owner decisions.

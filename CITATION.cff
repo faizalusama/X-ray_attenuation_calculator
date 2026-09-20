@@ -1,15 +1,14 @@
-cff-version: 1.0.0
-message: "If you use this software, please cite it as below."
-title: "Energy Dependent X-ray Attenuation Calculator for single/multi component systems"
-version: "0.1.1"
-date-released: 2025-11-13
-doi: 10.5281/zenodo.17602371
-
+cff-version: 1.2.0
+message: "Unpublished development extension. Original release citation is preserved in legacy/CITATION.cff; create a version-specific citation before publication."
+title: "X-ray Attenuation Workbench for Multicomponent Materials and Multilayers"
+version: "0.2.0"
+type: software
+license: MIT
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
-
-abstract: >
-  Software for calculating energy-dependent X-ray attenuation,
-  transmission, and 1/e attenuation depth for multi-component systems such as oxide glasses or ceramics,
-  using Beer–Lambert law and mass attenuation coefficients from xraydb.
+repository-code: "https://github.com/faizalusama/X-ray_attenuation_calculator"
+abstract: >-
+  A local graphical and programmable workbench for narrow-beam X-ray
+  attenuation in multicomponent materials and planar multilayers.
+  This development version has not been published as a new release.

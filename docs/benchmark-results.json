@@ -1,0 +1,98 @@
+{
+  "timestamp_utc": "2026-09-20T06:17:11.541873+00:00",
+  "python": "3.12.14",
+  "versions": {
+    "xraydb": "4.5.8",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "fastapi": "0.141.1"
+  },
+  "agreement_threshold_relative": 0.01,
+  "scope": "12 off-edge reference values; agreement is not an experimental accuracy guarantee.",
+  "comparisons": [
+    {
+      "formula": "Al",
+      "energy_keV": 20.0,
+      "nist_mu_mass_cm2_g": 3.441,
+      "calculated_mu_mass_cm2_g": 3.4418704884978504,
+      "relative_difference": 0.00025297544256042137
+    },
+    {
+      "formula": "Al",
+      "energy_keV": 50.0,
+      "nist_mu_mass_cm2_g": 0.3681,
+      "calculated_mu_mass_cm2_g": 0.368150072130624,
+      "relative_difference": 0.00013602860805228545
+    },
+    {
+      "formula": "Al",
+      "energy_keV": 100.0,
+      "nist_mu_mass_cm2_g": 0.1704,
+      "calculated_mu_mass_cm2_g": 0.17041720847806102,
+      "relative_difference": 0.00010098872101549361
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 20.0,
+      "nist_mu_mass_cm2_g": 25.68,
+      "calculated_mu_mass_cm2_g": 25.68302313253822,
+      "relative_difference": 0.00011772322968139903
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 50.0,
+      "nist_mu_mass_cm2_g": 1.958,
+      "calculated_mu_mass_cm2_g": 1.957388226067571,
+      "relative_difference": -0.0003124483822415369
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 100.0,
+      "nist_mu_mass_cm2_g": 0.3717,
+      "calculated_mu_mass_cm2_g": 0.3717235309719578,
+      "relative_difference": 6.330635447371336e-05
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 20.0,
+      "nist_mu_mass_cm2_g": 86.36,
+      "calculated_mu_mass_cm2_g": 86.374113376371,
+      "relative_difference": 0.00016342492323984104
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 50.0,
+      "nist_mu_mass_cm2_g": 8.041,
+      "calculated_mu_mass_cm2_g": 8.04199332152508,
+      "relative_difference": 0.00012353208868054466
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 100.0,
+      "nist_mu_mass_cm2_g": 5.549,
+      "calculated_mu_mass_cm2_g": 5.548753877553148,
+      "relative_difference": -4.435437860017544e-05
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 20.0,
+      "nist_mu_mass_cm2_g": 0.8096,
+      "calculated_mu_mass_cm2_g": 0.8098311646022252,
+      "relative_difference": 0.000285529399981721
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 50.0,
+      "nist_mu_mass_cm2_g": 0.2269,
+      "calculated_mu_mass_cm2_g": 0.2269357370246479,
+      "relative_difference": 0.00015750121043578424
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 100.0,
+      "nist_mu_mass_cm2_g": 0.1707,
+      "calculated_mu_mass_cm2_g": 0.17072358521748965,
+      "relative_difference": 0.0001381676478597882
+    }
+  ]
+}
