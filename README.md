@@ -1,6 +1,8 @@
 # X-ray Attenuation Workbench
 
-A local scientific application for multicomponent glasses, ceramics, composites, filters, and planar multilayers. This is a development version (0.2.0) extending Mohamed Faizal Ussama Jalaludeen's original X-ray attenuation calculator. It has not been published as a new release.
+A local scientific application for multicomponent glasses, ceramics, composites, filters, and planar multilayers. Version 1.0.0 is the first stable release of Mohamed Faizal Ussama Jalaludeen's X-ray attenuation work, superseding the 0.1.x calculator preserved under `legacy/`. It has not yet been published as a release.
+
+> **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
 
 ## Start the graphical application
 
@@ -63,6 +65,14 @@ The allowed 1–800 keV interval avoids the backend's out-of-range clamping. Xra
 The presets are editable illustrations, not certified material specifications. For glasses, use measured bulk density where available; ideal volume additivity need not hold after mixing or melting.
 
 See [scientific methods and references](docs/SCIENTIFIC_METHODS.md), [validation record](docs/VALIDATION.md), and the [research roadmap](docs/ROADMAP.md).
+
+## Attenuation data sources
+
+Cross-sections come from a selectable backend, named in the configuration as `"backend": "elam"` and recorded in every result's provenance. The default is `elam` (XrayDB's Elam tables). Each backend declares its hard energy domain, the narrower range its authors consider reliable, the interaction channels it actually provides, its atomic-number range and its edge convention. Backends are never averaged together: where sources disagree, the disagreement is the information.
+
+An optional `xraylib` backend is available via `pip install "xray-attenuation-workbench[xraylib]"`. **It is not an independent check.** Measured on 20 September 2026, xraylib 4.3.0 returns coefficients bit-identical to XrayDB 4.5.8 across all 99 element/energy samples tested — the two packages expose the same evaluated data. It therefore declares `shares_data_with = ("elam",)`, and the comparison tools refuse to treat the pair as cross-database validation. The two do disagree on edge *labels* (Ba K: 37.4410 vs 37.4406 keV), so they are not interchangeable for edge work.
+
+This project currently has **no independent cross-database validation**. The NIST reference comparison in the [validation record](docs/VALIDATION.md) covers a small off-edge subset only. See the [roadmap](docs/ROADMAP.md) for the planned NIST XCOM adapter.
 
 ## Input conventions
 

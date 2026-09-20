@@ -1,9 +1,15 @@
 cff-version: 1.2.0
-message: "Unpublished development extension. Original release citation is preserved in legacy/CITATION.cff; create a version-specific citation before publication."
+message: "If you use this software, please cite it as below. Please also cite the underlying Elam atomic data; see THIRD_PARTY_NOTICES.md."
 title: "X-ray Attenuation Workbench for Multicomponent Materials and Multilayers"
-version: "0.2.0"
+version: "1.0.0"
 type: software
 license: MIT
+# First stable release. It supersedes the 0.1.x calculator, whose original
+# citation is preserved in legacy/CITATION.cff, and whose multicomponent script
+# double-weighted mass fractions. Before publishing, replace the DOI below with
+# the Zenodo *concept* DOI ("Cite all versions") so citations aggregate across
+# releases rather than pinning to one, and set date-released to the release day.
+doi: 10.5281/zenodo.17602371
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama

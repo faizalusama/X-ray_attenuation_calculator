@@ -21,6 +21,7 @@ from .base import (
     BackendInfo,
 )
 from .elam import elam_backend
+from .xraylib_backend import xraylib_backend
 
 #: The backend used when a configuration does not name one. Changing this
 #: changes every result the workbench produces by default.
@@ -30,6 +31,7 @@ DEFAULT_BACKEND = "elam"
 #: not installed only fails when someone actually asks for it.
 _BACKENDS: dict[str, Callable[[], AttenuationBackend]] = {
     "elam": elam_backend,
+    "xraylib": xraylib_backend,
 }
 
 

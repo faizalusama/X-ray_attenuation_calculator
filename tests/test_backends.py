@@ -46,7 +46,8 @@ def test_backend_reports_its_identity_and_installed_dataset_version():
 
 def test_unknown_backend_names_the_alternatives_instead_of_falling_back():
     # A silent fallback to the default would let a result claim provenance it
-    # does not have, so the failure must be loud.
+    # does not have, so the failure must be loud. "xcom" is a real database the
+    # workbench does not yet implement, which is exactly the confusable case.
     with pytest.raises(ValueError, match="Unknown attenuation backend"):
         get_backend("xcom")
     with pytest.raises(ValueError, match="elam"):
@@ -116,7 +117,7 @@ def test_result_provenance_identifies_the_data_source():
 
 def test_unknown_backend_is_rejected_through_the_public_request():
     with pytest.raises(ValueError, match="Unknown attenuation backend"):
-        calculate(request(backend="xraylib"))
+        calculate(request(backend="xcom"))
     with pytest.raises(ValueError, match="text identifier"):
         calculate(request(backend=7))
 

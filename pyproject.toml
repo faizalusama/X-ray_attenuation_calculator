@@ -45,6 +45,9 @@ dev = [
     "mypy>=1.13",
 ]
 notebook = ["jupyterlab>=4.2"]
+# NOT an independent check on the default backend: measured bit-identical to
+# the Elam data. See xray_workbench/backends/xraylib_backend.py.
+xraylib = ["xraylib>=4.1"]
 
 [project.scripts]
 xray-workbench = "xray_workbench.cli:main"
@@ -154,6 +157,6 @@ warn_unreachable = true
 exclude = ["^legacy/", "^\\.venv/"]
 
 [[tool.mypy.overrides]]
-# XrayDB ships no type information.
-module = ["xraydb.*"]
+# XrayDB ships no type information; xraylib is a SWIG wrapper around a C library.
+module = ["xraydb.*", "xraylib.*", "xraylib"]
 ignore_missing_imports = true

@@ -1,4 +1,8 @@
-# Validation record — development version 0.2.0
+# Validation record — version 1.0.0
+
+Numbering note: this project was developed as `0.2.0` and renumbered to `1.0.0`
+for its first stable release. Entries below written before the renumber refer to
+the same code.
 
 Verified locally on **20 September 2026**, using Windows and Python **3.12.14**. This record concerns numerical implementation and application behavior, not certification of experimental accuracy.
 
@@ -85,6 +89,36 @@ layout by importing the unpacked wheel from an unrelated working directory.
 Node.js is not installed on the verifying machine. That suite is unchanged
 since the run recorded above and now executes in CI, but it was **not**
 re-executed as part of this pass.
+
+## Backend independence — 20 September 2026
+
+The pluggable backend contract was added and the xraylib backend implemented.
+The comparison produced a result worth recording prominently.
+
+**XrayDB/Elam and xraylib return bit-identical coefficients.** Across 99
+element/energy samples (H, C, O, Al, Si, Fe, Cu, Ba, W, Pb, U at 5, 10, 17.3,
+30, 60, 100, 200, 500 and 700 keV), xraylib 4.3.0's `CS_Photo`, `CS_Rayl` and
+`CS_Compt` equalled XrayDB 4.5.8's `mu_elam` **exactly** — to the last bit of a
+float64, in every channel separately, with a maximum relative difference of
+0.000e+00. The two packages expose one evaluated dataset through two interfaces.
+
+Consequently **this project still has no independent cross-database
+validation.** Agreement between these two backends measures nothing. The
+xraylib backend declares `shares_data_with = ("elam",)`,
+`backends/compare.py` excludes the pair from legitimate cross-checks, and
+`tests/test_backend_equivalence.py` asserts the exact equality so that any
+future upstream divergence surfaces as a test failure rather than a silent
+change in published numbers.
+
+The independent NIST reference comparison recorded above (twelve values, max
+0.031245% difference) remains the only genuine external check, and it covers a
+small off-edge subset only.
+
+Two further details were pinned by measurement rather than assumption:
+xraylib's spline domain ends at **800.026475 keV** (it raises rather than
+extrapolating), and the two sources report the Ba K edge at 37.4410 keV
+(XrayDB) versus 37.4406 keV (xraylib) — a 0.4 eV label difference despite
+identical coefficients, so edge labels are not interchangeable.
 
 ## Remaining release work
 

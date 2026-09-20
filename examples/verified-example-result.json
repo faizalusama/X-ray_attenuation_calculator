@@ -8162,9 +8162,35 @@
     ],
     "model": "narrow-beam Beer-Lambert",
     "edge_bracket_relative": 0.0001,
-    "timestamp_utc": "2026-09-20T06:16:11.928602+00:00",
+    "backend": {
+      "identifier": "elam",
+      "name": "XrayDB / Elam",
+      "dataset": "Elam, Ravel & Sieber (2002), doi:10.1016/S0969-806X(01)00227-4",
+      "dataset_version": "4.5.8",
+      "energy_range_keV": [
+        1.0,
+        800.0
+      ],
+      "recommended_range_keV": [
+        1.0,
+        250.0
+      ],
+      "channels": [
+        "photoelectric",
+        "coherent",
+        "incoherent"
+      ],
+      "atomic_number_range": [
+        1,
+        98
+      ],
+      "edge_convention": "Tabulated log-energy knots carry limited decimal precision, so a coefficient discontinuity can sit up to ~5e-5 relative away from the xray_edges() metadata energy. Coefficients are never shifted to match the reported edge label.",
+      "reference_url": "https://xraypy.github.io/XrayDB/",
+      "shares_data_with": []
+    },
+    "timestamp_utc": "2026-09-20T14:42:34.034386+00:00",
     "configuration_sha256": "519cb294fe64027888c8a6f8f713a10c25347c92648c9ece5470aa854c77aeb1",
-    "workbench_version": "0.2.0"
+    "workbench_version": "1.0.0"
   },
   "configuration": {
     "energy": {

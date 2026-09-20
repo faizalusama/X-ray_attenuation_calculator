@@ -84,6 +84,22 @@ class BackendInfo:
     reference_url: str
     """Where a reader can check the data for themselves."""
 
+    shares_data_with: tuple[str, ...] = ()
+    """Identifiers of backends drawing on the **same** underlying evaluation.
+
+    Two packages can expose one dataset through different interfaces. Comparing
+    them then measures nothing, however different the APIs look, and reporting
+    it as agreement between databases would be false confidence. A backend that
+    is not independent must say so here, and
+    :func:`xray_workbench.backends.compare.independent_pairs` refuses to treat
+    such a pair as a cross-check.
+    """
+
+    def is_independent_of(self, other: BackendInfo) -> bool:
+        """True only when neither backend declares shared data with the other."""
+        return (other.identifier not in self.shares_data_with
+                and self.identifier not in other.shares_data_with)
+
     def __post_init__(self) -> None:
         unknown = sorted(set(self.channels) - set(KNOWN_CHANNELS))
         if unknown:
@@ -112,6 +128,7 @@ class BackendInfo:
             "atomic_number_range": list(self.atomic_number_range),
             "edge_convention": self.edge_convention,
             "reference_url": self.reference_url,
+            "shares_data_with": list(self.shares_data_with),
         }
 
 

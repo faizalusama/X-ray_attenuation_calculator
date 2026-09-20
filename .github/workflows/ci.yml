@@ -40,6 +40,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
 
+      - name: Install optional xraylib backend
+        # xraylib publishes wheels for a subset of platforms and Python
+        # versions. Its tests use importorskip, so a failure here must not fail
+        # the job - it just means the equivalence checks skip on this runner.
+        continue-on-error: true
+        run: python -m pip install "xraylib>=4.1"
+
       - name: Lint
         run: python -m ruff check .
 
