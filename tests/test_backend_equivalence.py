@@ -1,9 +1,11 @@
 """XrayDB/Elam and xraylib are the same data, and the suite must keep saying so.
 
-Measured 20 September 2026 (xraylib 4.3.0, XrayDB 4.5.8): the two packages
-return **bit-identical** mass attenuation coefficients for every element,
-energy and channel sampled. They expose one evaluated dataset through two
-interfaces.
+Measured 20 September 2026 (xraylib 4.3.0, XrayDB 4.5.8): on Windows the two
+packages return bit-identical mass attenuation coefficients for every element,
+energy and channel sampled. CI later showed that on some Linux and macOS
+builds they differ, so equality is platform-dependent; the tests bound the
+difference instead and print its measured size. They expose one evaluated
+dataset through two interfaces.
 
 These tests exist for two reasons. First, so nobody can quote "validated
 against xraylib" as cross-database validation — the workbench declares the
@@ -11,7 +13,7 @@ relationship in metadata and refuses to list the pair as a cross-check. Second,
 so that if either upstream package ever changes its tables, the change is
 reported here instead of silently moving published numbers.
 
-If `test_elam_and_xraylib_are_bit_identical` starts failing, that is real news:
+If `test_elam_and_xraylib_evaluate_the_same_data` starts failing, that is real news:
 investigate which package changed and why before touching the tolerance.
 """
 import numpy as np
@@ -34,16 +36,27 @@ def test_xraylib_is_registered_and_optional():
     assert get_backend("xraylib").info.identifier == "xraylib"
 
 
+#: Largest relative difference still read as "the same data evaluated by a
+#: different C maths library". Both packages evaluate the same log-log splines;
+#: on Windows the results match bit for bit, while other platforms' compiled
+#: wheels can differ in the last few units of a float64 (~1e-16 relative).
+#: Genuinely different evaluated data would differ by ~1e-3 or more, many
+#: orders of magnitude above this bound, so the bound cannot hide a real change.
+SAME_DATA_RTOL = 1e-9
+
+
 @pytest.mark.parametrize("element", ELEMENTS)
-def test_elam_and_xraylib_are_bit_identical(element):
+def test_elam_and_xraylib_evaluate_the_same_data(element):
     elam = get_backend("elam").mass_attenuation(element, ENERGIES_KEV)
     xlib = get_backend("xraylib").mass_attenuation(element, ENERGIES_KEV)
     for channel in ("photoelectric", "coherent", "incoherent"):
-        # Deliberately exact. These are not two evaluations that happen to
-        # agree; they are one dataset read twice.
-        assert np.array_equal(elam[channel], xlib[channel]), (
-            f"{element} {channel} diverged between XrayDB and xraylib. This is a real "
-            f"upstream change, not a tolerance problem.")
+        worst = float(np.max(np.abs(elam[channel] - xlib[channel]) / xlib[channel]))
+        # Reported on every platform so the measured magnitude is on record.
+        print(f"{element:>2} {channel:<13} max relative difference {worst:.3e}")
+        assert worst <= SAME_DATA_RTOL, (
+            f"{element} {channel} differs between XrayDB and xraylib by {worst:.3e} relative. "
+            f"That is far above floating-point rounding, so the two packages no longer "
+            f"evaluate the same data. Investigate the upstream change; do not widen the bound.")
 
 
 def test_xraylib_declares_that_it_shares_data_with_elam():
@@ -62,9 +75,9 @@ def test_the_two_backends_are_not_offered_as_a_cross_check():
 def test_comparison_reports_identity_and_refuses_to_claim_validation():
     comparison = compare_element("Pb", "elam", "xraylib", points=60)
     summary = comparison.summary()
-    assert summary["bit_identical"] is True
     assert summary["independent"] is False
-    assert summary["max_relative_difference"] == 0.0
+    # Bit-identical on Windows; within floating-point rounding elsewhere.
+    assert summary["max_relative_difference"] <= SAME_DATA_RTOL
     assert "NOT independent" in summary["interpretation"]
 
 

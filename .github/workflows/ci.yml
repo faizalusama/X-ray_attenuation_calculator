@@ -56,6 +56,13 @@ jobs:
       - name: Test
         run: python -m pytest --cov --cov-report=term-missing --cov-report=xml
 
+      - name: Record xraylib vs Elam agreement
+        # Prints the measured relative difference per element and channel so
+        # the platform dependence of this comparison stays on record.
+        if: always()
+        continue-on-error: true
+        run: python -m pytest tests/test_backend_equivalence.py -q -s -p no:cacheprovider -k same_data
+
       - name: Integrity manifest is current
         # The 0.2.0 archive shipped a manifest that no longer matched three of
         # its own files. Checking it here means that cannot happen unnoticed.

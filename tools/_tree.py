@@ -44,13 +44,23 @@ def project_files(root: Path = PROJECT_ROOT) -> Iterator[Path]:
         yield relative
 
 
+#: Byte sequences for line-ending normalisation.
+NUL, CR, LF = bytes([0]), bytes([13]), bytes([10])
+CRLF = CR + LF
+
+
 def digest(path: Path) -> str:
-    """SHA-256 of a file, read in chunks so large assets stay out of memory."""
-    hasher = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1 << 20), b""):
-            hasher.update(block)
-    return hasher.hexdigest()
+    """SHA-256 of a file's content, independent of the platform's line endings.
+
+    Git stores text with LF and may check it out with CRLF (and the reverse for
+    ``*.cmd``). Hashing raw bytes made a manifest written on Windows fail on a
+    Linux checkout of identical content, so text is hashed with CRLF folded to
+    LF. A file containing a NUL byte is treated as binary and hashed verbatim.
+    """
+    data = path.read_bytes()
+    if NUL not in data:
+        data = data.replace(CRLF, LF)
+    return hashlib.sha256(data).hexdigest()
 
 
 def digests(root: Path = PROJECT_ROOT) -> dict[str, str]:
