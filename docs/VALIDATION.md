@@ -95,12 +95,28 @@ re-executed as part of this pass.
 The pluggable backend contract was added and the xraylib backend implemented.
 The comparison produced a result worth recording prominently.
 
-**XrayDB/Elam and xraylib return bit-identical coefficients.** Across 99
-element/energy samples (H, C, O, Al, Si, Fe, Cu, Ba, W, Pb, U at 5, 10, 17.3,
-30, 60, 100, 200, 500 and 700 keV), xraylib 4.3.0's `CS_Photo`, `CS_Rayl` and
-`CS_Compt` equalled XrayDB 4.5.8's `mu_elam` **exactly** — to the last bit of a
-float64, in every channel separately, with a maximum relative difference of
-0.000e+00. The two packages expose one evaluated dataset through two interfaces.
+**XrayDB/Elam and xraylib return the same coefficients to within floating-point
+rounding.** Across 99 element/energy samples (H, C, O, Al, Si, Fe, Cu, Ba, W,
+Pb, U at 5, 10, 17.3, 30, 60, 100, 200, 500 and 700 keV), xraylib 4.3.0's
+`CS_Photo`, `CS_Rayl` and `CS_Compt` were compared with XrayDB 4.5.8's
+`mu_elam`, channel by channel.
+
+*Correction, 21 September 2026.* This entry originally said "bit-identical" on
+every platform. That was measured on Windows only. CI then measured the maximum
+relative difference per platform:
+
+| Platform | Max relative difference |
+|---|---|
+| Windows, Python 3.12 / 3.13 / 3.14 | 0 (bit-identical) |
+| Ubuntu, Python 3.13 / 3.14 | 0 (bit-identical) |
+| Ubuntu, Python 3.12 | 1.9 × 10⁻¹⁶ |
+| macOS, Python 3.14 | 1.9 × 10⁻¹⁵ |
+
+The largest is about eight units in the last place of a float64: differently
+compiled maths libraries evaluating the same splines. Genuinely different
+evaluated data would differ by ~10⁻³ or more. The conclusion is unchanged —
+the two packages expose one evaluated dataset through two interfaces — and the
+test now bounds the difference at 10⁻⁹ relative instead of demanding equality.
 
 Consequently **this project still has no independent cross-database
 validation.** Agreement between these two backends measures nothing. The

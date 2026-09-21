@@ -45,8 +45,8 @@ dev = [
     "mypy>=1.13",
 ]
 notebook = ["jupyterlab>=4.2"]
-# NOT an independent check on the default backend: measured bit-identical to
-# the Elam data. See xray_workbench/backends/xraylib_backend.py.
+# NOT an independent check on the default backend: measured identical to the
+# Elam data within floating-point rounding (<= 1.9e-15 relative). See xray_workbench/backends/xraylib_backend.py.
 xraylib = ["xraylib>=4.1"]
 
 [project.scripts]

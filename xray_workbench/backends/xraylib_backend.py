@@ -2,10 +2,11 @@
 
 Measured on 20 September 2026 with xraylib 4.3.0 and XrayDB 4.5.8, on 99
 element/energy samples spanning H to U and 5-700 keV, xraylib's ``CS_Photo``,
-``CS_Rayl`` and ``CS_Compt`` returned values **bit-identical** to XrayDB's
-``mu_elam`` for every sample and every channel — equal to the last bit of a
-float64, not merely close. The two packages expose the same evaluated data
-through different interfaces.
+``CS_Rayl`` and ``CS_Compt`` returned the same values as XrayDB's ``mu_elam``
+for every sample and channel to within floating-point rounding: bit-identical
+on Windows, at most 1.9e-15 relative on the Linux and macOS builds measured in
+CI. Different evaluated data would differ by ~1e-3 or more. The two packages
+expose the same evaluated data through different interfaces.
 
 That is why :attr:`BackendInfo.shares_data_with` names ``elam`` here. Running
 the workbench "against xraylib" and finding agreement would demonstrate
@@ -14,7 +15,7 @@ An independent check needs a genuinely separate evaluation such as NIST XCOM;
 see docs/ROADMAP.md.
 
 This backend is still worth having. It is a second implementation path, and
-``tests/test_backend_equivalence.py`` asserts the equality above so that a
+``tests/test_backend_equivalence.py`` bounds the difference at 1e-9 so that a
 future divergence in either upstream package is reported loudly instead of
 silently changing results. xraylib also exposes quantities XrayDB does not,
 notably the mass energy-absorption coefficient, which later work may need.
