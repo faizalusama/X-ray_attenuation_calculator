@@ -25,9 +25,14 @@
   const MAX_PLOTS = Object.keys(QUANTITIES).length;
   const safe = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
   const copy = value => JSON.parse(JSON.stringify(value));
-  function panel(primary, id) { return {id, primary, secondary: "none", logY: !!QUANTITIES[primary].log, logY2: false, layer: 0, ranges: {}, visibility: {}}; }
+  function panel(primary, id) { return {id, primary, secondary: "none", logY: !!QUANTITIES[primary].log, logY2: false, logX: true, font: 15, bold: true, edges: true, layers: true, grid: true, layer: 0, ranges: {}, visibility: {}}; }
   function allPanels(existing = []) {
     return Object.keys(QUANTITIES).map((mode, i) => ({...copy(existing.find(p => p.primary === mode) || panel(mode, i + 1)), id: i + 1}));
+  }
+  function energyRange(range, fromLog, toLog) {
+    if (!range) return undefined;
+    const converted = range.map(v => fromLog === toLog ? v : toLog ? Math.log10(v) : 10 ** v);
+    return converted.every(Number.isFinite) && converted[1] > converted[0] ? converted : undefined;
   }
   function fromMM(value, unit = "mm") { return value == null ? null : value / LENGTH_UNITS[unit]; }
   function toMM(value, unit = "mm") { return value == null ? null : value * LENGTH_UNITS[unit]; }
@@ -91,6 +96,11 @@
       const panels = saved.panels.filter(p => p && Object.hasOwn(QUANTITIES, p.primary)).map((p, i) => ({id: i + 1,
         primary: p.primary, secondary: p.primary !== "map" && p.secondary !== p.primary && p.secondary !== "map" && Object.hasOwn(QUANTITIES, p.secondary) ? p.secondary : "none",
         logY: p.primary !== "map" && (typeof p.logY === "boolean" ? p.logY : !!QUANTITIES[p.primary].log), logY2: typeof p.logY2 === "boolean" ? p.logY2 : false,
+        logX: typeof p.logX === "boolean" ? p.logX : saved.logX !== false,
+        font: Number.isInteger(p.font) && p.font >= 11 && p.font <= 20 ? p.font : 15,
+        bold: p.bold !== false, grid: p.grid !== false,
+        edges: typeof p.edges === "boolean" ? p.edges : saved.edges !== false,
+        layers: typeof p.layers === "boolean" ? p.layers : saved.layers !== false,
         layer: Number.isInteger(p.layer) && p.layer >= 0 && p.layer < 24 ? p.layer : 0,
         visibility: Object.fromEntries(Object.entries(p.visibility || {}).slice(0, 500).filter(([key, v]) => /^[a-z0-9-]{1,100}$/.test(key) && (v === true || v === false || v === "legendonly"))),
         ranges: Object.fromEntries(Object.entries(p.ranges || {}).filter(([key, range]) => ["xaxis", "yaxis", "yaxis2"].includes(key) && Array.isArray(range) && range.length === 2 && range.every(Number.isFinite) && range[1] > range[0]))}));
@@ -123,9 +133,9 @@
       $("#remove-plot").disabled = settings.panels.length <= 1;
       $("#log-y").checked = p.logY; $("#log-y").disabled = isMap;
       $("#log-y2").checked = p.logY2; $("#log-y2").disabled = isMap || p.secondary === "none";
-      $("#log-x").checked = settings.logX;
-      for (const [id, key] of Object.entries({"show-edges":"edges", "show-layer-curves":"layers", "link-axes":"linked", "wheel-zoom":"wheel", "reference-pick":"clickReference"})) $("#" + id).checked = settings[key];
-      $("#plot-font-size").value = settings.font;
+      $("#log-x").checked = p.logX;
+      for (const [id, key] of Object.entries({"show-edges":"edges", "show-layer-curves":"layers", "link-axes":"linked", "wheel-zoom":"wheel", "reference-pick":"clickReference"})) $("#" + id).checked = ["edges", "layers"].includes(key) ? p[key] : settings[key];
+      $("#plot-font-size").value = p.font;
       $("#secondary-details").open = settings.secondaryOpen;
       $("#plot-settings").open = settings.controlsOpen;
       document.querySelector(".workspace").classList.toggle("dashboard-wide", settings.wide);
@@ -140,12 +150,12 @@
       $("#export-svg").textContent = `Export plot ${settings.active + 1} SVG ↓`;
       if (focusKey) $(`[data-${focusKey}="${focusValue}"]`)?.focus({preventScroll: true});
     }
-    function axis(mode, log, side) {
+    function axis(mode, log, side, p) {
       const color = side === "right" ? "#6954af" : "#38526a";
-      return {title: {text: axisTitle(mode, unit), font: {size: settings.font + 1, color}, standoff: 14},
-        type: log ? "log" : "linear", tickfont: {size: settings.font, color}, tickformat: "~g", nticks: 6,
+      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 1, color}, standoff: 14},
+        type: log ? "log" : "linear", tickfont: {size: p.font, color}, tickformat: "~g", nticks: 6,
         ticks: "outside", ticklen: 5, tickcolor: "#91a4b5", linecolor: "#b8c8d4", showline: true,
-        showgrid: side !== "right", gridcolor: "#e8eef3", zeroline: false, automargin: true,
+        showgrid: p.grid && side !== "right", gridcolor: "#e8eef3", zeroline: false, automargin: true,
         exponentformat: "power", showexponent: "all", fixedrange: settings.gesture === "locked",
         rangemode: "tozero", ...(!log && QUANTITIES[mode].percent ? {range: [0, 100], autorange: false} : {autorange: true})};
     }
@@ -154,21 +164,21 @@
       let traces;
       if (isMap) traces = [{type: "heatmap", ...thicknessMap(result, settings.maxScale), zmin: 0, zmax: 100, zsmooth: false,
         colorscale: [[0,"#172947"],[.2,"#215879"],[.45,"#188c99"],[.7,"#6ac8b2"],[1,"#f2edb6"]],
-        colorbar: {title: {text: "T · %", side: "top"}, thickness: 12, outlinewidth: 0, ticksuffix: "%", tickfont: {size: settings.font}},
+        colorbar: {title: {text: "T · %", side: "top"}, thickness: 12, outlinewidth: 0, ticksuffix: "%", tickfont: {size: p.font}},
         hovertemplate: "Energy: %{x:.6g} keV<br>Thickness scale: %{y:.4g}×<br>Transmission: %{z:.6g}%<extra></extra>"}];
-      else traces = [...traceData(result, configuration, p.primary, p.layer, unit, "y", p.logY, settings.layers),
-        ...(secondary ? traceData(result, configuration, p.secondary, p.layer, unit, "y2", p.logY2, settings.layers) : [])];
+      else traces = [...traceData(result, configuration, p.primary, p.layer, unit, "y", p.logY, p.layers),
+        ...(secondary ? traceData(result, configuration, p.secondary, p.layer, unit, "y2", p.logY2, p.layers) : [])];
       const shape = (energy, color, dash, width = 1) => ({type: "line", xref: "x", yref: "paper", x0: energy, x1: energy, y0: 0, y1: 1, layer: isMap ? "above" : "below", line: {color, dash, width}});
       const shapes = [], annotations = [];
       const [min, max] = [result.energy_keV[0], result.energy_keV.at(-1)];
-      if (settings.edges) {
+      if (p.edges) {
         let lastPosition = -1;
         for (const edge of (result.edges || [])) {
           if (edge.energy_keV < min || edge.energy_keV > max) continue;
           shapes.push(shape(edge.energy_keV, "#d5b581", "dot"));
-          const position = settings.logX ? Math.log(edge.energy_keV / min) / Math.log(max / min) : (edge.energy_keV - min) / (max - min);
+          const position = p.logX ? Math.log(edge.energy_keV / min) / Math.log(max / min) : (edge.energy_keV - min) / (max - min);
           if (position - lastPosition > .13) {
-            annotations.push({xref: "x", yref: "paper", x: settings.logX ? Math.log10(edge.energy_keV) : edge.energy_keV, y: 1.02, text: `${safe(edge.element)} ${safe(edge.shell)}`, showarrow: false, font: {size: settings.font - 2, color: "#8a6d39"}});
+            annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(edge.energy_keV) : edge.energy_keV, y: 1.02, text: `${safe(edge.element)} ${safe(edge.shell)}`, showarrow: false, font: {size: p.font - 2, color: "#8a6d39"}});
             lastPosition = position;
           }
         }
@@ -176,24 +186,24 @@
       const ref = result.reference.energy_keV;
       if (ref >= min && ref <= max) {
         shapes.push(shape(ref, "#72849e", "dash", 1.4));
-        annotations.push({xref: "x", yref: "paper", x: settings.logX ? Math.log10(ref) : ref, y: 1.10, text: `${ref.toPrecision(4).replace(/\.?0+$/, "")} keV ref`, showarrow: false, bgcolor: "#fff", font: {size: settings.font - 1, color: "#485d78"}});
+        annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(ref) : ref, y: 1.10, text: `${ref.toPrecision(4).replace(/\.?0+$/, "")} keV ref`, showarrow: false, bgcolor: "#fff", font: {size: p.font - 1, color: "#485d78"}});
       }
       const layout = {height: exporting ? 760 : settings.layout === "grid" ? 450 : 540,
-        margin: {l: 75, r: secondary || isMap ? 78 : 25, t: 43, b: 80},
-        paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff", font: {family: FONT, size: settings.font, color: "#314b61"},
-        hovermode: isMap ? "closest" : "x unified", hoverlabel: {bgcolor: "#fff", bordercolor: "#c5d6e2", font: {family: FONT, size: settings.font, color: "#243d56"}},
+        margin: {l: 85, r: secondary || isMap ? 90 : 30, t: 50, b: 95},
+        paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff", font: {family: FONT, size: p.font, color: "#314b61"},
+        hovermode: isMap ? "closest" : "x unified", hoverlabel: {bgcolor: "#fff", bordercolor: "#c5d6e2", font: {family: FONT, size: p.font, color: "#243d56"}},
         dragmode: settings.gesture === "locked" ? false : settings.gesture,
         uirevision: `${p.id}-${p.primary}-${p.secondary}-${unit}-${settings.revision}`,
-        legend: {orientation: "h", x: 0, y: -.23, xanchor: "left", yanchor: "top", font: {size: settings.font - 1}, groupclick: "togglegroup"},
-        xaxis: {title: {text: "Photon energy · keV", font: {size: settings.font + 1}, standoff: 12}, type: settings.logX ? "log" : "linear",
-          range: settings.logX ? [Math.log10(min), Math.log10(max)] : [min, max], autorange: false,
-          ticks: "outside", ticklen: 5, tickfont: {size: settings.font}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(settings.logX ? {dtick: "D2"} : {}),
-          linecolor: "#b8c8d4", tickcolor: "#91a4b5", showline: true, gridcolor: "#edf2f6", zeroline: false,
+        legend: {orientation: "h", x: 0, y: -.23, xanchor: "left", yanchor: "top", font: {size: p.font - 1}, groupclick: "togglegroup"},
+        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 1}, standoff: 12}, type: p.logX ? "log" : "linear",
+          range: p.logX ? [Math.log10(min), Math.log10(max)] : [min, max], autorange: false,
+          ticks: "outside", ticklen: 5, tickfont: {size: p.font}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
+          linecolor: "#b8c8d4", tickcolor: "#91a4b5", showline: true, showgrid: p.grid, gridcolor: "#e2e9f0", zeroline: false,
           automargin: true, fixedrange: settings.gesture === "locked", showspikes: true, spikemode: "across", spikesnap: "cursor", spikecolor: "#92a7b8", spikethickness: 1, hoverformat: ".6g"},
-        yaxis: axis(p.primary, !isMap && p.logY, "left"), shapes, annotations,
-        ...(secondary ? {yaxis2: {...axis(p.secondary, p.logY2, "right"), overlaying: "y", side: "right", tickmode: "auto"}} : {})};
+        yaxis: axis(p.primary, !isMap && p.logY, "left", p), shapes, annotations,
+        ...(secondary ? {yaxis2: {...axis(p.secondary, p.logY2, "right", p), overlaying: "y", side: "right", tickmode: "auto"}} : {})};
       for (const [name, range] of Object.entries(p.ranges)) if (layout[name]) Object.assign(layout[name], {range, autorange: false});
-      if (settings.logX && layout.xaxis.range[1] - layout.xaxis.range[0] < .5) layout.xaxis.dtick = null;
+      if (p.logX && layout.xaxis.range[1] - layout.xaxis.range[0] < .5) layout.xaxis.dtick = null;
       traces.forEach(trace => { if (trace.uid && Object.hasOwn(p.visibility || {}, trace.uid)) trace.visible = p.visibility[trace.uid]; });
       if (isMap && !p.ranges.yaxis) Object.assign(layout.yaxis, {range: [0, settings.maxScale], autorange: false});
       if (exporting) {
@@ -222,9 +232,9 @@
           try {
             for (const other of settings.panels) {
               if (other.id === p.id) continue;
-              if (p.ranges.xaxis) other.ranges.xaxis = [...p.ranges.xaxis]; else delete other.ranges.xaxis;
+              const range = energyRange(p.ranges.xaxis, p.logX, other.logX); if (range) other.ranges.xaxis = range; else delete other.ranges.xaxis;
               const node = $(`#plot-${other.id}`);
-              if (node?.data) await Plotly.relayout(node, p.ranges.xaxis ? {"xaxis.range": p.ranges.xaxis, "xaxis.autorange": false, "xaxis.dtick": settings.logX && p.ranges.xaxis[1] - p.ranges.xaxis[0] >= .5 ? "D2" : null} : {"xaxis.autorange": true});
+              if (node?.data) await Plotly.relayout(node, other.ranges.xaxis ? {"xaxis.range": other.ranges.xaxis, "xaxis.autorange": false, "xaxis.dtick": other.logX && other.ranges.xaxis[1] - other.ranges.xaxis[0] >= .5 ? "D2" : null} : {"xaxis.autorange": true});
             }
           } catch (e) { callbacks.onError(e.message); } finally { syncing = false; }
         }
@@ -246,7 +256,7 @@
         let card = $(`[data-plot-card="${p.id}"]`);
         if (!card) {
           card = document.createElement("article"); card.className = "plot-card"; card.dataset.plotCard = p.id;
-          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="scientific-plot" id="plot-${p.id}" role="img"></div><p class="plot-note"></p>`;
+          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="card-controls"></div><div class="scientific-plot" id="plot-${p.id}" role="img"></div><p class="plot-note"></p>`;
           grid.appendChild(card);
         }
         card.classList.toggle("selected", index === settings.active);
@@ -255,6 +265,9 @@
         card.querySelector("header button").setAttribute("aria-pressed", index === settings.active);
         card.querySelector(".axis-badge").textContent = p.secondary !== "none" ? `R · ${QUANTITIES[p.secondary].label}` : "";
         card.querySelector(".plot-note").textContent = p.primary === "map" ? "All layers scale together; composition, density and angle are fixed. Colours show primary transmission. Hover reads sampled cells." : p.primary === "design" ? "Total normal thickness with every layer scaled proportionally. Undefined for a zero-thickness stack." : p.primary === "removed" ? "Removed fraction includes photons absorbed or scattered out of the primary beam. It is not absorbed energy or dose." : ["hvl", "tvl", "length"].includes(p.primary) ? "Path length in each homogeneous material, evaluated at each sampled energy." : "Hover reads evaluated samples · click a legend to hide a series · double-click a legend to isolate";
+        const toggle = (key, label) => `<label><input type="checkbox" data-card-setting="${key}" ${p[key] ? "checked" : ""}>${label}</label>`;
+        const localControls = card.querySelector(".card-controls");
+        if (!localControls.contains(document.activeElement)) localControls.innerHTML = toggle("logX", "Log energy") + (p.primary !== "map" ? toggle("logY", p.secondary === "none" ? "Log y" : "Log left y") : "") + (p.secondary !== "none" && p.primary !== "map" ? toggle("logY2", "Log right y") : "") + toggle("edges", "Edges") + ([p.primary,p.secondary].some(q => ["transmission","tau"].includes(q)) ? toggle("layers", "Layer curves") : "") + (p.primary !== "map" ? toggle("grid", "Grid") : "") + toggle("bold", "Bold labels") + `<label>Text <select data-card-setting="font" aria-label="Plot ${index+1} font size">${[11,12,13,14,15,16,17,18,19,20].map(n => `<option value="${n}" ${p.font === n ? "selected" : ""}>${n} px</option>`).join("")}</select></label><button type="button" data-card-reset="${p.id}">Reset view</button><button type="button" data-card-customize="${p.id}">Axes & quantities</button>`;
         const node = card.querySelector(".scientific-plot"), fresh = !node.data, f = figure(p);
         // Re-measure when switching between rows, grid and the input sidebar.
         // Plotly.react otherwise keeps a previous wide plot inside a narrow card.
@@ -274,7 +287,7 @@
     function reset(all = false) { (all ? settings.panels : [chosen()]).forEach(p => p.ranges = {}); settings.revision++; return render(); }
     $(".chart-panel").addEventListener("click", event => {
       const b = event.target.closest("button"); if (!b || b.disabled) return;
-      if (b.id === "export-svg" || b.id === "quick-export-svg" || b.dataset.selectCard) return;
+      if (b.id === "export-svg" || b.id === "quick-export-svg" || b.dataset.selectCard || b.dataset.cardReset || b.dataset.cardCustomize) return;
       const p = chosen();
       if (b.dataset.selectPlot !== undefined) settings.active = Number(b.dataset.selectPlot);
       if (b.dataset.quantity) { p.primary = b.dataset.quantity; p.logY = !!QUANTITIES[p.primary].log; if (p.secondary === p.primary || p.primary === "map") p.secondary = "none"; p.ranges = {}; settings.revision++; }
@@ -282,17 +295,35 @@
       if (b.dataset.channelLayer !== undefined) p.layer = Number(b.dataset.channelLayer);
       if (b.dataset.gesture) settings.gesture = b.dataset.gesture;
       if (b.dataset.layout) settings.layout = b.dataset.layout;
-      if (b.id === "add-plot" && settings.panels.length < MAX_PLOTS) { const mode = Object.keys(QUANTITIES).find(key => !settings.panels.some(item => item.primary === key)) || "tau"; const next = panel(mode, ++sequence); if (settings.linked && p.ranges.xaxis) next.ranges.xaxis = [...p.ranges.xaxis]; settings.panels.push(next); settings.active = settings.panels.length - 1; }
+      if (b.id === "add-plot" && settings.panels.length < MAX_PLOTS) { const mode = Object.keys(QUANTITIES).find(key => !settings.panels.some(item => item.primary === key)) || "tau"; const next = panel(mode, ++sequence); if (settings.linked) { const range = energyRange(p.ranges.xaxis, p.logX, next.logX); if (range) next.ranges.xaxis = range; } settings.panels.push(next); settings.active = settings.panels.length - 1; }
       if (b.id === "show-all-plots") { settings.panels = allPanels(settings.panels); sequence = MAX_PLOTS; settings.active = 0; }
       if (b.id === "remove-plot" && settings.panels.length > 1) { settings.panels.splice(settings.active, 1); settings.active = Math.min(settings.active, settings.panels.length - 1); }
       if (b.id === "reset-view") { reset(settings.linked); return; }
       if (b.id === "dashboard-focus") settings.wide = !settings.wide;
       render();
     });
+    $("#plot-grid").addEventListener("change", event => {
+      const el = event.target, key = el.dataset.cardSetting;
+      if (!key) return;
+      const p = settings.panels.find(item => item.id === Number(el.closest("[data-plot-card]").dataset.plotCard));
+      if (!p) return;
+      p[key] = key === "font" ? Number(el.value) : el.checked;
+      if (key === "logX") delete p.ranges.xaxis;
+      if (key === "logY") delete p.ranges.yaxis;
+      if (key === "logY2") delete p.ranges.yaxis2;
+      settings.revision++; render();
+    });
+    $("#plot-grid").addEventListener("click", event => {
+      const b = event.target.closest("[data-card-reset], [data-card-customize]"); if (!b) return;
+      const id = Number(b.dataset.cardReset || b.dataset.cardCustomize);
+      settings.active = settings.panels.findIndex(p => p.id === id);
+      if (b.dataset.cardReset) { reset(); return; }
+      settings.controlsOpen = true; render().then(() => $("#plot-settings").scrollIntoView({behavior:"smooth", block:"start"}));
+    });
     $("#plot-grid").addEventListener("click", event => { const b = event.target.closest("[data-select-card]"); if (b) { settings.active = settings.panels.findIndex(p => p.id === Number(b.dataset.selectCard)); render(); } });
     $("#dashboard-controls").addEventListener("input", event => {
       const el = event.target;
-      if (el.id === "plot-font-size") { settings.font = Number(el.value); render(); }
+      if (el.id === "plot-font-size") { chosen().font = Number(el.value); render(); }
       if (el.id === "max-thickness-scale" && el.value !== "" && el.checkValidity()) { settings.maxScale = Number(el.value); delete chosen().ranges.yaxis; settings.revision++; render(); }
     });
     $("#plot-settings").addEventListener("toggle", event => { settings.controlsOpen = event.target.open; callbacks.onChange?.(); });
@@ -301,12 +332,13 @@
     $(".chart-panel").addEventListener("change", event => {
       const el = event.target, p = chosen();
       const flags = {"show-edges": "edges", "show-layer-curves": "layers", "link-axes": "linked", "wheel-zoom": "wheel", "reference-pick": "clickReference"};
-      if (flags[el.id]) settings[flags[el.id]] = el.checked;
-      if (el.id === "link-axes" && el.checked) settings.panels.forEach(other => { if (p.ranges.xaxis) other.ranges.xaxis = [...p.ranges.xaxis]; else delete other.ranges.xaxis; });
-      if (el.id === "log-x") { settings.logX = el.checked; settings.panels.forEach(item => delete item.ranges.xaxis); settings.revision++; }
+      if (el.dataset.cardSetting) return;
+      if (flags[el.id]) (["edges", "layers"].includes(flags[el.id]) ? p : settings)[flags[el.id]] = el.checked;
+      if (el.id === "link-axes" && el.checked) settings.panels.forEach(other => { const range = energyRange(p.ranges.xaxis, p.logX, other.logX); if (range) other.ranges.xaxis = range; else delete other.ranges.xaxis; });
+      if (el.id === "log-x") { p.logX = el.checked; delete p.ranges.xaxis; settings.revision++; }
       if (el.id === "log-y") { p.logY = el.checked; delete p.ranges.yaxis; settings.revision++; }
       if (el.id === "log-y2") { p.logY2 = el.checked; delete p.ranges.yaxis2; settings.revision++; }
-      if (el.id === "plot-font-size") settings.font = Number(el.value);
+      if (el.id === "plot-font-size") chosen().font = Number(el.value);
       if (el.id === "max-thickness-scale") { if (el.value === "" || !el.checkValidity()) { el.reportValidity(); return; } settings.maxScale = Number(el.value); delete p.ranges.yaxis; settings.revision++; }
       render();
     });
@@ -357,5 +389,5 @@
       preferences() { return {lengthUnit: unit, dashboard: copy(settings)}; }
     };
   }
-  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
+  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
 });

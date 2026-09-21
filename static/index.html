@@ -7,10 +7,10 @@
   <meta name="description" content="An offline scientific workbench for X-ray attenuation in materials, glasses, ceramics and multilayers.">
   <title>Attenuation Lab · X-ray workbench</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2313273b'/%3E%3Cpath d='M10 25h8l5-12 6 23 4-11h5' fill='none' stroke='%237ddcc6' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921b">
+  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921d">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
-  <script src="/static/dashboard.js?v=20260921b" defer></script>
-  <script src="/static/app.js?v=20260921b" defer></script>
+  <script src="/static/dashboard.js?v=20260921d" defer></script>
+  <script src="/static/app.js?v=20260921d" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -72,7 +72,7 @@
                 <div id="plot-layer-controls" class="extra-plot-controls" hidden><strong>Interaction material</strong><div class="quantity-buttons" id="plot-layer-buttons" role="group" aria-label="Interaction material"></div></div>
                 <div id="map-controls" class="extra-plot-controls" hidden><label>Maximum thickness scale <input type="number" id="max-thickness-scale" required min="0.01" max="1000" step="any" value="3"></label><span>× every layer’s current thickness</span></div>
                 <div class="plot-switches"><label><input type="checkbox" id="log-x" checked> Log energy</label><label><input type="checkbox" id="log-y"> Log left y</label><label><input type="checkbox" id="log-y2" disabled> Log right y</label><label><input type="checkbox" id="link-axes" checked> Link energy zoom</label><label><input type="checkbox" id="wheel-zoom"> Scroll to zoom</label><label><input type="checkbox" id="reference-pick"> Click sets reference</label><label><input type="checkbox" id="show-edges" checked> Absorption edges</label><label><input type="checkbox" id="show-layer-curves" checked> Individual layers</label></div>
-                <div class="plot-display-toolbar"><span id="gesture-help"></span><label>Plot text <input type="range" id="plot-font-size" min="11" max="18" step="1" value="13" aria-label="Plot font size"></label><button type="button" id="export-svg" class="button outline small" disabled>Export plot 1 SVG ↓</button></div>
+                <div class="plot-display-toolbar"><span id="gesture-help"></span><label>Plot text <input type="range" id="plot-font-size" min="11" max="20" step="1" value="13" aria-label="Plot font size"></label><button type="button" id="export-svg" class="button outline small" disabled>Export plot 1 SVG ↓</button></div>
               </div></details>
               <div id="plot-grid" class="plot-grid" data-layout="stack"></div>
               <div class="chart-footer"><span id="plot-context">Direct evaluation at every energy</span><span>Units and controls are remembered locally</span></div>

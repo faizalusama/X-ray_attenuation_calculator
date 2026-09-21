@@ -133,3 +133,5 @@ On Windows with Python 3.12.14, the complete Python suite passed **123 tests and
 Browser checks exercised live thickness changes, dimension-preserving unit changes, secondary axes, linked zoom, gesture locking, remembered settings, Ideas, native SVG download and responsive plot sizing. An exported SVG was parsed and checked for dimensions and configuration metadata. This is application verification, not a new scientific accuracy claim.
 
 Additional commands: `node tests/test_dashboard.cjs` and `node --check static/dashboard.js`.
+
+Per-plot controls follow-up: all 25 JavaScript tests passed, including independent scale/typography restoration and linear/logarithmic linked-energy range conversion. Browser verification confirmed different font sizes and y-axis scales persist independently after reload, bold SVG axis titles render, and the page has no horizontal overflow or console errors.

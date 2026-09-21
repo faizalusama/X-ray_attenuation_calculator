@@ -64,3 +64,19 @@ test('every available quantity has an open default plot and existing settings su
   assert.equal(allPanels([existing])[0].secondary,'mass');
   assert.equal(cleanPreferences({dashboard:{layoutVersion:3,panels}}).panels.length,11);
 });
+
+test('independent plot scales and typography survive preference restoration',()=>{
+  const p=cleanPreferences({dashboard:{panels:[{primary:'mass',logX:false,logY:true,font:18,bold:false,edges:false,grid:false,layers:false},{primary:'transmission',logX:true,font:15,bold:true}]}}).panels;
+  assert.equal(p[0].logX,false); assert.equal(p[1].logX,true);
+  assert.equal(p[0].font,18); assert.equal(p[1].font,15);
+  for(const key of ['bold','edges','grid','layers']) assert.equal(p[0][key],false);
+  assert.equal(cleanPreferences({dashboard:{panels:[{primary:'mass',font:999}]}}).panels[0].font,15);
+});
+test('linked energy ranges convert between linear and log coordinates safely',()=>{
+  const {energyRange}=require('../static/dashboard.js');
+  assert.deepEqual(energyRange([1,2],true,false),[10,100]);
+  assert.deepEqual(energyRange([10,100],false,true),[1,2]);
+  assert.deepEqual(energyRange([10,100],false,false),[10,100]);
+  assert.equal(energyRange([-10,100],false,true),undefined);
+  assert.equal(energyRange(undefined,true,false),undefined);
+});
