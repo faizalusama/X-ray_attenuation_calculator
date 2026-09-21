@@ -1,0 +1,2030 @@
+{
+ "schema_version": 1,
+ "dataset": {
+  "id": "stoichiometry",
+  "title": "Stoichiometric ceramic, crystal and binder phases",
+  "publisher": "X-ray Attenuation Workbench project",
+  "license": "MIT (this project)",
+  "method": "Composition follows exactly from the chemical formula, or for designated solid solutions such as 3Y-TZP from the designation. Densities are typical values without a checked citation and are marked unverified entry by entry.",
+  "caveats": [
+   "Real specimens contain dopants, impurities, secondary phases, porosity and sintering aids.",
+   "Densities are not traceable to a source; use measured bulk density for quantitative work."
+  ]
+ },
+ "entries": [
+  {
+   "id": "stoich-alumina-corundum",
+   "name": "Alumina (α-Al2O3, corundum)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Al2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.987,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-magnesia",
+   "name": "Magnesia (MgO, periclase)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "MgO",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.58,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-calcia",
+   "name": "Calcia (CaO)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CaO",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.34,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-silica-fused",
+   "name": "Silica, fused (amorphous SiO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SiO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.2,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-silica-quartz",
+   "name": "Quartz (α-SiO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SiO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.65,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-titania-rutile",
+   "name": "Titania, rutile (TiO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TiO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.25,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-titania-anatase",
+   "name": "Titania, anatase (TiO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TiO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.89,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zirconia-monoclinic",
+   "name": "Zirconia, monoclinic (ZrO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.68,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zirconia-3y",
+   "name": "3 mol% yttria-stabilised zirconia (3Y-TZP)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrO2",
+      "fraction": 97
+     },
+     {
+      "formula": "Y2O3",
+      "fraction": 3
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.05,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Composition follows from the 3 mol% Y2O3 designation."
+  },
+  {
+   "id": "stoich-zirconia-8y",
+   "name": "8 mol% yttria-stabilised zirconia (8YSZ)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrO2",
+      "fraction": 92
+     },
+     {
+      "formula": "Y2O3",
+      "fraction": 8
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.9,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Composition follows from the 8 mol% Y2O3 designation."
+  },
+  {
+   "id": "stoich-hafnia",
+   "name": "Hafnia (HfO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "HfO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 9.68,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-yttria",
+   "name": "Yttria (Y2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Y2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.01,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-ceria",
+   "name": "Ceria (CeO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CeO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.22,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zinc-oxide",
+   "name": "Zinc oxide (ZnO)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZnO",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.61,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-beryllia",
+   "name": "Beryllia (BeO)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BeO",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.01,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-spinel",
+   "name": "Magnesium aluminate spinel (MgAl2O4)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "MgAl2O4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.58,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-mullite",
+   "name": "Mullite (3Al2O3·2SiO2)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Al6Si2O13",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.16,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Stoichiometric 3:2 mullite; commercial mullites vary."
+  },
+  {
+   "id": "stoich-zircon",
+   "name": "Zircon (ZrSiO4)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrSiO4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.65,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lanthana",
+   "name": "Lanthana (La2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "La2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.51,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-gadolinia",
+   "name": "Gadolinia, cubic (Gd2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Gd2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.41,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-hematite",
+   "name": "Hematite (α-Fe2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Fe2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.26,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-magnetite",
+   "name": "Magnetite (Fe3O4)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Fe3O4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.18,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-nickel-oxide",
+   "name": "Nickel oxide (NiO)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "NiO",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.67,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-chromia",
+   "name": "Chromia (Cr2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Cr2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.22,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tin-oxide",
+   "name": "Tin dioxide (SnO2, cassiterite)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SnO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.95,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tungsten-trioxide",
+   "name": "Tungsten trioxide (WO3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "WO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.16,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tantala",
+   "name": "Tantalum pentoxide (Ta2O5)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ta2O5",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 8.2,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-niobia",
+   "name": "Niobium pentoxide (Nb2O5)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Nb2O5",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.6,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-bismuth-oxide",
+   "name": "Bismuth oxide (α-Bi2O3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Bi2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 8.9,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-aluminium-titanate",
+   "name": "Aluminium titanate (Al2TiO5)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Al2TiO5",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.7,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lanthanum-aluminate",
+   "name": "Lanthanum aluminate (LaAlO3)",
+   "category": "oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "LaAlO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.52,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-boron-oxide",
+   "name": "Boron oxide, vitreous (B2O3)",
+   "category": "glass",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "B2O3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.84,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-urania",
+   "name": "Uranium dioxide (UO2)",
+   "category": "nuclear_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "UO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 10.97,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-thoria",
+   "name": "Thorium dioxide (ThO2)",
+   "category": "nuclear_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ThO2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 10.0,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-cordierite",
+   "name": "Cordierite (Mg2Al4Si5O18)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Mg2Al4Si5O18",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.51,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-forsterite",
+   "name": "Forsterite (Mg2SiO4)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Mg2SiO4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.22,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-enstatite",
+   "name": "Enstatite, steatite phase (MgSiO3)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "MgSiO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.2,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-wollastonite",
+   "name": "Wollastonite (CaSiO3)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CaSiO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.9,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-anorthite",
+   "name": "Anorthite (CaAl2Si2O8)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CaAl2Si2O8",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.76,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-kaolinite",
+   "name": "Kaolinite (Al2Si2O5(OH)4)",
+   "category": "silicate",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Al2Si2O5(OH)4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.6,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-hydroxyapatite",
+   "name": "Hydroxyapatite (Ca10(PO4)6(OH)2)",
+   "category": "bioceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ca10(PO4)6(OH)2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.16,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tricalcium-phosphate-beta",
+   "name": "β-Tricalcium phosphate (Ca3(PO4)2)",
+   "category": "bioceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ca3(PO4)2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.07,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-barium-titanate",
+   "name": "Barium titanate (BaTiO3)",
+   "category": "electroceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BaTiO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.02,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-strontium-titanate",
+   "name": "Strontium titanate (SrTiO3)",
+   "category": "electroceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SrTiO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.12,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lead-titanate",
+   "name": "Lead titanate (PbTiO3)",
+   "category": "electroceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "PbTiO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.97,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lithium-niobate",
+   "name": "Lithium niobate (LiNbO3)",
+   "category": "electroceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "LiNbO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.64,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lithium-tantalate",
+   "name": "Lithium tantalate (LiTaO3)",
+   "category": "electroceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "LiTaO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.46,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-yig",
+   "name": "Yttrium iron garnet (Y3Fe5O12)",
+   "category": "magnetic_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Y3Fe5O12",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.17,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-barium-hexaferrite",
+   "name": "Barium hexaferrite (BaFe12O19)",
+   "category": "magnetic_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BaFe12O19",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.28,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-strontium-hexaferrite",
+   "name": "Strontium hexaferrite (SrFe12O19)",
+   "category": "magnetic_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SrFe12O19",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.1,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-yag",
+   "name": "Yttrium aluminium garnet (Y3Al5O12)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Y3Al5O12",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.56,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host; activators such as Ce are not included."
+  },
+  {
+   "id": "stoich-luag",
+   "name": "Lutetium aluminium garnet (Lu3Al5O12)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Lu3Al5O12",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.73,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host."
+  },
+  {
+   "id": "stoich-ggg",
+   "name": "Gadolinium gallium garnet (Gd3Ga5O12)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Gd3Ga5O12",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.09,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host."
+  },
+  {
+   "id": "stoich-lso",
+   "name": "Lutetium oxyorthosilicate (Lu2SiO5)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Lu2SiO5",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.4,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host; LYSO compositions vary and are not included."
+  },
+  {
+   "id": "stoich-yap",
+   "name": "Yttrium aluminium perovskite (YAlO3)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "YAlO3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.37,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host."
+  },
+  {
+   "id": "stoich-bgo",
+   "name": "Bismuth germanate (Bi4Ge3O12)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Bi4Ge3O12",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.13,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-cadmium-tungstate",
+   "name": "Cadmium tungstate (CdWO4)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CdWO4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.9,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lead-tungstate",
+   "name": "Lead tungstate (PbWO4)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "PbWO4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 8.28,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-calcium-tungstate",
+   "name": "Calcium tungstate (CaWO4)",
+   "category": "scintillator",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CaWO4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.06,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-barium-fluoride",
+   "name": "Barium fluoride (BaF2)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BaF2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.89,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-magnesium-fluoride",
+   "name": "Magnesium fluoride (MgF2)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "MgF2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.15,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-strontium-fluoride",
+   "name": "Strontium fluoride (SrF2)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SrF2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.24,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lead-fluoride",
+   "name": "Lead fluoride (PbF2)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "PbF2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.77,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-sodium-iodide",
+   "name": "Sodium iodide (NaI)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "NaI",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.67,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host; Tl activator not included."
+  },
+  {
+   "id": "stoich-lanthanum-bromide",
+   "name": "Lanthanum bromide (LaBr3)",
+   "category": "halide",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "LaBr3",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.08,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Undoped host; Ce activator not included."
+  },
+  {
+   "id": "stoich-silicon-carbide",
+   "name": "Silicon carbide (SiC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "SiC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.21,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-silicon-nitride",
+   "name": "Silicon nitride (β-Si3N4)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Si3N4",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.19,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-aluminium-nitride",
+   "name": "Aluminium nitride (AlN)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "AlN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.26,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-boron-nitride-hex",
+   "name": "Boron nitride, hexagonal (h-BN)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.27,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-boron-nitride-cubic",
+   "name": "Boron nitride, cubic (c-BN)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "BN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.48,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-boron-carbide",
+   "name": "Boron carbide (B4C)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "B4C",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.52,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-titanium-carbide",
+   "name": "Titanium carbide (TiC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TiC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.93,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-titanium-nitride",
+   "name": "Titanium nitride (TiN)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TiN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.4,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-titanium-diboride",
+   "name": "Titanium diboride (TiB2)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TiB2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.52,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zirconium-carbide",
+   "name": "Zirconium carbide (ZrC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.73,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zirconium-nitride",
+   "name": "Zirconium nitride (ZrN)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.09,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zirconium-diboride",
+   "name": "Zirconium diboride (ZrB2)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZrB2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.09,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-hafnium-carbide",
+   "name": "Hafnium carbide (HfC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "HfC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 12.2,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-hafnium-diboride",
+   "name": "Hafnium diboride (HfB2)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "HfB2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 11.2,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tantalum-carbide",
+   "name": "Tantalum carbide (TaC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "TaC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 14.5,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-niobium-carbide",
+   "name": "Niobium carbide (NbC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "NbC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.82,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tungsten-carbide",
+   "name": "Tungsten carbide (WC)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "WC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 15.63,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   },
+   "notes": "Binder-free WC; cemented carbides contain Co or Ni."
+  },
+  {
+   "id": "stoich-chromium-carbide",
+   "name": "Chromium carbide (Cr3C2)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Cr3C2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.68,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-molybdenum-disilicide",
+   "name": "Molybdenum disilicide (MoSi2)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "MoSi2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.26,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-lanthanum-hexaboride",
+   "name": "Lanthanum hexaboride (LaB6)",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "LaB6",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.72,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-ti3sic2",
+   "name": "MAX phase Ti3SiC2",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ti3SiC2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.53,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-ti2alc",
+   "name": "MAX phase Ti2AlC",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ti2AlC",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.11,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-ti3alc2",
+   "name": "MAX phase Ti3AlC2",
+   "category": "non_oxide_ceramic",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ti3AlC2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.25,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zinc-sulfide",
+   "name": "Zinc sulfide (ZnS, sphalerite)",
+   "category": "semiconductor",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZnS",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.09,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-zinc-selenide",
+   "name": "Zinc selenide (ZnSe)",
+   "category": "semiconductor",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "ZnSe",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.27,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-gallium-nitride",
+   "name": "Gallium nitride (GaN)",
+   "category": "semiconductor",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "GaN",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.15,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-alite",
+   "name": "Tricalcium silicate, alite (Ca3SiO5)",
+   "category": "cement_phase",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ca3SiO5",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.15,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-tricalcium-aluminate",
+   "name": "Tricalcium aluminate (Ca3Al2O6)",
+   "category": "cement_phase",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ca3Al2O6",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.04,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-portlandite",
+   "name": "Portlandite (Ca(OH)2)",
+   "category": "cement_phase",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "Ca(OH)2",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.24,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  },
+  {
+   "id": "stoich-gypsum",
+   "name": "Gypsum (CaSO4·2H2O)",
+   "category": "cement_phase",
+   "tier": "stoichiometric",
+   "composition": {
+    "basis": "mole",
+    "components": [
+     {
+      "formula": "CaSO4·2H2O",
+      "fraction": 1.0
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.32,
+    "kind": "typical",
+    "status": "unverified",
+    "note": "Typical full-density value entered without a checked citation. Replace with the measured bulk density of your specimen."
+   }
+  }
+ ]
+}

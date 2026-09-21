@@ -1,0 +1,1999 @@
+{
+ "schema_version": 1,
+ "dataset": {
+  "id": "nist-srd126-table2",
+  "title": "Tables of X-Ray Mass Attenuation Coefficients and Mass Energy-Absorption Coefficients, Table 2: material constants and composition",
+  "authors": "J. H. Hubbell and S. M. Seltzer",
+  "publisher": "National Institute of Standards and Technology (NIST SRD 126)",
+  "url": "https://physics.nist.gov/PhysRefData/XrayMassCoef/tab2.html",
+  "doi": "10.18434/T4D01F",
+  "license": "US Government work; not subject to copyright in the United States.",
+  "retrieved_utc": "2026-09-21T17:15:20+00:00",
+  "retrieved_sha256": "b38708e733d37ab01401c006c1dd0729008f188ad651516ffff4ef33ee0a5eba",
+  "caveats": [
+   "Some density values in the source table are only nominal; use a measured density for quantitative work.",
+   "Human-tissue compositions in the source were taken from ICRU Report 44 (1989).",
+   "Categories are this project's editorial classification, not part of the source."
+  ]
+ },
+ "entries": [
+  {
+   "id": "nist-adipose-tissue-icru-44",
+   "name": "Adipose Tissue (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.114
+     },
+     {
+      "formula": "C",
+      "fraction": 0.598
+     },
+     {
+      "formula": "N",
+      "fraction": 0.007
+     },
+     {
+      "formula": "O",
+      "fraction": 0.278
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "S",
+      "fraction": 0.001
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.001
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 0.95,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55579,
+    "mean_excitation_eV": 64.8
+   },
+   "source_name": "Adipose Tissue (ICRU-44)"
+  },
+  {
+   "id": "nist-air-dry-near-sea-level",
+   "name": "Air, Dry (near sea level)",
+   "category": "gas",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "C",
+      "fraction": 0.000124
+     },
+     {
+      "formula": "N",
+      "fraction": 0.755268
+     },
+     {
+      "formula": "O",
+      "fraction": 0.231781
+     },
+     {
+      "formula": "Ar",
+      "fraction": 0.012827
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 0.001205,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.49919,
+    "mean_excitation_eV": 85.7
+   },
+   "source_name": "Air, Dry (near sea level)"
+  },
+  {
+   "id": "nist-alanine",
+   "name": "Alanine",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.079192
+     },
+     {
+      "formula": "C",
+      "fraction": 0.404437
+     },
+     {
+      "formula": "N",
+      "fraction": 0.157213
+     },
+     {
+      "formula": "O",
+      "fraction": 0.359157
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.424,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.53876,
+    "mean_excitation_eV": 71.9
+   },
+   "source_name": "Alanine"
+  },
+  {
+   "id": "nist-b-100-bone-equivalent-plastic",
+   "name": "B-100 Bone-Equivalent Plastic",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.065473
+     },
+     {
+      "formula": "C",
+      "fraction": 0.536942
+     },
+     {
+      "formula": "N",
+      "fraction": 0.0215
+     },
+     {
+      "formula": "O",
+      "fraction": 0.032084
+     },
+     {
+      "formula": "F",
+      "fraction": 0.167415
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.176585
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.45,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.5274,
+    "mean_excitation_eV": 85.9
+   },
+   "source_name": "B-100 Bone-Equivalent Plastic"
+  },
+  {
+   "id": "nist-bakelite",
+   "name": "Bakelite",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.057444
+     },
+     {
+      "formula": "C",
+      "fraction": 0.774589
+     },
+     {
+      "formula": "O",
+      "fraction": 0.167968
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.25,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.52792,
+    "mean_excitation_eV": 72.4
+   },
+   "source_name": "Bakelite"
+  },
+  {
+   "id": "nist-blood-whole-icru-44",
+   "name": "Blood, Whole (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.102
+     },
+     {
+      "formula": "C",
+      "fraction": 0.11
+     },
+     {
+      "formula": "N",
+      "fraction": 0.033
+     },
+     {
+      "formula": "O",
+      "fraction": 0.745
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "P",
+      "fraction": 0.001
+     },
+     {
+      "formula": "S",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.003
+     },
+     {
+      "formula": "K",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Fe",
+      "fraction": 0.001
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.06,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54999,
+    "mean_excitation_eV": 75.2
+   },
+   "source_name": "Blood, Whole (ICRU-44)"
+  },
+  {
+   "id": "nist-bone-cortical-icru-44",
+   "name": "Bone, Cortical (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.034
+     },
+     {
+      "formula": "C",
+      "fraction": 0.155
+     },
+     {
+      "formula": "N",
+      "fraction": 0.042
+     },
+     {
+      "formula": "O",
+      "fraction": 0.435
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "Mg",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.103
+     },
+     {
+      "formula": "S",
+      "fraction": 0.003
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.225
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.92,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.51478,
+    "mean_excitation_eV": 112.0
+   },
+   "source_name": "Bone, Cortical (ICRU-44)"
+  },
+  {
+   "id": "nist-brain-grey-white-matter-icru-44",
+   "name": "Brain, Grey/White Matter (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.107
+     },
+     {
+      "formula": "C",
+      "fraction": 0.145
+     },
+     {
+      "formula": "N",
+      "fraction": 0.022
+     },
+     {
+      "formula": "O",
+      "fraction": 0.712
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.004
+     },
+     {
+      "formula": "S",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.003
+     },
+     {
+      "formula": "K",
+      "fraction": 0.003
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.04,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55239,
+    "mean_excitation_eV": 73.9
+   },
+   "source_name": "Brain, Grey/White Matter (ICRU-44)"
+  },
+  {
+   "id": "nist-breast-tissue-icru-44",
+   "name": "Breast Tissue (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.106
+     },
+     {
+      "formula": "C",
+      "fraction": 0.332
+     },
+     {
+      "formula": "N",
+      "fraction": 0.03
+     },
+     {
+      "formula": "O",
+      "fraction": 0.527
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "P",
+      "fraction": 0.001
+     },
+     {
+      "formula": "S",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.001
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.02,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55196,
+    "mean_excitation_eV": 70.3
+   },
+   "source_name": "Breast Tissue (ICRU-44)"
+  },
+  {
+   "id": "nist-c-552-air-equivalent-plastic",
+   "name": "C-552 Air-equivalent Plastic",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.024681
+     },
+     {
+      "formula": "C",
+      "fraction": 0.50161
+     },
+     {
+      "formula": "O",
+      "fraction": 0.004527
+     },
+     {
+      "formula": "F",
+      "fraction": 0.465209
+     },
+     {
+      "formula": "Si",
+      "fraction": 0.003973
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.76,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.49969,
+    "mean_excitation_eV": 86.8
+   },
+   "source_name": "C-552 Air-equivalent Plastic"
+  },
+  {
+   "id": "nist-cadmium-telluride",
+   "name": "Cadmium Telluride",
+   "category": "semiconductor",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "Cd",
+      "fraction": 0.468358
+     },
+     {
+      "formula": "Te",
+      "fraction": 0.531642
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.2,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.41665,
+    "mean_excitation_eV": 539.3
+   },
+   "source_name": "Cadmium Telluride"
+  },
+  {
+   "id": "nist-calcium-fluoride",
+   "name": "Calcium Fluoride",
+   "category": "halide",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "F",
+      "fraction": 0.486672
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.513328
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.18,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.48671,
+    "mean_excitation_eV": 166.0
+   },
+   "source_name": "Calcium Fluoride"
+  },
+  {
+   "id": "nist-calcium-sulfate",
+   "name": "Calcium Sulfate",
+   "category": "sulfate",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "O",
+      "fraction": 0.470081
+     },
+     {
+      "formula": "S",
+      "fraction": 0.235534
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.294385
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.96,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.49948,
+    "mean_excitation_eV": 152.3
+   },
+   "source_name": "Calcium Sulfate"
+  },
+  {
+   "id": "nist-15-mmol-l-1-ceric-ammonium-sulfate-solution",
+   "name": "15 mmol L-1 Ceric Ammonium Sulfate Solution",
+   "category": "liquid",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.107694
+     },
+     {
+      "formula": "N",
+      "fraction": 0.000816
+     },
+     {
+      "formula": "O",
+      "fraction": 0.875172
+     },
+     {
+      "formula": "S",
+      "fraction": 0.014279
+     },
+     {
+      "formula": "Ce",
+      "fraction": 0.00204
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.03,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55282,
+    "mean_excitation_eV": 76.7
+   },
+   "source_name": "15 mmol L-1 Ceric Ammonium Sulfate Solution"
+  },
+  {
+   "id": "nist-cesium-iodide",
+   "name": "Cesium Iodide",
+   "category": "halide",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "I",
+      "fraction": 0.488451
+     },
+     {
+      "formula": "Cs",
+      "fraction": 0.511549
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 4.51,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.41569,
+    "mean_excitation_eV": 553.1
+   },
+   "source_name": "Cesium Iodide"
+  },
+  {
+   "id": "nist-concrete-ordinary",
+   "name": "Concrete, Ordinary",
+   "category": "concrete",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.0221
+     },
+     {
+      "formula": "C",
+      "fraction": 0.002484
+     },
+     {
+      "formula": "O",
+      "fraction": 0.57493
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.015208
+     },
+     {
+      "formula": "Mg",
+      "fraction": 0.001266
+     },
+     {
+      "formula": "Al",
+      "fraction": 0.019953
+     },
+     {
+      "formula": "Si",
+      "fraction": 0.304627
+     },
+     {
+      "formula": "K",
+      "fraction": 0.010045
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.042951
+     },
+     {
+      "formula": "Fe",
+      "fraction": 0.006435
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.3,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.50932,
+    "mean_excitation_eV": 124.5
+   },
+   "source_name": "Concrete, Ordinary"
+  },
+  {
+   "id": "nist-concrete-barite-type-ba",
+   "name": "Concrete, Barite (TYPE BA)",
+   "category": "concrete",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.003585
+     },
+     {
+      "formula": "O",
+      "fraction": 0.311622
+     },
+     {
+      "formula": "Mg",
+      "fraction": 0.001195
+     },
+     {
+      "formula": "Al",
+      "fraction": 0.004183
+     },
+     {
+      "formula": "Si",
+      "fraction": 0.010457
+     },
+     {
+      "formula": "S",
+      "fraction": 0.107858
+     },
+     {
+      "formula": "Ca",
+      "fraction": 0.050194
+     },
+     {
+      "formula": "Fe",
+      "fraction": 0.047505
+     },
+     {
+      "formula": "Ba",
+      "fraction": 0.4634
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.35,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.45714,
+    "mean_excitation_eV": 248.2
+   },
+   "source_name": "Concrete, Barite (TYPE BA)"
+  },
+  {
+   "id": "nist-eye-lens-icru-44",
+   "name": "Eye Lens (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.096
+     },
+     {
+      "formula": "C",
+      "fraction": 0.195
+     },
+     {
+      "formula": "N",
+      "fraction": 0.057
+     },
+     {
+      "formula": "O",
+      "fraction": 0.646
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "P",
+      "fraction": 0.001
+     },
+     {
+      "formula": "S",
+      "fraction": 0.003
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.001
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.07,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54709,
+    "mean_excitation_eV": 74.3
+   },
+   "source_name": "Eye Lens (ICRU-44)"
+  },
+  {
+   "id": "nist-ferrous-sulfate-standard-fricke",
+   "name": "Ferrous Sulfate Standard Fricke",
+   "category": "liquid",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.108376
+     },
+     {
+      "formula": "O",
+      "fraction": 0.878959
+     },
+     {
+      "formula": "Na",
+      "fraction": 2.2e-05
+     },
+     {
+      "formula": "S",
+      "fraction": 0.012553
+     },
+     {
+      "formula": "Cl",
+      "fraction": 3.5e-05
+     },
+     {
+      "formula": "Fe",
+      "fraction": 5.5e-05
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.024,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55334,
+    "mean_excitation_eV": 76.3
+   },
+   "source_name": "Ferrous Sulfate Standard Fricke"
+  },
+  {
+   "id": "nist-gadolinium-oxysulfide",
+   "name": "Gadolinium Oxysulfide",
+   "category": "oxide_ceramic",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "O",
+      "fraction": 0.084527
+     },
+     {
+      "formula": "S",
+      "fraction": 0.084704
+     },
+     {
+      "formula": "Gd",
+      "fraction": 0.830769
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 7.44,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.42265,
+    "mean_excitation_eV": 493.3
+   },
+   "source_name": "Gadolinium Oxysulfide"
+  },
+  {
+   "id": "nist-gafchromic-sensor",
+   "name": "Gafchromic Sensor",
+   "category": "detector_medium",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.0897
+     },
+     {
+      "formula": "C",
+      "fraction": 0.6058
+     },
+     {
+      "formula": "N",
+      "fraction": 0.1122
+     },
+     {
+      "formula": "O",
+      "fraction": 0.1923
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.3,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54384,
+    "mean_excitation_eV": 67.2
+   },
+   "source_name": "Gafchromic Sensor"
+  },
+  {
+   "id": "nist-gallium-arsenide",
+   "name": "Gallium Arsenide",
+   "category": "semiconductor",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "Ga",
+      "fraction": 0.48203
+     },
+     {
+      "formula": "As",
+      "fraction": 0.51797
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 5.31,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.44246,
+    "mean_excitation_eV": 384.9
+   },
+   "source_name": "Gallium Arsenide"
+  },
+  {
+   "id": "nist-glass-borosilicate-pyrex",
+   "name": "Glass, Borosilicate (Pyrex)",
+   "category": "glass",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "B",
+      "fraction": 0.040066
+     },
+     {
+      "formula": "O",
+      "fraction": 0.539559
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.028191
+     },
+     {
+      "formula": "Al",
+      "fraction": 0.011644
+     },
+     {
+      "formula": "Si",
+      "fraction": 0.37722
+     },
+     {
+      "formula": "K",
+      "fraction": 0.003321
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.23,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.49707,
+    "mean_excitation_eV": 134.0
+   },
+   "source_name": "Glass, Borosilicate (Pyrex)"
+  },
+  {
+   "id": "nist-glass-lead",
+   "name": "Glass, Lead",
+   "category": "glass",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "O",
+      "fraction": 0.156453
+     },
+     {
+      "formula": "Si",
+      "fraction": 0.080866
+     },
+     {
+      "formula": "Ti",
+      "fraction": 0.008092
+     },
+     {
+      "formula": "As",
+      "fraction": 0.002651
+     },
+     {
+      "formula": "Pb",
+      "fraction": 0.751938
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.22,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.42101,
+    "mean_excitation_eV": 526.4
+   },
+   "source_name": "Glass, Lead"
+  },
+  {
+   "id": "nist-lithium-fluoride",
+   "name": "Lithium Fluoride",
+   "category": "halide",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "Li",
+      "fraction": 0.267585
+     },
+     {
+      "formula": "F",
+      "fraction": 0.732415
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.635,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.46262,
+    "mean_excitation_eV": 94.0
+   },
+   "source_name": "Lithium Fluride"
+  },
+  {
+   "id": "nist-lithium-tetraborate",
+   "name": "Lithium Tetraborate",
+   "category": "borate",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "Li",
+      "fraction": 0.082081
+     },
+     {
+      "formula": "B",
+      "fraction": 0.255715
+     },
+     {
+      "formula": "O",
+      "fraction": 0.662204
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.44,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.48485,
+    "mean_excitation_eV": 94.6
+   },
+   "source_name": "Lithium Tetraborate"
+  },
+  {
+   "id": "nist-lung-tissue-icru-44",
+   "name": "Lung Tissue (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.103
+     },
+     {
+      "formula": "C",
+      "fraction": 0.105
+     },
+     {
+      "formula": "N",
+      "fraction": 0.031
+     },
+     {
+      "formula": "O",
+      "fraction": 0.749
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.002
+     },
+     {
+      "formula": "S",
+      "fraction": 0.003
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.003
+     },
+     {
+      "formula": "K",
+      "fraction": 0.002
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.05,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55048,
+    "mean_excitation_eV": 75.2
+   },
+   "source_name": "Lung Tissue (ICRU-44)"
+  },
+  {
+   "id": "nist-magnesium-tetraborate",
+   "name": "Magnesium Tetraborate",
+   "category": "borate",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "B",
+      "fraction": 0.24087
+     },
+     {
+      "formula": "O",
+      "fraction": 0.623762
+     },
+     {
+      "formula": "Mg",
+      "fraction": 0.135367
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.53,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.49012,
+    "mean_excitation_eV": 108.3
+   },
+   "source_name": "Magnesium Tetroborate"
+  },
+  {
+   "id": "nist-mercuric-iodide",
+   "name": "Mercuric Iodide",
+   "category": "halide",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "I",
+      "fraction": 0.55856
+     },
+     {
+      "formula": "Hg",
+      "fraction": 0.44144
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 6.36,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.40933,
+    "mean_excitation_eV": 684.5
+   },
+   "source_name": "Mercuric Iodide"
+  },
+  {
+   "id": "nist-muscle-skeletal-icru-44",
+   "name": "Muscle, Skeletal (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.102
+     },
+     {
+      "formula": "C",
+      "fraction": 0.143
+     },
+     {
+      "formula": "N",
+      "fraction": 0.034
+     },
+     {
+      "formula": "O",
+      "fraction": 0.71
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.001
+     },
+     {
+      "formula": "P",
+      "fraction": 0.002
+     },
+     {
+      "formula": "S",
+      "fraction": 0.003
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.001
+     },
+     {
+      "formula": "K",
+      "fraction": 0.004
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.05,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55,
+    "mean_excitation_eV": 74.6
+   },
+   "source_name": "Muscle, Skeletal (ICRU-44)"
+  },
+  {
+   "id": "nist-ovary-icru-44",
+   "name": "Ovary (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.105
+     },
+     {
+      "formula": "C",
+      "fraction": 0.093
+     },
+     {
+      "formula": "N",
+      "fraction": 0.024
+     },
+     {
+      "formula": "O",
+      "fraction": 0.768
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.002
+     },
+     {
+      "formula": "S",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.002
+     },
+     {
+      "formula": "K",
+      "fraction": 0.002
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.05,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55149,
+    "mean_excitation_eV": 75.0
+   },
+   "source_name": "Ovary (ICRU-44)"
+  },
+  {
+   "id": "nist-photographic-emulsion-kodak-type-aa",
+   "name": "Photographic Emulsion (Kodak Type AA)",
+   "category": "detector_medium",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.0305
+     },
+     {
+      "formula": "C",
+      "fraction": 0.2107
+     },
+     {
+      "formula": "N",
+      "fraction": 0.0721
+     },
+     {
+      "formula": "O",
+      "fraction": 0.1632
+     },
+     {
+      "formula": "Br",
+      "fraction": 0.2228
+     },
+     {
+      "formula": "Ag",
+      "fraction": 0.3007
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.2,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.48176,
+    "mean_excitation_eV": 179.0
+   },
+   "source_name": "Photographic Emulsion (Kodak Type AA)"
+  },
+  {
+   "id": "nist-photographic-emulsion-standard-nuclear",
+   "name": "Photographic Emulsion  (Standard Nuclear)",
+   "category": "detector_medium",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.0141
+     },
+     {
+      "formula": "C",
+      "fraction": 0.072261
+     },
+     {
+      "formula": "N",
+      "fraction": 0.01932
+     },
+     {
+      "formula": "O",
+      "fraction": 0.066101
+     },
+     {
+      "formula": "S",
+      "fraction": 0.00189
+     },
+     {
+      "formula": "Br",
+      "fraction": 0.349104
+     },
+     {
+      "formula": "Ag",
+      "fraction": 0.474105
+     },
+     {
+      "formula": "I",
+      "fraction": 0.00312
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 3.815,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.45453,
+    "mean_excitation_eV": 331.0
+   },
+   "source_name": "Photographic Emulsion  (Standard Nuclear)"
+  },
+  {
+   "id": "nist-plastic-scintillator-vinyltoluene",
+   "name": "Plastic Scintillator, Vinyltoluene",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.085
+     },
+     {
+      "formula": "C",
+      "fraction": 0.915
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.032,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54141,
+    "mean_excitation_eV": 64.7
+   },
+   "source_name": "Plastic Scintillator, Vinyltoluene"
+  },
+  {
+   "id": "nist-polyethylene",
+   "name": "Polyethylene",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.143716
+     },
+     {
+      "formula": "C",
+      "fraction": 0.856284
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 0.93,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.57033,
+    "mean_excitation_eV": 57.4
+   },
+   "source_name": "Polyethylene"
+  },
+  {
+   "id": "nist-polyethylene-terephthalate-mylar",
+   "name": "Polyethylene Terephthalate, (Mylar)",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.04196
+     },
+     {
+      "formula": "C",
+      "fraction": 0.625016
+     },
+     {
+      "formula": "O",
+      "fraction": 0.333024
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.38,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.52037,
+    "mean_excitation_eV": 78.7
+   },
+   "source_name": "Polyethylene Terephthalate, (Mylar)"
+  },
+  {
+   "id": "nist-polymethyl-methacrylate",
+   "name": "Polymethyl Methacrylate",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.080541
+     },
+     {
+      "formula": "C",
+      "fraction": 0.599846
+     },
+     {
+      "formula": "O",
+      "fraction": 0.319613
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.19,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.53937,
+    "mean_excitation_eV": 74.0
+   },
+   "source_name": "Polymethyl Methacrylate"
+  },
+  {
+   "id": "nist-polystyrene",
+   "name": "Polystyrene",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.077421
+     },
+     {
+      "formula": "C",
+      "fraction": 0.922579
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.06,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.53768,
+    "mean_excitation_eV": 68.7
+   },
+   "source_name": "Polystyrene"
+  },
+  {
+   "id": "nist-polytetrafluoroethylene-teflon",
+   "name": "Polytetrafluoroethylene, (Teflon)",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "C",
+      "fraction": 0.240183
+     },
+     {
+      "formula": "F",
+      "fraction": 0.759818
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 2.25,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.47993,
+    "mean_excitation_eV": 99.1
+   },
+   "source_name": "Polytetrafluoroethylene, (Teflon)"
+  },
+  {
+   "id": "nist-polyvinyl-chloride",
+   "name": "Polyvinyl Chloride",
+   "category": "polymer",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.048382
+     },
+     {
+      "formula": "C",
+      "fraction": 0.384361
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.567257
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.406,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.51201,
+    "mean_excitation_eV": 108.2
+   },
+   "source_name": "Polyvinyl Chloride"
+  },
+  {
+   "id": "nist-radiochromic-dye-film-nylon-base",
+   "name": "Radiochromic Dye Film, Nylon Base",
+   "category": "detector_medium",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.101996
+     },
+     {
+      "formula": "C",
+      "fraction": 0.654396
+     },
+     {
+      "formula": "N",
+      "fraction": 0.098915
+     },
+     {
+      "formula": "O",
+      "fraction": 0.144693
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.08,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54987,
+    "mean_excitation_eV": 64.5
+   },
+   "source_name": "Radiochromic Dye Film, Nylon Base"
+  },
+  {
+   "id": "nist-testis-icru-44",
+   "name": "Testis (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.106
+     },
+     {
+      "formula": "C",
+      "fraction": 0.099
+     },
+     {
+      "formula": "N",
+      "fraction": 0.02
+     },
+     {
+      "formula": "O",
+      "fraction": 0.766
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.001
+     },
+     {
+      "formula": "S",
+      "fraction": 0.002
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.002
+     },
+     {
+      "formula": "K",
+      "fraction": 0.002
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.04,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.552,
+    "mean_excitation_eV": 74.7
+   },
+   "source_name": "Testis (ICRU-44)"
+  },
+  {
+   "id": "nist-tissue-soft-icru-44",
+   "name": "Tissue, Soft (ICRU-44)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.102
+     },
+     {
+      "formula": "C",
+      "fraction": 0.143
+     },
+     {
+      "formula": "N",
+      "fraction": 0.034
+     },
+     {
+      "formula": "O",
+      "fraction": 0.708
+     },
+     {
+      "formula": "Na",
+      "fraction": 0.002
+     },
+     {
+      "formula": "P",
+      "fraction": 0.003
+     },
+     {
+      "formula": "S",
+      "fraction": 0.003
+     },
+     {
+      "formula": "Cl",
+      "fraction": 0.002
+     },
+     {
+      "formula": "K",
+      "fraction": 0.003
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.06,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54996,
+    "mean_excitation_eV": 74.7
+   },
+   "source_name": "Tissue, Soft (ICRU-44)"
+  },
+  {
+   "id": "nist-tissue-soft-icru-four-component",
+   "name": "Tissue, Soft (ICRU Four-Component)",
+   "category": "biological_reference",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.101174
+     },
+     {
+      "formula": "C",
+      "fraction": 0.111
+     },
+     {
+      "formula": "N",
+      "fraction": 0.026
+     },
+     {
+      "formula": "O",
+      "fraction": 0.761826
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.0,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54975,
+    "mean_excitation_eV": 74.9
+   },
+   "source_name": "Tissue, Soft (ICRU Four-Component)"
+  },
+  {
+   "id": "nist-tissue-equivalent-gas-methane-based",
+   "name": "Tissue-Equivalent Gas, Methane Based",
+   "category": "gas",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.101873
+     },
+     {
+      "formula": "C",
+      "fraction": 0.456177
+     },
+     {
+      "formula": "N",
+      "fraction": 0.035172
+     },
+     {
+      "formula": "O",
+      "fraction": 0.406778
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 0.001064,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.54992,
+    "mean_excitation_eV": 61.2
+   },
+   "source_name": "Tissue-Equivalent Gas, Methane Based"
+  },
+  {
+   "id": "nist-tissue-equivalent-gas-propane-based",
+   "name": "Tissue-Equivalent Gas, Propane Based",
+   "category": "gas",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.102676
+     },
+     {
+      "formula": "C",
+      "fraction": 0.568937
+     },
+     {
+      "formula": "N",
+      "fraction": 0.035022
+     },
+     {
+      "formula": "O",
+      "fraction": 0.293365
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 0.001826,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55027,
+    "mean_excitation_eV": 59.5
+   },
+   "source_name": "Tissue-Equivalent Gas, Propane Based"
+  },
+  {
+   "id": "nist-water-liquid",
+   "name": "Water, Liquid",
+   "category": "liquid",
+   "tier": "reference_data",
+   "composition": {
+    "basis": "mass",
+    "components": [
+     {
+      "formula": "H",
+      "fraction": 0.111898
+     },
+     {
+      "formula": "O",
+      "fraction": 0.888102
+     }
+    ]
+   },
+   "density": {
+    "value_g_cm3": 1.0,
+    "kind": "nominal",
+    "status": "sourced",
+    "note": "NIST states that some density values in this table are only nominal."
+   },
+   "reference_constants": {
+    "z_over_a": 0.55508,
+    "mean_excitation_eV": 75.0
+   },
+   "source_name": "Water, Liquid"
+  }
+ ]
+}

@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from . import MODEL, __version__
+from . import MODEL, __version__, materials
 from ._types import JsonObject
 from .physics import presets
 from .results import run_calculation
@@ -63,6 +63,25 @@ def health() -> JsonObject:
 @app.get("/api/presets")
 def get_presets() -> JsonObject:
     return {"presets": presets()}
+
+
+@app.get("/api/materials")
+def list_materials(q: str = "", category: str | None = None, tier: str | None = None,
+                   verified_density: bool = False) -> JsonObject:
+    """Search the materials library. Every entry reports its tier and density status."""
+    found = materials.search(q, category=category, tier=tier, verified_density_only=verified_density)
+    return {"count": len(found), "materials": [m.summary() for m in found],
+            "categories": list(materials.CATEGORIES), "tiers": list(materials.TIERS)}
+
+
+@app.get("/api/materials/{identifier}")
+def material_detail(identifier: str, thickness_mm: float = 1.0) -> JsonObject:
+    """Full provenance for one entry, plus a ready-to-use calculation layer."""
+    try:
+        material = materials.get(identifier)
+    except ValueError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    return {**material.detail(), "layer": material.to_layer(thickness_mm)}
 
 
 @app.post("/api/calculate")
