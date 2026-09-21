@@ -90,10 +90,12 @@ testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra --strict-markers --strict-config"
 filterwarnings = [
-    "error",
-    # Upstream test-client deprecations; neither is raised by workbench code.
-    "default::DeprecationWarning:starlette.testclient",
-    "default:Using `httpx` with `starlette.testclient` is deprecated:",
+    # Warnings raised by this project's own code are errors: they signal a
+    # real problem we control. Upstream libraries resolve to different
+    # versions per platform and Python, and a deprecation notice in one of
+    # them must not fail the suite on some runners but not others.
+    "error:::xray_workbench",
+    "error:::tools",
 ]
 
 [tool.coverage.run]
