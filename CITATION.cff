@@ -1,15 +1,20 @@
-cff-version: 1.0.0
-message: "If you use this software, please cite it as below."
-title: "Energy Dependent X-ray Attenuation Calculator for single/multi component systems"
-version: "0.1.1"
-date-released: 2025-11-13
-doi: 10.5281/zenodo.17602371
-
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. Please also cite the underlying Elam atomic data; see THIRD_PARTY_NOTICES.md."
+title: "X-ray Attenuation Workbench for Multicomponent Materials and Multilayers"
+version: "1.0.0"
+type: software
+license: MIT
+# First stable release. It supersedes the 0.1.x calculator, whose original
+# citation (version DOI 10.5281/zenodo.17602371) is preserved in
+# legacy/CITATION.cff; that script double-weighted mass fractions.
+# The DOI below is the Zenodo *concept* DOI: it covers every version and
+# resolves to the newest, so citations aggregate across releases.
+doi: 10.5281/zenodo.17602370
+date-released: 2026-09-21
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
-
-abstract: >
-  Software for calculating energy-dependent X-ray attenuation,
-  transmission, and 1/e attenuation depth for multi-component systems such as oxide glasses or ceramics,
-  using Beer–Lambert law and mass attenuation coefficients from xraydb.
+repository-code: "https://github.com/faizalusama/X-ray_attenuation_calculator"
+abstract: >-
+  A local graphical and programmable workbench for narrow-beam X-ray
+  attenuation in multicomponent materials and planar multilayers.

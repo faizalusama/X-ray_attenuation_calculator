@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "configuration": {
+    "energy": {"min_keV": 5, "max_keV": 120, "reference_keV": 30, "points": 500, "spacing": "log"},
+    "layers": [
+      {"name": "Illustrative borosilicate glass", "basis": "mole", "components": [{"formula": "SiO2", "fraction": 80}, {"formula": "B2O3", "fraction": 15}, {"formula": "Na2O", "fraction": 5}], "density_g_cm3": 2.23, "density_mode": "bulk", "porosity": 0, "thickness_mm": 1, "angle_deg": 0, "density_uncertainty_pct": 1, "thickness_uncertainty_pct": 2},
+      {"name": "Aluminium support", "basis": "mass", "components": [{"formula": "Al", "fraction": 100}], "density_g_cm3": 2.7, "density_mode": "bulk", "porosity": 0, "thickness_mm": 0.1, "angle_deg": 0, "density_uncertainty_pct": 0.5, "thickness_uncertainty_pct": 1}
+    ],
+    "target_transmission": 0.1,
+    "spectrum": {"energy_keV": [10, 20, 30, 40, 60, 80, 100], "weights": [0.2, 0.7, 1, 0.9, 0.6, 0.3, 0.1], "weighting": "photon", "label": "Illustrative discrete spectrum"},
+    "uncertainty": {"enabled": true, "samples": 1000, "seed": 42}
+  }
+}
