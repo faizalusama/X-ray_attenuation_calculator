@@ -1,6 +1,6 @@
 # X-ray Attenuation Workbench
 
-A local scientific application for multicomponent glasses, ceramics, composites, filters, and planar multilayers. Version 1.0.0 is the first stable release of Mohamed Faizal Ussama Jalaludeen's X-ray attenuation work, superseding the 0.1.x calculator preserved under `legacy/`. It has not yet been published as a release.
+A local scientific application for multicomponent glasses, ceramics, composites, filters, and planar multilayers. Version 1.0.0 is the first stable release of Mohamed Faizal Ussama Jalaludeen's X-ray attenuation work, superseding the 0.1.x calculator preserved under `legacy/`. Released 21 September 2026; cite it via the Zenodo concept DOI [10.5281/zenodo.17602370](https://doi.org/10.5281/zenodo.17602370), which covers all versions.
 
 > **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
 

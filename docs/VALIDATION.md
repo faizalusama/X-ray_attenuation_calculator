@@ -138,7 +138,7 @@ identical coefficients, so edge labels are not interchangeable.
 
 ## Remaining release work
 
-The new application is an unpublished development build. Experimental validation, independent scientific review, additional operating-system installation testing, a formal license decision, and a version-specific release citation remain for publication. Transport of scattered/fluorescent photons, calibrated source generation, diffraction/near-edge fine structure, detector response, and broader correlated uncertainty are explicitly outside this implemented model; see [ROADMAP.md](ROADMAP.md).
+Version 1.0.0 was released on 21 September 2026. Experimental validation and independent scientific review remain outstanding. Transport of scattered/fluorescent photons, calibrated source generation, diffraction/near-edge fine structure, detector response, and broader correlated uncertainty are explicitly outside this implemented model; see [ROADMAP.md](ROADMAP.md).
 
 The licence decision is now made: the project is released under the MIT License, recorded in [LICENSE](../LICENSE), `CITATION.cff` and the package metadata, with third-party terms listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Experimental validation, independent scientific review, a version-specific release citation and installation testing on the operating systems now covered by CI remain outstanding.
 
