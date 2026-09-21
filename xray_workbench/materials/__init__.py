@@ -68,6 +68,8 @@ class Material:
     notes: str = ""
     literature: JsonObject | None = None
     reference_constants: JsonObject = field(default_factory=dict)
+    formula: str = ""
+    """Stoichiometric formula, when an elemental entry corresponds to one."""
 
     @property
     def density_verified(self) -> bool:
@@ -77,7 +79,7 @@ class Material:
         return {
             "id": self.id, "name": self.name, "category": self.category, "tier": self.tier,
             "density_g_cm3": self.density_g_cm3, "density_status": self.density_status,
-            "dataset": self.dataset_id,
+            "dataset": self.dataset_id, "formulas": [formula for formula, _ in self.components] + ([self.formula] if self.formula else []),
         }
 
     def detail(self) -> JsonObject:
@@ -185,6 +187,7 @@ def _parse_entry(raw: Any, dataset_id: str, index: int) -> Material:
         density_status=str(status), density_note=density.get("note", ""), dataset_id=dataset_id,
         notes=raw.get("notes", ""), literature=literature,
         reference_constants=raw.get("reference_constants", {}),
+        formula=raw.get("formula", ""),
     )
 
 
@@ -248,4 +251,41 @@ def search(query: str = "", category: str | None = None, tier: str | None = None
     return results
 
 
-__all__ = ["CATEGORIES", "TIERS", "LibraryError", "Material", "datasets", "get", "load", "search"]
+def landscape(energy_keV: float, thickness_mm: float = 1.0) -> list[JsonObject]:
+    """Evaluate every entry at one energy, for a library-wide overview plot.
+
+    At a single energy the narrow-beam mixture rule is just the mass-fraction
+    weighted sum of elemental coefficients, so each element is fetched once
+    for the whole library instead of running the full engine per entry.
+    ``tests/test_materials.py`` checks this against the full engine.
+
+    Each point uses the entry's own density, so ``density_status`` travels with
+    it: a point computed from an unverified density is not a sourced result.
+    """
+    from math import exp, log
+
+    import numpy as np
+
+    from ..backends import get_backend
+    from ..physics import _prepare_layer  # the engine's own normalisation, not a copy
+
+    backend = get_backend()
+    energy = np.array([float(energy_keV)])
+    prepared = [(material, _prepare_layer(material.to_layer(thickness_mm), 0)) for material in load()]
+    coefficient: dict[str, float] = {}
+    for symbol in sorted({s for _, layer in prepared for s in layer.elements}):
+        channels = backend.mass_attenuation(symbol, energy)
+        coefficient[symbol] = float(sum(values[0] for values in channels.values()))
+    points = []
+    for material, layer in prepared:
+        mu_mass = sum(weight * coefficient[symbol] for symbol, weight in layer.elements.items())
+        mu_linear = mu_mass * layer.density
+        points.append({**material.summary(),
+                       "mu_mass_cm2_g": mu_mass,
+                       "mu_linear_cm_inv": mu_linear,
+                       "hvl_mm": 10 * log(2) / mu_linear,
+                       "transmission": exp(-mu_linear * layer.path_length / 10)})
+    return points
+
+
+__all__ = ["CATEGORIES", "TIERS", "LibraryError", "Material", "datasets", "get", "landscape", "load", "search"]

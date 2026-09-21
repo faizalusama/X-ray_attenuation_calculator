@@ -43,6 +43,15 @@ CATEGORIES = {
     "Glass, Borosilicate (Pyrex)": "glass", "Glass, Lead": "glass",
     "Lithium Tetraborate": "borate", "Magnesium Tetroborate": "borate",
 }
+#: NIST materials that are exact stoichiometric compounds. The formula is our
+#: annotation, not NIST's: tests/test_materials.py checks every one against
+#: NIST's own tabulated mass fractions, so a wrong formula fails the suite.
+FORMULAS = {
+    "Gallium Arsenide": "GaAs", "Cadmium Telluride": "CdTe", "Calcium Fluoride": "CaF2",
+    "Lithium Fluride": "LiF", "Cesium Iodide": "CsI", "Mercuric Iodide": "HgI2",
+    "Calcium Sulfate": "CaSO4", "Lithium Tetraborate": "Li2B4O7", "Magnesium Tetroborate": "MgB4O7",
+    "Gadolinium Oxysulfide": "Gd2O2S", "Water, Liquid": "H2O",
+}
 #: NIST's own spellings are kept verbatim as names; these are the corrections.
 SPELLING = {"Lithium Fluride": "Lithium Fluoride", "Magnesium Tetroborate": "Magnesium Tetraborate"}
 
@@ -91,6 +100,7 @@ def parse(page: str) -> list[dict[str, Any]]:
                         "note": "NIST states that some density values in this table are only nominal."},
             "reference_constants": {"z_over_a": float(z_over_a), "mean_excitation_eV": float(mean_excitation)},
             "source_name": name,
+            **({"formula": FORMULAS[name]} if name in FORMULAS else {}),
         })
     return entries
 

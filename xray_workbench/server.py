@@ -74,6 +74,17 @@ def list_materials(q: str = "", category: str | None = None, tier: str | None = 
             "categories": list(materials.CATEGORIES), "tiers": list(materials.TIERS)}
 
 
+@app.get("/api/materials/landscape")
+def materials_landscape(energy_keV: float = 60.0, thickness_mm: float = 1.0) -> JsonObject:
+    """Every library entry evaluated at one energy: the data behind the overview plot."""
+    if not 1.0 <= energy_keV <= 800.0:
+        raise HTTPException(422, "Energy must lie between 1 and 800 keV.")
+    if not 0 < thickness_mm <= 1e6:
+        raise HTTPException(422, "Thickness must be positive.")
+    return {"energy_keV": energy_keV, "thickness_mm": thickness_mm,
+            "points": materials.landscape(energy_keV, thickness_mm)}
+
+
 @app.get("/api/materials/{identifier}")
 def material_detail(identifier: str, thickness_mm: float = 1.0) -> JsonObject:
     """Full provenance for one entry, plus a ready-to-use calculation layer."""

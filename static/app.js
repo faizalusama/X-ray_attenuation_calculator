@@ -590,6 +590,22 @@
     state.configuration.layers.push(layer);state.openLayer=state.configuration.layers.length-1;dirty();renderLayers();
     if(preset?.description)toast(preset.description);
   });
+  // Narrow public hook for optional modules such as the materials library. Layers
+  // enter through the same path as presets, so limits, live recalculation and
+  // browser memory all apply; nothing else about the application is exposed.
+  window.AttenuationWorkbench = Object.freeze({
+    addLayer(layer, message = "") {
+      if (state.configuration.layers.length >= limits.layers) { error(`This workspace supports up to ${limits.layers} layers.`); return false; }
+      const copy = clone(layer);
+      copy.density_uncertainty_pct ??= 0; copy.thickness_uncertainty_pct ??= 0;
+      state.configuration.layers.push(copy); state.openLayer = state.configuration.layers.length - 1;
+      dirty(); renderLayers();
+      if (message) toast(message);
+      return true;
+    },
+    layerCount: () => state.configuration.layers.length,
+    energy: () => clone(state.configuration.energy),
+  });
   $$("[data-tab]").forEach(button=>button.addEventListener("click",()=>activateTab(button.dataset.tab)));
   $(".tabs").addEventListener("keydown",event=>{
     if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;

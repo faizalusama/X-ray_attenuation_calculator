@@ -13,23 +13,16 @@ from xray_workbench.server import app
 
 client = TestClient(app)
 
-#: NIST SRD 126 materials that are exact stoichiometric compounds, with the
-#: formula they correspond to. NIST's tabulated elemental mass fractions and the
-#: fractions our parser derives from the formula come from different places,
-#: so agreement checks the importer and the parser against each other.
-NIST_STOICHIOMETRIC = {
-    "nist-gallium-arsenide": "GaAs",
-    "nist-cadmium-telluride": "CdTe",
-    "nist-calcium-fluoride": "CaF2",
-    "nist-lithium-fluoride": "LiF",
-    "nist-cesium-iodide": "CsI",
-    "nist-mercuric-iodide": "HgI2",
-    "nist-calcium-sulfate": "CaSO4",
-    "nist-lithium-tetraborate": "Li2B4O7",
-    "nist-magnesium-tetraborate": "MgB4O7",
-    "nist-gadolinium-oxysulfide": "Gd2O2S",
-    "nist-water-liquid": "H2O",
-}
+#: NIST SRD 126 materials annotated with the stoichiometric formula they
+#: correspond to. NIST's tabulated elemental mass fractions and the fractions
+#: our parser derives from that formula come from different places, so
+#: agreement checks the importer, the annotation and the parser together.
+NIST_STOICHIOMETRIC = {m.id: m.formula for m in materials.search(tier="reference_data") if m.formula}
+
+
+def test_the_expected_nist_compounds_are_annotated():
+    assert set(NIST_STOICHIOMETRIC.values()) == {
+        "GaAs", "CdTe", "CaF2", "LiF", "CsI", "HgI2", "CaSO4", "Li2B4O7", "MgB4O7", "Gd2O2S", "H2O"}
 
 
 def mass_fractions(material_or_layer):
@@ -168,3 +161,34 @@ def test_api_detail_carries_provenance_and_a_usable_layer():
 
 def test_api_unknown_material_is_404():
     assert client.get("/api/materials/not-a-material").status_code == 404
+
+
+@pytest.mark.parametrize("energy", [15.0, 60.0, 300.0])
+def test_landscape_fast_path_matches_the_full_engine(energy):
+    by_id = {p["id"]: p for p in materials.landscape(energy, thickness_mm=2.0)}
+    assert len(by_id) == len(materials.load())
+    for identifier in ("nist-glass-lead", "stoich-zirconia-3y", "stoich-boron-carbide", "nist-water-liquid"):
+        full = calculate({"energy": {"min_keV": 10, "max_keV": 20, "points": 2, "reference_keV": energy},
+                          "layers": [materials.get(identifier).to_layer(2.0)]})
+        reference = full["layers"][0]["reference"]
+        point = by_id[identifier]
+        for key in ("mu_mass_cm2_g", "mu_linear_cm_inv", "hvl_mm", "transmission"):
+            assert point[key] == pytest.approx(reference[key], rel=1e-12), (identifier, key)
+
+
+def test_api_landscape_and_its_guards():
+    data = client.get("/api/materials/landscape", params={"energy_keV": 60}).json()
+    assert data["energy_keV"] == 60
+    assert len(data["points"]) == len(materials.load())
+    assert all(p["hvl_mm"] > 0 and "density_status" in p for p in data["points"])
+    assert client.get("/api/materials/landscape", params={"energy_keV": 900}).status_code == 422
+    assert client.get("/api/materials/landscape", params={"thickness_mm": 0}).status_code == 422
+
+
+def test_api_summaries_carry_formulas_for_formula_search():
+    listing = client.get("/api/materials").json()["materials"]
+    gd2o2s = next(m for m in listing if m["id"] == "nist-gadolinium-oxysulfide")
+    # NIST names carry no formula, and NIST lists elements; both are searchable.
+    assert set(gd2o2s["formulas"]) == {"O", "S", "Gd", "Gd2O2S"}
+    zirconia = next(m for m in listing if m["id"] == "stoich-zirconia-3y")
+    assert zirconia["formulas"] == ["ZrO2", "Y2O3"]

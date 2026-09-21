@@ -80,11 +80,23 @@ These still need licence and provenance review before any import:
 - **ICSD / Pearson** — crystallographic densities, but licensed; they cannot be redistributed.
 - **NIST ceramics data** and standards (ASTM, ISO) for designated compositions.
 
+## In the application
+
+Open **Materials library** below the layer list. The browser offers:
+
+- **Search and filters** by name or formula, by material family, and to show only entries whose density is sourced.
+- **Material view** with the composition as entered, elemental mass fractions, the density with its status and note, and the full source record with DOI, URL, retrieval date and caveats. An interactive μ/ρ chart from 1 to 800 keV shows the photoelectric, coherent and incoherent contributions. **Compare** overlays up to three other materials.
+- **Library landscape**: every solid entry plotted at one chosen energy as half-value layer, μ/ρ or μ against density, coloured by family. Filled markers use a sourced density; hollow markers use an unverified one, so the distinction does not rely on colour. Selecting a point opens that material. Gases are left out of this plot, with a note saying so, because their densities are about 1000 times lower than any solid.
+- **Add to stack** inserts the material as a new layer through the same path as the presets. When the density is unverified, the application says so and asks for a measured value.
+
+The dialog is fully keyboard operable. Arrow keys, Home and End move through the results, Escape closes the dialog and returns focus to the button that opened it, and every chart has a text summary for screen readers.
+
 ## API
 
 ```
 GET /api/materials?q=zirconia&category=oxide_ceramic&tier=stoichiometric&verified_density=false
 GET /api/materials/{id}?thickness_mm=2
+GET /api/materials/landscape?energy_keV=60&thickness_mm=1
 ```
 
 The detail response includes the full source block, the density status and a `layer` object that `/api/calculate` accepts directly.

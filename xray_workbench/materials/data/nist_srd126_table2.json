@@ -8,8 +8,8 @@
   "url": "https://physics.nist.gov/PhysRefData/XrayMassCoef/tab2.html",
   "doi": "10.18434/T4D01F",
   "license": "US Government work; not subject to copyright in the United States.",
-  "retrieved_utc": "2026-09-21T17:15:20+00:00",
-  "retrieved_sha256": "b38708e733d37ab01401c006c1dd0729008f188ad651516ffff4ef33ee0a5eba",
+  "retrieved_utc": "2026-09-21T19:45:08+00:00",
+  "retrieved_sha256": "44309a5d26d42ef478e3fc9cc4eac7900a96cb66163405be194b08ab8a660169",
   "caveats": [
    "Some density values in the source table are only nominal; use a measured density for quantitative work.",
    "Human-tissue compositions in the source were taken from ICRU Report 44 (1989).",
@@ -525,7 +525,8 @@
     "z_over_a": 0.41665,
     "mean_excitation_eV": 539.3
    },
-   "source_name": "Cadmium Telluride"
+   "source_name": "Cadmium Telluride",
+   "formula": "CdTe"
   },
   {
    "id": "nist-calcium-fluoride",
@@ -555,7 +556,8 @@
     "z_over_a": 0.48671,
     "mean_excitation_eV": 166.0
    },
-   "source_name": "Calcium Fluoride"
+   "source_name": "Calcium Fluoride",
+   "formula": "CaF2"
   },
   {
    "id": "nist-calcium-sulfate",
@@ -589,7 +591,8 @@
     "z_over_a": 0.49948,
     "mean_excitation_eV": 152.3
    },
-   "source_name": "Calcium Sulfate"
+   "source_name": "Calcium Sulfate",
+   "formula": "CaSO4"
   },
   {
    "id": "nist-15-mmol-l-1-ceric-ammonium-sulfate-solution",
@@ -661,7 +664,8 @@
     "z_over_a": 0.41569,
     "mean_excitation_eV": 553.1
    },
-   "source_name": "Cesium Iodide"
+   "source_name": "Cesium Iodide",
+   "formula": "CsI"
   },
   {
    "id": "nist-concrete-ordinary",
@@ -915,7 +919,8 @@
     "z_over_a": 0.42265,
     "mean_excitation_eV": 493.3
    },
-   "source_name": "Gadolinium Oxysulfide"
+   "source_name": "Gadolinium Oxysulfide",
+   "formula": "Gd2O2S"
   },
   {
    "id": "nist-gafchromic-sensor",
@@ -983,7 +988,8 @@
     "z_over_a": 0.44246,
     "mean_excitation_eV": 384.9
    },
-   "source_name": "Gallium Arsenide"
+   "source_name": "Gallium Arsenide",
+   "formula": "GaAs"
   },
   {
    "id": "nist-glass-borosilicate-pyrex",
@@ -1101,7 +1107,8 @@
     "z_over_a": 0.46262,
     "mean_excitation_eV": 94.0
    },
-   "source_name": "Lithium Fluride"
+   "source_name": "Lithium Fluride",
+   "formula": "LiF"
   },
   {
    "id": "nist-lithium-tetraborate",
@@ -1135,7 +1142,8 @@
     "z_over_a": 0.48485,
     "mean_excitation_eV": 94.6
    },
-   "source_name": "Lithium Tetraborate"
+   "source_name": "Lithium Tetraborate",
+   "formula": "Li2B4O7"
   },
   {
    "id": "nist-lung-tissue-icru-44",
@@ -1227,7 +1235,8 @@
     "z_over_a": 0.49012,
     "mean_excitation_eV": 108.3
    },
-   "source_name": "Magnesium Tetroborate"
+   "source_name": "Magnesium Tetroborate",
+   "formula": "MgB4O7"
   },
   {
    "id": "nist-mercuric-iodide",
@@ -1257,7 +1266,8 @@
     "z_over_a": 0.40933,
     "mean_excitation_eV": 684.5
    },
-   "source_name": "Mercuric Iodide"
+   "source_name": "Mercuric Iodide",
+   "formula": "HgI2"
   },
   {
    "id": "nist-muscle-skeletal-icru-44",
@@ -1993,7 +2003,8 @@
     "z_over_a": 0.55508,
     "mean_excitation_eV": 75.0
    },
-   "source_name": "Water, Liquid"
+   "source_name": "Water, Liquid",
+   "formula": "H2O"
   }
  ]
 }
