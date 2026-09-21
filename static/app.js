@@ -18,6 +18,7 @@
   let toastTimer;
   let live, dashboard;
   state.lengthUnit = "mm";
+  state.savedConfiguration = clone(initial);
   const displayUnits = typeof AttenuationDashboard !== "undefined" ? AttenuationDashboard : (typeof require === "function" ? require("./dashboard.js") : null);
   const displayLength = value => displayUnits.fromMM(value, state.lengthUnit);
   const canonicalLength = value => displayUnits.toMM(value, state.lengthUnit);
@@ -25,7 +26,7 @@
   function remember() {
     if (!dashboard) return;
     try {
-      const saved = {schema_version: 1, configuration: state.resultConfiguration || initial, ui: {tab: state.tab, lengthUnit: state.lengthUnit, ...dashboard.preferences()}};
+      const saved = {schema_version: 1, configuration: state.resultConfiguration || state.savedConfiguration, ui: {...dashboard.preferences(), tab: state.tab, lengthUnit: state.lengthUnit, scopeOpen: $("#model-scope").open, suggestionsOpen: !$("#suggestions-section").hidden}};
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       $("#remember-status").textContent = "Settings and last valid inputs saved on this browser.";
     } catch { $("#remember-status").textContent = "Browser storage unavailable; use Save project to keep your settings."; }
@@ -113,7 +114,7 @@
   function markPending(message) {
     $("#live-update-banner").hidden = false;
     $("#live-update-banner").textContent = `${message}${state.result ? " Showing the previous calculation until the new inputs are valid and evaluated." : " Complete the inputs to see the live result."}`;
-    ["#export-csv", "#export-json", "#export-svg"].forEach(id => { $(id).disabled = true; });
+    ["#export-csv", "#export-json", "#export-svg", "#quick-export-svg"].forEach(id => { $(id).disabled = true; });
     $("#results-workspace").classList.toggle("results-pending", !!state.result);
   }
   function syncSliders() {
@@ -248,6 +249,7 @@
       if (revision !== state.revision) return;
       state.result = result;
       state.resultConfiguration = clone(config);
+      state.savedConfiguration = clone(config);
       state.configuration = config;
       state.stale = false;
       $("#live-update-banner").hidden = true;
@@ -280,12 +282,12 @@
     const first = result?.layers?.[0];
     const energyNote = result ? `At ${number(ref.energy_keV)} keV` : "Updating automatically";
     $("#metrics").innerHTML = metric("Reference transmission", ref ? percent(ref.transmission) : "—", "%", energyNote + (ref ? " · primary beam" : ""), "↗") + metric("Optical depth", ref ? number(ref.optical_depth) : "—", "", energyNote, "τ") + metric("Half-value layer", first ? number(displayLength(first.reference.hvl_mm)) : "—", state.lengthUnit, first ? `${first.name} · path length` : "First material · path length", "½") + metric("Attenuation length", first ? number(displayLength(first.reference.attenuation_length_mm)) : "—", state.lengthUnit, first ? `${first.name} · path length` : "First material · path length", "ℓ");
-    ["#export-csv", "#export-json", "#export-svg"].forEach(id => { $(id).disabled = !result || state.stale; });
+    ["#export-csv", "#export-json", "#export-svg", "#quick-export-svg"].forEach(id => { $(id).disabled = !result || state.stale; });
     $("#warnings").hidden = !result?.warnings?.length;
     $("#warnings").innerHTML = result?.warnings?.length ? `<strong>Model notes</strong><ul>${result.warnings.map(warning => `<li>${esc(warning)}</li>`).join("")}</ul>` : "";
     $("#plot-context").textContent = result ? `${result.energy_keV.length.toLocaleString()} energies · ${state.resultConfiguration.energy.spacing === "log" ? "Logarithmic" : "Linear"} x-axis · ${result.edges?.length || 0} reported edges` : "Direct evaluation at every energy";
-    $("#provenance-short").textContent = result ? `${result.provenance.engine} ${result.provenance.xraydb_version} · ${result.provenance.model}` : "Scientific model and data sources are documented under Methods.";
-    $("#provenance-details").innerHTML = result ? `<div class="provenance-block"><strong>Current calculation provenance</strong><br>Engine: ${esc(result.provenance.engine)} · XrayDB ${esc(result.provenance.xraydb_version)}<br>Computed: ${esc(result.provenance.timestamp_utc)}${result.provenance.workbench_version ? `<br>Workbench: ${esc(result.provenance.workbench_version)}` : ""}${result.provenance.configuration_sha256 ? `<br>Configuration SHA-256: <span style="overflow-wrap:anywhere">${esc(result.provenance.configuration_sha256)}</span>` : ""}<br>Complete configuration and provenance are included in the results JSON export.</div>` : "";
+    $("#provenance-short").textContent = result ? `${result.provenance.backend?.name || result.provenance.engine} ${result.provenance.backend?.dataset_version || result.provenance.xraydb_version} · ${result.provenance.model}` : "Scientific model and data sources are documented under Methods.";
+    $("#provenance-details").innerHTML = result ? `<div class="provenance-block"><strong>Current calculation provenance</strong><br>Source: ${esc(result.provenance.backend?.name || result.provenance.engine)} ${esc(result.provenance.backend?.dataset_version || result.provenance.xraydb_version)}<br>Dataset: ${esc(result.provenance.backend?.dataset || "Elam atomic data")}<br>Computed: ${esc(result.provenance.timestamp_utc)}${result.provenance.workbench_version ? `<br>Workbench: ${esc(result.provenance.workbench_version)}` : ""}${result.provenance.configuration_sha256 ? `<br>Configuration SHA-256: <span style="overflow-wrap:anywhere">${esc(result.provenance.configuration_sha256)}</span>` : ""}<br>Complete configuration and provenance are included in the results JSON export.</div>` : "";
     renderChart();
     renderStack();
     renderMaterials();
@@ -415,6 +417,10 @@
     const provenanceKeys = ["engine", "xraydb_version", "workbench_version", "timestamp_utc", "configuration_sha256"];
     headers.push(...provenanceKeys.map(key => `provenance_${key}`));
     const provenance = provenanceKeys.map(key => csvCell(result.provenance[key]));
+    for (const key of ["identifier", "dataset_version", "dataset"]) {
+      headers.push(`provenance_backend_${key}`);
+      provenance.push(csvCell(result.provenance.backend?.[key]));
+    }
     const rows = [headers.map(csvCell).join(","), ...result.energy_keV.map((_, index) => [...arrays.map(array => csvCell(array[index])), ...provenance].join(","))];
     download(rows.join("\r\n")+"\r\n","attenuation-sweep.csv","text/csv;charset=utf-8");
     toast("Energy sweep exported with full numeric precision and provenance.");
@@ -449,9 +455,9 @@
   }
   async function exportSVG() {
     if (!state.result || state.stale || !dashboard) return;
-    $("#export-svg").disabled = true;
+    $("#export-svg").disabled = true; $("#quick-export-svg").disabled = true;
     try { await dashboard.exportSVG(); } catch (exception) { error(`Could not export figure: ${exception.message}`); }
-    finally { $("#export-svg").disabled = !state.result || state.stale; }
+    finally { $("#export-svg").disabled = !state.result || state.stale; $("#quick-export-svg").disabled = !state.result || state.stale; }
   }
   function cleanProject(documentValue) {
     const object = (value, label) => { if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be an object.`); return value; };
@@ -474,6 +480,12 @@
     if (!Array.isArray(c.layers) || !c.layers.length || c.layers.length > limits.layers) throw new Error(`A project must contain 1–${limits.layers} layers.`);
     const config = {energy: {}, layers: [], target_transmission: finite(optional(c.target_transmission, .1), "Target transmission", 0, 1), spectrum: null,
       uncertainty: {enabled: optional(uncertainty.enabled, false), samples: finite(optional(uncertainty.samples, 1000), "Uncertainty samples", 100, 20000, true), seed: finite(optional(uncertainty.seed, 42), "Random seed", 0, 4294967295, true)}};
+    // Preserve the v2 backend identity. Unknown identifiers are rejected by the
+    // server registry; never silently substitute a different scientific source.
+    if (c.backend != null) {
+      if (typeof c.backend !== "string" || !/^[a-z0-9_-]{1,80}$/.test(c.backend)) throw new Error("Backend must be a valid source identifier.");
+      config.backend = c.backend;
+    }
     if (config.target_transmission <= 0 || config.target_transmission >= 1) throw new Error("Target transmission must be strictly between 0 and 1.");
     for (const key of ["min_keV", "max_keV", "reference_keV"]) config.energy[key] = finite(energy[key], `Energy ${key}`, 1, 800);
     config.energy.points = finite(energy.points, "Energy grid points", 2, limits.points, true);
@@ -592,8 +604,9 @@
   });
   $("#export-csv").addEventListener("click",exportCSV);
   $("#export-svg").addEventListener("click",exportSVG);
+  $("#quick-export-svg").addEventListener("click",exportSVG);
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
-  $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
+  $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
   $("#load-project").addEventListener("click",()=>$("#project-file").click());
   $("#project-file").addEventListener("change",async event=>{
     const file=event.target.files[0];if(!file)return;
@@ -608,6 +621,8 @@
     if (!ui || typeof ui !== "object") return;
     if (Object.hasOwn(displayUnits.LENGTH_UNITS, ui.lengthUnit)) state.lengthUnit = ui.lengthUnit;
     if (["overview", "materials", "spectrum", "uncertainty", "methods"].includes(ui.tab)) state.tab = ui.tab;
+    if (typeof ui.scopeOpen === "boolean") $("#model-scope").open = ui.scopeOpen;
+    if (typeof ui.suggestionsOpen === "boolean") { $("#suggestions-section").hidden = !ui.suggestionsOpen; $("#ideas-button").setAttribute("aria-expanded", ui.suggestionsOpen); }
     dashboard.restore(ui);
   }
   $("#length-units").addEventListener("click", event => {
@@ -631,7 +646,7 @@
     let restored = false;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) { const saved = JSON.parse(raw); state.configuration = cleanProject(saved); restoreUI(saved.ui); restored = true; }
+      if (raw) { const saved = JSON.parse(raw); state.configuration = cleanProject(saved); state.savedConfiguration = clone(state.configuration); restoreUI(saved.ui); restored = true; }
     } catch { /* Invalid or unavailable browser storage never blocks the workbench. */ }
     syncControls(); activateTab(state.tab); renderResults();
     if (restored) toast("Restored saved controls and the last valid system from this browser.");
@@ -642,5 +657,15 @@
     } catch { /* The default material is sufficient; calculate reports connection errors. */ }
     live.flush();
   }
+  $("#model-scope").addEventListener("toggle", remember);
+  function showIdeas(open) {
+    $("#suggestions-section").hidden = !open;
+    $("#ideas-button").setAttribute("aria-expanded", open);
+    remember();
+    if (open) $("#suggestions-section").scrollIntoView({behavior: "smooth", block: "center"});
+    else $("#ideas-button").focus();
+  }
+  $("#ideas-button").addEventListener("click", () => showIdeas($("#suggestions-section").hidden));
+  $("#close-suggestions").addEventListener("click", () => showIdeas(false));
   initialize();
 })();

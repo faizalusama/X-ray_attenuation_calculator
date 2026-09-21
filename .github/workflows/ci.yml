@@ -85,7 +85,9 @@ jobs:
           node --check static/dashboard.js
 
       - name: Frontend tests
-        run: node tests/test_frontend.cjs
+        run: |
+          node tests/test_frontend.cjs
+          node tests/test_dashboard.cjs
 
   package:
     name: Build and verify distribution

@@ -7,19 +7,12 @@
   <meta name="description" content="An offline scientific workbench for X-ray attenuation in materials, glasses, ceramics and multilayers.">
   <title>Attenuation Lab · X-ray workbench</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2313273b'/%3E%3Cpath d='M10 25h8l5-12 6 23 4-11h5' fill='none' stroke='%237ddcc6' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css">
+  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
-  <script src="/static/dashboard.js" defer></script>
-  <script src="/static/app.js" defer></script>
+  <script src="/static/dashboard.js?v=20260921" defer></script>
+  <script src="/static/app.js?v=20260921" defer></script>
 </head>
 <body>
-  <aside class="rail" aria-label="Application identity">
-    <a class="brand-mark" href="#main" aria-label="Attenuation Lab home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 17h7l4-10 5 19 4-9h6"/></svg></a>
-    <div class="rail-rule"></div>
-    <span class="rail-icon active" title="Materials workbench"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 9-5 9 5-9 5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg></span>
-    <span class="rail-caption">ATTENUATION LAB</span>
-    <span class="rail-bottom" title="Local research workspace">AL<span>01</span></span>
-  </aside>
   <div class="app-shell">
     <header class="topbar">
       <div class="brand-name">Attenuation<span>Lab</span><span class="brand-divider"></span><span class="topbar-subtitle">Materials research workspace</span></div>
@@ -30,9 +23,8 @@
         <div><div class="eyebrow"><span></span> MATERIALS · GLASSES · CERAMICS</div><h1>X-ray attenuation workbench</h1><p>From composition to transmission. Understand every layer.</p></div>
         <div class="model-label"><span class="model-dot"></span><div><strong>Beer–Lambert model</strong><span>Narrow beam · 1–800 keV</span></div></div>
       </section>
-      <section class="suggestions-strip" aria-label="Suggestions for this system"><div class="suggestions-heading"><span class="eyebrow">RESEARCH ASSIST</span><h2>Suggestions for your system</h2><span id="suggestions-context">Based on the latest valid calculation</span></div><div id="smart-suggestions" class="suggestions-grid"></div></section>
       <div class="workspace">
-        <aside class="configuration" aria-label="Experiment configuration">
+        <aside class="configuration" aria-label="Experiment configuration"><button type="button" id="close-inputs" class="close-inputs">Hide inputs ←</button>
           <div class="panel-heading"><div><span class="section-number">01</span><h2>Define your system</h2></div><span class="small-label" id="layer-count">1 LAYER</span></div>
           <form id="config-form">
             <div class="length-unit-controls"><span>Thickness &amp; path-length units</span><div id="length-units" class="segmented" role="group" aria-label="Length display units"></div><small>Changing units preserves physical dimensions.</small></div><div class="layer-list" id="layer-list"></div>
@@ -51,22 +43,22 @@
           <div class="results-topline"><div class="tabs" role="tablist" aria-label="Analysis views"><button id="tab-overview" role="tab" aria-selected="true" aria-controls="view-overview" tabindex="0" data-tab="overview" class="tab active">Overview</button><button id="tab-materials" role="tab" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-tab="materials" class="tab">Materials</button><button id="tab-spectrum" role="tab" aria-selected="false" aria-controls="view-spectrum" tabindex="-1" data-tab="spectrum" class="tab">Spectrum</button><button id="tab-uncertainty" role="tab" aria-selected="false" aria-controls="view-uncertainty" tabindex="-1" data-tab="uncertainty" class="tab">Uncertainty</button><button id="tab-methods" role="tab" aria-selected="false" aria-controls="view-methods" tabindex="-1" data-tab="methods" class="tab">Methods</button></div><span class="result-status" id="result-status" role="status"><i></i> Starting live calculation…</span></div>
           <div id="live-update-banner" class="live-update-banner" role="status" hidden></div><div id="notification" class="notification" role="alert" hidden></div>
           <section id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
-            <div class="metrics" id="metrics"></div>
             <section class="chart-panel panel">
-              <div class="dashboard-heading"><div><span class="eyebrow">LIVE SCIENTIFIC EXPLORER</span><h2>One system. Multiple perspectives.</h2><p>Compose your plots, inspect the physics, and explore every parameter live.</p></div><span class="engine-chip">Plotly · interactive</span></div>
-              <div id="dashboard-controls" class="dashboard-controls">
-                <div class="dashboard-toolbar"><div class="segmented" id="plot-selectors" role="group" aria-label="Select plot to configure"></div><div class="toolbar-actions"><button type="button" id="add-plot" class="button outline small">+ Add plot</button><button type="button" id="remove-plot" class="button quiet small">Remove plot</button><button type="button" id="dashboard-focus" class="button quiet small" aria-pressed="false">Expand dashboard</button></div></div>
+              <div class="dashboard-heading"><h2>Energy response</h2><span class="dashboard-hint">Drag to zoom · hover to inspect</span></div>
+              <div class="plot-quick-controls">                <div class="dashboard-toolbar"><div class="segmented" id="plot-selectors" role="group" aria-label="Select plot to configure"></div><div class="toolbar-actions"><button type="button" id="show-all-plots" class="button quiet small">Show all plots</button><button type="button" id="add-plot" class="button outline small">+ Add plot</button><button type="button" id="remove-plot" class="button quiet small">Remove plot</button><button type="button" id="dashboard-focus" class="button quiet small" aria-pressed="true">Show inputs</button></div></div>                <div class="interaction-toolbar"><div class="control-group"><span>Mouse</span><div class="segmented" role="group" aria-label="Plot mouse interaction"><button type="button" data-gesture="zoom" aria-pressed="true">Box zoom</button><button type="button" data-gesture="pan" aria-pressed="false">Pan</button><button type="button" data-gesture="locked" aria-pressed="false">Lock</button></div><button id="reset-view" type="button" class="button quiet small">Reset view ↺</button></div><div class="control-group"><span>Layout</span><div class="segmented" role="group" aria-label="Dashboard arrangement"><button type="button" data-layout="stack" aria-pressed="true">Rows</button><button type="button" data-layout="grid" aria-pressed="false">Grid</button></div></div></div><div class="quick-export"><span>Drag to scale · hover to inspect · live updates</span><button type="button" id="quick-export-svg" class="button outline small">Export active plot SVG ↓</button></div></div>
+              <details id="plot-settings" class="plot-settings"><summary>Customize selected plot <span>Quantities · second y-axis · scales · display</span></summary><div id="dashboard-controls" class="dashboard-controls">
                 <div class="quantity-controls"><div class="control-caption"><strong id="plot-control-title">Configure plot 1</strong><span>Left y-axis</span></div><div class="quantity-buttons" id="plot-quantities" role="group" aria-label="Left-axis quantity"></div></div>
                 <details id="secondary-details" class="secondary-details"><summary>Second y-axis <span>Compare different quantities and units</span></summary><div id="secondary-controls"><div class="control-caption"><span>Right y-axis · dotted curves · independent scale</span></div><div class="quantity-buttons secondary-buttons" id="secondary-quantities" role="group" aria-label="Right-axis quantity"></div></div></details>
                 <div id="plot-layer-controls" class="extra-plot-controls" hidden><strong>Interaction material</strong><div class="quantity-buttons" id="plot-layer-buttons" role="group" aria-label="Interaction material"></div></div>
-                <div id="map-controls" class="extra-plot-controls" hidden><label>Maximum thickness scale <input type="number" id="max-thickness-scale" min="0.01" max="1000" step="any" value="3"></label><span>× every layer’s current thickness</span></div>
-                <div class="interaction-toolbar"><div class="control-group"><span>Mouse</span><div class="segmented" role="group" aria-label="Plot mouse interaction"><button type="button" data-gesture="zoom" aria-pressed="true">Box zoom</button><button type="button" data-gesture="pan" aria-pressed="false">Pan</button><button type="button" data-gesture="locked" aria-pressed="false">Lock</button></div><button id="reset-view" type="button" class="button quiet small">Reset view ↺</button></div><div class="control-group"><span>Layout</span><div class="segmented" role="group" aria-label="Dashboard arrangement"><button type="button" data-layout="stack" aria-pressed="true">Rows</button><button type="button" data-layout="grid" aria-pressed="false">Grid</button></div></div></div>
+                <div id="map-controls" class="extra-plot-controls" hidden><label>Maximum thickness scale <input type="number" id="max-thickness-scale" required min="0.01" max="1000" step="any" value="3"></label><span>× every layer’s current thickness</span></div>
                 <div class="plot-switches"><label><input type="checkbox" id="log-x" checked> Log energy</label><label><input type="checkbox" id="log-y"> Log left y</label><label><input type="checkbox" id="log-y2" disabled> Log right y</label><label><input type="checkbox" id="link-axes" checked> Link energy zoom</label><label><input type="checkbox" id="wheel-zoom"> Scroll to zoom</label><label><input type="checkbox" id="reference-pick"> Click sets reference</label><label><input type="checkbox" id="show-edges" checked> Absorption edges</label><label><input type="checkbox" id="show-layer-curves" checked> Individual layers</label></div>
                 <div class="plot-display-toolbar"><span id="gesture-help"></span><label>Plot text <input type="range" id="plot-font-size" min="11" max="18" step="1" value="13" aria-label="Plot font size"></label><button type="button" id="export-svg" class="button outline small" disabled>Export plot 1 SVG ↓</button></div>
-              </div>
+              </div></details>
               <div id="plot-grid" class="plot-grid" data-layout="stack"></div>
               <div class="chart-footer"><span id="plot-context">Direct evaluation at every energy</span><span>Units and controls are remembered locally</span></div>
             </section>
+            <div class="metrics" id="metrics"></div>
+            <details id="model-scope" class="model-scope"><summary>Model assumptions &amp; limits <span>Primary transmission · independent atoms</span></summary><div><p><strong>Narrow-beam primary transmission.</strong> Photons scattered out of the beam are removed. Removed fraction is not absorbed energy or dose. Buildup, multiple scattering, secondary fluorescence and detector response are not modeled.</p><p><strong>Independent-atom mixture coefficients.</strong> The model omits chemical-state near-edge structure, diffraction, coherent interfaces and microstructure-dependent transport. Edge brackets locate tabulated steps; they do not predict XANES/EXAFS.</p><p>Layer order does not change primary transmission in this model. HVL, TVL and attenuation length refer to path length within each homogeneous material.</p></div></details>
             <div class="overview-bottom"><section class="panel stack-panel"><div class="compact-heading"><div class="eyebrow subtle">BEAM PATH</div><h3>Your multilayer stack</h3></div><div id="stack-visual"></div></section><section class="panel insight-panel"><div class="eyebrow subtle">AT YOUR REFERENCE ENERGY</div><h3>Design to a target</h3><div id="target-insight"></div></section></div>
             <div class="export-bar"><span id="provenance-short">Scientific model and data sources are documented under Methods.</span><div><button class="button quiet small" id="export-csv" disabled>Export CSV ↓</button><button class="button quiet small" id="export-json" disabled>Results JSON ↓</button></div></div>
           </section>
@@ -77,11 +69,13 @@
           <div id="warnings" class="warnings" hidden></div>
         </section>
       </div>
+      <section id="suggestions-section" class="suggestions-strip expanded" hidden aria-label="Suggestions for this system"><div class="suggestions-heading"><span class="eyebrow">RESEARCH ASSIST</span><h2>Suggestions for your system</h2><span id="suggestions-context">Based on the latest valid calculation</span><button type="button" id="close-suggestions" aria-label="Close suggestions">Close ×</button></div><div id="smart-suggestions" class="suggestions-grid"></div></section>
       <footer class="page-footer"><span>ATTENUATION LAB <span class="footer-dot">·</span> Scientific materials workbench</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span></span></footer>
     </main>
   </div>
   <input type="file" id="project-file" accept="application/json,.json" hidden>
   <input type="file" id="spectrum-file" accept="text/csv,.csv,.txt" hidden>
+  <button type="button" id="ideas-button" class="ideas-trigger" aria-expanded="false" aria-controls="suggestions-section" title="Suggestions for this system"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M8.5 14.5a6 6 0 1 1 7 0c-1 .7-1.5 1.6-1.5 3.5h-4c0-1.9-.5-2.8-1.5-3.5Z"/><path d="M12 1V0M4 4 2 2M20 4l2-2"/></svg><span>Ideas</span></button>
   <div id="toast" class="toast" role="status" hidden></div>
 </body>
 </html>

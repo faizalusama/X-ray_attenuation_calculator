@@ -45,6 +45,14 @@ Plots and results recalculate automatically as you edit any calculation paramete
 
 The previous plot remains visible with an explicit pending label during calculation or incomplete input. Exports are disabled until the latest configuration has been evaluated. Older responses cannot overwrite newer inputs. Spectrum and enabled uncertainty calculations follow the same live workflow; large Monte Carlo runs can take longer.
 
+## Interactive dashboard
+
+All eleven plots open initially in a responsive grid. Select a plot to customize its quantity, second y-axis, logarithmic scales or font size. Use Box zoom, Pan, Lock and Reset view to control mouse interaction; linked energy axes are optional. Rows and Grid change the arrangement, and Show all plots restores the complete set after removing panels.
+
+Graphs and active controls lead the page. Reference measurements and expandable scientific limits sit below the plots; suggestions open from the bottom-right Ideas button. Show inputs reveals the system editor. Length units can be changed between nm, µm, mm, cm and m without changing physical dimensions; project/API thicknesses remain in mm. Preferences, plot visibility and the last valid inputs are remembered locally. Existing saved layouts expand once to introduce all eleven plots, then subsequent custom layouts are preserved.
+
+SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG.
+
 ## What is included
 
 - **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, and illustrative materials presets.

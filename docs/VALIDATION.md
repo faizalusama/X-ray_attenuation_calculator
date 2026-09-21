@@ -125,3 +125,11 @@ identical coefficients, so edge labels are not interchangeable.
 The new application is an unpublished development build. Experimental validation, independent scientific review, additional operating-system installation testing, a formal license decision, and a version-specific release citation remain for publication. Transport of scattered/fluorescent photons, calibrated source generation, diffraction/near-edge fine structure, detector response, and broader correlated uncertainty are explicitly outside this implemented model; see [ROADMAP.md](ROADMAP.md).
 
 The licence decision is now made: the project is released under the MIT License, recorded in [LICENSE](../LICENSE), `CITATION.cff` and the package metadata, with third-party terms listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Experimental validation, independent scientific review, a version-specific release citation and installation testing on the operating systems now covered by CI remain outstanding.
+
+## Interactive dashboard pass — 21 September 2026
+
+On Windows with Python 3.12.14, the complete Python suite passed **123 tests and 14 subtests**, with **one optional xraylib test skipped** and two upstream deprecation warnings. No physics implementation changed in this dashboard pass. The two JavaScript suites passed **23 tests** covering the existing frontend and dashboard units, attenuation lengths, target thickness, heatmap values, secondary axes, uncertainty bands, preference validation, backend preservation and the eleven-plot default.
+
+Browser checks exercised live thickness changes, dimension-preserving unit changes, secondary axes, linked zoom, gesture locking, remembered settings, Ideas, native SVG download and responsive plot sizing. An exported SVG was parsed and checked for dimensions and configuration metadata. This is application verification, not a new scientific accuracy claim.
+
+Additional commands: `node tests/test_dashboard.cjs` and `node --check static/dashboard.js`.
