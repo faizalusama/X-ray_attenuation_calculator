@@ -11,6 +11,16 @@ license: MIT
 # resolves to the newest, so citations aggregate across releases.
 doi: 10.5281/zenodo.17602370
 date-released: 2026-09-21
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17602370
+    description: Concept DOI, covering all versions (preferred for citation).
+  - type: doi
+    value: 10.5281/zenodo.22878495
+    description: Version DOI for 1.0.0 specifically.
+  - type: doi
+    value: 10.5281/zenodo.17602371
+    description: Version DOI for the superseded 0.1.1 calculator.
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
