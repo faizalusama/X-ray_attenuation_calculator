@@ -5,11 +5,12 @@ version: "1.0.0"
 type: software
 license: MIT
 # First stable release. It supersedes the 0.1.x calculator, whose original
-# citation is preserved in legacy/CITATION.cff, and whose multicomponent script
-# double-weighted mass fractions. Before publishing, replace the DOI below with
-# the Zenodo *concept* DOI ("Cite all versions") so citations aggregate across
-# releases rather than pinning to one, and set date-released to the release day.
-doi: 10.5281/zenodo.17602371
+# citation (version DOI 10.5281/zenodo.17602371) is preserved in
+# legacy/CITATION.cff; that script double-weighted mass fractions.
+# The DOI below is the Zenodo *concept* DOI: it covers every version and
+# resolves to the newest, so citations aggregate across releases.
+# Set date-released on the day v1.0.0 is published.
+doi: 10.5281/zenodo.17602370
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
