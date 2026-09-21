@@ -135,3 +135,5 @@ Browser checks exercised live thickness changes, dimension-preserving unit chang
 Additional commands: `node tests/test_dashboard.cjs` and `node --check static/dashboard.js`.
 
 Per-plot controls follow-up: all 25 JavaScript tests passed, including independent scale/typography restoration and linear/logarithmic linked-energy range conversion. Browser verification confirmed different font sizes and y-axis scales persist independently after reload, bold SVG axis titles render, and the page has no horizontal overflow or console errors.
+
+Typography follow-up: enlarged headings and plot labels, compact figure margins and logarithmic power labels were checked in the browser. The transmission plot rendered spaced decade labels without horizontal page overflow or console errors. All 25 JavaScript tests passed.

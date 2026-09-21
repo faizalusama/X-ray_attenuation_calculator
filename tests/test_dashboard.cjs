@@ -70,7 +70,7 @@ test('independent plot scales and typography survive preference restoration',()=
   assert.equal(p[0].logX,false); assert.equal(p[1].logX,true);
   assert.equal(p[0].font,18); assert.equal(p[1].font,15);
   for(const key of ['bold','edges','grid','layers']) assert.equal(p[0][key],false);
-  assert.equal(cleanPreferences({dashboard:{panels:[{primary:'mass',font:999}]}}).panels[0].font,15);
+  assert.equal(cleanPreferences({dashboard:{panels:[{primary:'mass',font:999}]}}).panels[0].font,18);
 });
 test('linked energy ranges convert between linear and log coordinates safely',()=>{
   const {energyRange}=require('../static/dashboard.js');

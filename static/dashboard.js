@@ -25,7 +25,7 @@
   const MAX_PLOTS = Object.keys(QUANTITIES).length;
   const safe = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
   const copy = value => JSON.parse(JSON.stringify(value));
-  function panel(primary, id) { return {id, primary, secondary: "none", logY: !!QUANTITIES[primary].log, logY2: false, logX: true, font: 15, bold: true, edges: true, layers: true, grid: true, layer: 0, ranges: {}, visibility: {}}; }
+  function panel(primary, id) { return {id, primary, secondary: "none", logY: !!QUANTITIES[primary].log, logY2: false, logX: true, font: 18, bold: true, edges: true, layers: true, grid: true, layer: 0, ranges: {}, visibility: {}}; }
   function allPanels(existing = []) {
     return Object.keys(QUANTITIES).map((mode, i) => ({...copy(existing.find(p => p.primary === mode) || panel(mode, i + 1)), id: i + 1}));
   }
@@ -97,7 +97,7 @@
         primary: p.primary, secondary: p.primary !== "map" && p.secondary !== p.primary && p.secondary !== "map" && Object.hasOwn(QUANTITIES, p.secondary) ? p.secondary : "none",
         logY: p.primary !== "map" && (typeof p.logY === "boolean" ? p.logY : !!QUANTITIES[p.primary].log), logY2: typeof p.logY2 === "boolean" ? p.logY2 : false,
         logX: typeof p.logX === "boolean" ? p.logX : saved.logX !== false,
-        font: Number.isInteger(p.font) && p.font >= 11 && p.font <= 20 ? p.font : 15,
+        font: Number.isInteger(p.font) && p.font >= 11 && p.font <= 24 ? p.font : 18,
         bold: p.bold !== false, grid: p.grid !== false,
         edges: typeof p.edges === "boolean" ? p.edges : saved.edges !== false,
         layers: typeof p.layers === "boolean" ? p.layers : saved.layers !== false,
@@ -112,7 +112,7 @@
     const $ = selector => document.querySelector(selector);
     const $$ = selector => [...document.querySelectorAll(selector)];
     const settings = {panels: allPanels(), active: 0, layout: "grid", logX: true,
-      edges: true, layers: true, linked: true, gesture: "zoom", wheel: false, clickReference: false, font: 13, maxScale: 3, revision: 0, secondaryOpen: false, controlsOpen: false, wide: false, layoutVersion: 3, inputLayoutVersion: 1};
+      edges: true, layers: true, linked: true, gesture: "zoom", wheel: false, clickReference: false, font: 13, maxScale: 3, revision: 0, secondaryOpen: false, controlsOpen: false, wide: false, layoutVersion: 3, inputLayoutVersion: 1, typographyVersion: 1};
     let result = null, configuration = null, unit = "mm", sequence = MAX_PLOTS, syncing = false, rendering = Promise.resolve(), queued = false;
     const chosen = () => settings.panels[settings.active];
     const button = (label, attr, active, disabled = false) => `<button type="button" ${attr} aria-pressed="${active}" ${disabled ? "disabled" : ""}>${safe(label)}</button>`;
@@ -152,8 +152,8 @@
     }
     function axis(mode, log, side, p) {
       const color = side === "right" ? "#6954af" : "#38526a";
-      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 1, color}, standoff: 14},
-        type: log ? "log" : "linear", tickfont: {size: p.font, color}, tickformat: "~g", nticks: 6,
+      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 6, color}, standoff: 14},
+        type: log ? "log" : "linear", tickfont: {size: p.font, color}, tickformat: log ? "" : "~g", nticks: 5,
         ticks: "outside", ticklen: 5, tickcolor: "#91a4b5", linecolor: "#b8c8d4", showline: true,
         showgrid: p.grid && side !== "right", gridcolor: "#e8eef3", zeroline: false, automargin: true,
         exponentformat: "power", showexponent: "all", fixedrange: settings.gesture === "locked",
@@ -178,7 +178,7 @@
           shapes.push(shape(edge.energy_keV, "#d5b581", "dot"));
           const position = p.logX ? Math.log(edge.energy_keV / min) / Math.log(max / min) : (edge.energy_keV - min) / (max - min);
           if (position - lastPosition > .13) {
-            annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(edge.energy_keV) : edge.energy_keV, y: 1.02, text: `${safe(edge.element)} ${safe(edge.shell)}`, showarrow: false, font: {size: p.font - 2, color: "#8a6d39"}});
+            annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(edge.energy_keV) : edge.energy_keV, y: .91, yanchor: "top", text: `${safe(edge.element)} ${safe(edge.shell)}`, showarrow: false, font: {size: p.font - 2, color: "#8a6d39"}});
             lastPosition = position;
           }
         }
@@ -186,16 +186,16 @@
       const ref = result.reference.energy_keV;
       if (ref >= min && ref <= max) {
         shapes.push(shape(ref, "#72849e", "dash", 1.4));
-        annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(ref) : ref, y: 1.10, text: `${ref.toPrecision(4).replace(/\.?0+$/, "")} keV ref`, showarrow: false, bgcolor: "#fff", font: {size: p.font - 1, color: "#485d78"}});
+        annotations.push({xref: "x", yref: "paper", x: p.logX ? Math.log10(ref) : ref, y: .99, yanchor: "top", text: `${ref.toPrecision(4).replace(/\.?0+$/, "")} keV ref`, showarrow: false, bgcolor: "#fff", font: {size: p.font - 1, color: "#485d78"}});
       }
-      const layout = {height: exporting ? 760 : settings.layout === "grid" ? 450 : 540,
-        margin: {l: 85, r: secondary || isMap ? 90 : 30, t: 50, b: 95},
+      const layout = {height: exporting ? 760 : settings.layout === "grid" ? 500 : 560,
+        margin: {l: 78, r: secondary || isMap ? 85 : 20, t: 42, b: 65},
         paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff", font: {family: FONT, size: p.font, color: "#314b61"},
         hovermode: isMap ? "closest" : "x unified", hoverlabel: {bgcolor: "#fff", bordercolor: "#c5d6e2", font: {family: FONT, size: p.font, color: "#243d56"}},
         dragmode: settings.gesture === "locked" ? false : settings.gesture,
         uirevision: `${p.id}-${p.primary}-${p.secondary}-${unit}-${settings.revision}`,
-        legend: {orientation: "h", x: 0, y: -.23, xanchor: "left", yanchor: "top", font: {size: p.font - 1}, groupclick: "togglegroup"},
-        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 1}, standoff: 12}, type: p.logX ? "log" : "linear",
+        legend: {orientation: "h", x: 0, y: 1.02, xanchor: "left", yanchor: "bottom", font: {size: p.font - 1}, groupclick: "togglegroup"},
+        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 6}, standoff: 12}, type: p.logX ? "log" : "linear",
           range: p.logX ? [Math.log10(min), Math.log10(max)] : [min, max], autorange: false,
           ticks: "outside", ticklen: 5, tickfont: {size: p.font}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
           linecolor: "#b8c8d4", tickcolor: "#91a4b5", showline: true, showgrid: p.grid, gridcolor: "#e2e9f0", zeroline: false,
@@ -204,6 +204,17 @@
         ...(secondary ? {yaxis2: {...axis(p.secondary, p.logY2, "right", p), overlaying: "y", side: "right", tickmode: "auto"}} : {})};
       for (const [name, range] of Object.entries(p.ranges)) if (layout[name]) Object.assign(layout[name], {range, autorange: false});
       if (p.logX && layout.xaxis.range[1] - layout.xaxis.range[0] < .5) layout.xaxis.dtick = null;
+      // Limit logarithmic labels to a readable number of decades; never print
+      // tiny transmission fractions as long strings of decimal zeros.
+      for (const name of ["yaxis", "yaxis2"]) {
+        const a = layout[name]; if (!a || a.type !== "log") continue;
+        const ys = traces.filter(t => (t.yaxis || "y") === (name === "yaxis" ? "y" : "y2")).flatMap(t => t.y || []).filter(v => Number.isFinite(v) && v > 0);
+        const logs = ys.map(Math.log10);
+        const range = p.ranges[name] || (logs.length ? [logs.reduce((a,b) => Math.min(a,b), Infinity), logs.reduce((a,b) => Math.max(a,b), -Infinity)] : [0,1]);
+        const span = range[1] - range[0];
+        a.dtick = span >= 1 ? Math.max(1, Math.ceil(span / 5)) : null;
+        a.tickformat = ""; a.exponentformat = "power"; a.showexponent = "all";
+      }
       traces.forEach(trace => { if (trace.uid && Object.hasOwn(p.visibility || {}, trace.uid)) trace.visible = p.visibility[trace.uid]; });
       if (isMap && !p.ranges.yaxis) Object.assign(layout.yaxis, {range: [0, settings.maxScale], autorange: false});
       if (exporting) {
@@ -225,7 +236,13 @@
         for (const name of ["xaxis", "yaxis", "yaxis2"]) {
           if (changes[`${name}.autorange`]) { delete p.ranges[name]; if (name === "xaxis") hasX = true; }
           const range = changes[`${name}.range`] || (changes[`${name}.range[0]`] !== undefined ? [changes[`${name}.range[0]`], changes[`${name}.range[1]`]] : null);
-          if (range?.every(Number.isFinite)) { p.ranges[name] = range; if (name === "xaxis") hasX = true; }
+          if (range?.every(Number.isFinite)) {
+            p.ranges[name] = range; if (name === "xaxis") hasX = true;
+            if (name !== "xaxis" && graph.layout[name]?.type === "log") {
+              const span = range[1] - range[0], step = span >= 1 ? Math.max(1, Math.ceil(span / 5)) : null;
+              if (graph.layout[name].dtick !== step) await Plotly.relayout(graph, {[`${name}.dtick`]: step});
+            }
+          }
         }
         if (hasX && settings.linked) {
           syncing = true;
@@ -267,7 +284,7 @@
         card.querySelector(".plot-note").textContent = p.primary === "map" ? "All layers scale together; composition, density and angle are fixed. Colours show primary transmission. Hover reads sampled cells." : p.primary === "design" ? "Total normal thickness with every layer scaled proportionally. Undefined for a zero-thickness stack." : p.primary === "removed" ? "Removed fraction includes photons absorbed or scattered out of the primary beam. It is not absorbed energy or dose." : ["hvl", "tvl", "length"].includes(p.primary) ? "Path length in each homogeneous material, evaluated at each sampled energy." : "Hover reads evaluated samples · click a legend to hide a series · double-click a legend to isolate";
         const toggle = (key, label) => `<label><input type="checkbox" data-card-setting="${key}" ${p[key] ? "checked" : ""}>${label}</label>`;
         const localControls = card.querySelector(".card-controls");
-        if (!localControls.contains(document.activeElement)) localControls.innerHTML = toggle("logX", "Log energy") + (p.primary !== "map" ? toggle("logY", p.secondary === "none" ? "Log y" : "Log left y") : "") + (p.secondary !== "none" && p.primary !== "map" ? toggle("logY2", "Log right y") : "") + toggle("edges", "Edges") + ([p.primary,p.secondary].some(q => ["transmission","tau"].includes(q)) ? toggle("layers", "Layer curves") : "") + (p.primary !== "map" ? toggle("grid", "Grid") : "") + toggle("bold", "Bold labels") + `<label>Text <select data-card-setting="font" aria-label="Plot ${index+1} font size">${[11,12,13,14,15,16,17,18,19,20].map(n => `<option value="${n}" ${p.font === n ? "selected" : ""}>${n} px</option>`).join("")}</select></label><button type="button" data-card-reset="${p.id}">Reset view</button><button type="button" data-card-customize="${p.id}">Axes & quantities</button>`;
+        if (!localControls.contains(document.activeElement)) localControls.innerHTML = toggle("logX", "Log energy") + (p.primary !== "map" ? toggle("logY", p.secondary === "none" ? "Log y" : "Log left y") : "") + (p.secondary !== "none" && p.primary !== "map" ? toggle("logY2", "Log right y") : "") + toggle("edges", "Edges") + ([p.primary,p.secondary].some(q => ["transmission","tau"].includes(q)) ? toggle("layers", "Layer curves") : "") + (p.primary !== "map" ? toggle("grid", "Grid") : "") + toggle("bold", "Bold labels") + `<label>Text <select data-card-setting="font" aria-label="Plot ${index+1} font size">${[11,12,13,14,15,16,17,18,19,20,21,22,23,24].map(n => `<option value="${n}" ${p.font === n ? "selected" : ""}>${n} px</option>`).join("")}</select></label><button type="button" data-card-reset="${p.id}">Reset view</button><button type="button" data-card-customize="${p.id}">Axes & quantities</button>`;
         const node = card.querySelector(".scientific-plot"), fresh = !node.data, f = figure(p);
         // Re-measure when switching between rows, grid and the input sidebar.
         // Plotly.react otherwise keeps a previous wide plot inside a narrow card.
@@ -376,6 +393,7 @@
         // Upgrade an older two/four-plot workspace once. Later custom choices
         // remain remembered; Show all plots restores the complete dashboard.
         if (value?.dashboard?.layoutVersion !== 3) { settings.panels = allPanels(settings.panels); settings.active = 0; settings.layout = "grid"; }
+        if (value?.dashboard?.typographyVersion !== 1) settings.panels.forEach(p => { p.font = Math.max(18, p.font); });
         sequence = Math.max(...settings.panels.map(p => p.id));
         if (Object.hasOwn(LENGTH_UNITS, value?.lengthUnit)) unit = value.lengthUnit;
         controls();
