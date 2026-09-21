@@ -7,10 +7,10 @@
   <meta name="description" content="An offline scientific workbench for X-ray attenuation in materials, glasses, ceramics and multilayers.">
   <title>Attenuation Lab · X-ray workbench</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2313273b'/%3E%3Cpath d='M10 25h8l5-12 6 23 4-11h5' fill='none' stroke='%237ddcc6' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921">
+  <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921b">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
-  <script src="/static/dashboard.js?v=20260921" defer></script>
-  <script src="/static/app.js?v=20260921" defer></script>
+  <script src="/static/dashboard.js?v=20260921b" defer></script>
+  <script src="/static/app.js?v=20260921b" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -24,7 +24,7 @@
         <div class="model-label"><span class="model-dot"></span><div><strong>Beer–Lambert model</strong><span>Narrow beam · 1–800 keV</span></div></div>
       </section>
       <div class="workspace">
-        <aside class="configuration" aria-label="Experiment configuration"><button type="button" id="close-inputs" class="close-inputs">Hide inputs ←</button>
+        <aside class="configuration" aria-label="Experiment configuration"><button type="button" id="close-inputs" class="close-inputs">Hide inputs →</button>
           <div class="panel-heading"><div><span class="section-number">01</span><h2>Define your system</h2></div><span class="small-label" id="layer-count">1 LAYER</span></div>
           <form id="config-form">
             <div class="length-unit-controls"><span>Thickness &amp; path-length units</span><div id="length-units" class="segmented" role="group" aria-label="Length display units"></div><small>Changing units preserves physical dimensions.</small></div><div class="layer-list" id="layer-list"></div>
@@ -38,6 +38,26 @@
             </section>
             <div class="run-area"><button type="submit" class="button run-button" id="run-button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 8 6-8 6z"/></svg><span>Refresh now</span><span class="run-arrow" aria-hidden="true">↗</span></button><div class="run-note">Live calculation · Updates automatically as you edit</div></div>
           </form>
+          <section class="process-schematic" aria-labelledby="process-title">
+            <h3 id="process-title">How the calculation works</h3>
+            <svg viewBox="0 0 320 330" role="img" aria-labelledby="process-svg-title process-svg-desc">
+              <title id="process-svg-title">From material inputs to primary transmission</title>
+              <desc id="process-svg-desc">Composition and atomic coefficients determine mass attenuation. Density, normal thickness and angle determine optical depth. Layer optical depths add; the exponential of their negative sum gives primary transmission.</desc>
+              <defs><marker id="process-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#7085a0"/></marker></defs>
+              <g fill="none" stroke="#7085a0" stroke-width="1.5" marker-end="url(#process-arrow)"><path d="M160 62v22"/><path d="M160 136v22"/><path d="M160 210v22"/><path d="M160 280v20"/></g>
+              <rect x="10" y="4" width="300" height="58" rx="9" fill="#eaf3fa"/>
+              <text x="160" y="27">Composition + atomic data</text><text class="process-detail" x="160" y="47">Mass-weighted coefficient µ/ρ at each energy</text>
+              <rect x="10" y="84" width="300" height="52" rx="9" fill="#f0ebf8"/>
+              <text x="160" y="106">Density × ray path</text><text class="process-detail" x="160" y="125">Ray path = normal thickness / cos θ</text>
+              <rect x="10" y="158" width="300" height="52" rx="9" fill="#fcf0dc"/>
+              <text x="160" y="180">Add layer optical depths</text><text class="process-detail" x="160" y="199">τ = Σ (µ/ρ) × density × ray path</text>
+              <rect x="10" y="232" width="300" height="48" rx="9" fill="#e3f4ee"/>
+              <text x="160" y="252">Primary transmission T = exp(−τ)</text><text class="process-detail" x="160" y="270">Scattered photons leave the primary beam</text>
+              <text x="160" y="321">Live plots · target thickness · exports</text>
+            </svg>
+            <p>Lengths are converted to consistent units internally. Removed fraction 1 − T is not absorbed energy or dose.</p>
+          </section>
+          <section class="panel stack-panel"><div class="compact-heading"><div class="eyebrow subtle">BEAM PATH</div><h3>Your multilayer stack</h3></div><div id="stack-visual"></div></section>
         </aside>
         <section id="results-workspace" class="results-workspace" aria-label="Analysis results">
           <div class="results-topline"><div class="tabs" role="tablist" aria-label="Analysis views"><button id="tab-overview" role="tab" aria-selected="true" aria-controls="view-overview" tabindex="0" data-tab="overview" class="tab active">Overview</button><button id="tab-materials" role="tab" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-tab="materials" class="tab">Materials</button><button id="tab-spectrum" role="tab" aria-selected="false" aria-controls="view-spectrum" tabindex="-1" data-tab="spectrum" class="tab">Spectrum</button><button id="tab-uncertainty" role="tab" aria-selected="false" aria-controls="view-uncertainty" tabindex="-1" data-tab="uncertainty" class="tab">Uncertainty</button><button id="tab-methods" role="tab" aria-selected="false" aria-controls="view-methods" tabindex="-1" data-tab="methods" class="tab">Methods</button></div><span class="result-status" id="result-status" role="status"><i></i> Starting live calculation…</span></div>
@@ -45,7 +65,7 @@
           <section id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
             <section class="chart-panel panel">
               <div class="dashboard-heading"><h2>Energy response</h2><span class="dashboard-hint">Drag to zoom · hover to inspect</span></div>
-              <div class="plot-quick-controls">                <div class="dashboard-toolbar"><div class="segmented" id="plot-selectors" role="group" aria-label="Select plot to configure"></div><div class="toolbar-actions"><button type="button" id="show-all-plots" class="button quiet small">Show all plots</button><button type="button" id="add-plot" class="button outline small">+ Add plot</button><button type="button" id="remove-plot" class="button quiet small">Remove plot</button><button type="button" id="dashboard-focus" class="button quiet small" aria-pressed="true">Show inputs</button></div></div>                <div class="interaction-toolbar"><div class="control-group"><span>Mouse</span><div class="segmented" role="group" aria-label="Plot mouse interaction"><button type="button" data-gesture="zoom" aria-pressed="true">Box zoom</button><button type="button" data-gesture="pan" aria-pressed="false">Pan</button><button type="button" data-gesture="locked" aria-pressed="false">Lock</button></div><button id="reset-view" type="button" class="button quiet small">Reset view ↺</button></div><div class="control-group"><span>Layout</span><div class="segmented" role="group" aria-label="Dashboard arrangement"><button type="button" data-layout="stack" aria-pressed="true">Rows</button><button type="button" data-layout="grid" aria-pressed="false">Grid</button></div></div></div><div class="quick-export"><span>Drag to scale · hover to inspect · live updates</span><button type="button" id="quick-export-svg" class="button outline small">Export active plot SVG ↓</button></div></div>
+              <div class="plot-quick-controls">                <div class="dashboard-toolbar"><div class="segmented" id="plot-selectors" role="group" aria-label="Select plot to configure"></div><div class="toolbar-actions"><button type="button" id="show-all-plots" class="button quiet small">Show all plots</button><button type="button" id="add-plot" class="button outline small">+ Add plot</button><button type="button" id="remove-plot" class="button quiet small">Remove plot</button><button type="button" id="dashboard-focus" class="button quiet small" aria-pressed="false">Hide inputs</button></div></div>                <div class="interaction-toolbar"><div class="control-group"><span>Mouse</span><div class="segmented" role="group" aria-label="Plot mouse interaction"><button type="button" data-gesture="zoom" aria-pressed="true">Box zoom</button><button type="button" data-gesture="pan" aria-pressed="false">Pan</button><button type="button" data-gesture="locked" aria-pressed="false">Lock</button></div><button id="reset-view" type="button" class="button quiet small">Reset view ↺</button></div><div class="control-group"><span>Layout</span><div class="segmented" role="group" aria-label="Dashboard arrangement"><button type="button" data-layout="stack" aria-pressed="true">Rows</button><button type="button" data-layout="grid" aria-pressed="false">Grid</button></div></div></div><div class="quick-export"><span>Drag to scale · hover to inspect · live updates</span><button type="button" id="quick-export-svg" class="button outline small">Export active plot SVG ↓</button></div></div>
               <details id="plot-settings" class="plot-settings"><summary>Customize selected plot <span>Quantities · second y-axis · scales · display</span></summary><div id="dashboard-controls" class="dashboard-controls">
                 <div class="quantity-controls"><div class="control-caption"><strong id="plot-control-title">Configure plot 1</strong><span>Left y-axis</span></div><div class="quantity-buttons" id="plot-quantities" role="group" aria-label="Left-axis quantity"></div></div>
                 <details id="secondary-details" class="secondary-details"><summary>Second y-axis <span>Compare different quantities and units</span></summary><div id="secondary-controls"><div class="control-caption"><span>Right y-axis · dotted curves · independent scale</span></div><div class="quantity-buttons secondary-buttons" id="secondary-quantities" role="group" aria-label="Right-axis quantity"></div></div></details>
@@ -59,7 +79,7 @@
             </section>
             <div class="metrics" id="metrics"></div>
             <details id="model-scope" class="model-scope"><summary>Model assumptions &amp; limits <span>Primary transmission · independent atoms</span></summary><div><p><strong>Narrow-beam primary transmission.</strong> Photons scattered out of the beam are removed. Removed fraction is not absorbed energy or dose. Buildup, multiple scattering, secondary fluorescence and detector response are not modeled.</p><p><strong>Independent-atom mixture coefficients.</strong> The model omits chemical-state near-edge structure, diffraction, coherent interfaces and microstructure-dependent transport. Edge brackets locate tabulated steps; they do not predict XANES/EXAFS.</p><p>Layer order does not change primary transmission in this model. HVL, TVL and attenuation length refer to path length within each homogeneous material.</p></div></details>
-            <div class="overview-bottom"><section class="panel stack-panel"><div class="compact-heading"><div class="eyebrow subtle">BEAM PATH</div><h3>Your multilayer stack</h3></div><div id="stack-visual"></div></section><section class="panel insight-panel"><div class="eyebrow subtle">AT YOUR REFERENCE ENERGY</div><h3>Design to a target</h3><div id="target-insight"></div></section></div>
+            <div class="overview-bottom"><section class="panel insight-panel"><div class="eyebrow subtle">AT YOUR REFERENCE ENERGY</div><h3>Design to a target</h3><div id="target-insight"></div></section></div>
             <div class="export-bar"><span id="provenance-short">Scientific model and data sources are documented under Methods.</span><div><button class="button quiet small" id="export-csv" disabled>Export CSV ↓</button><button class="button quiet small" id="export-json" disabled>Results JSON ↓</button></div></div>
           </section>
           <section id="view-materials" role="tabpanel" aria-labelledby="tab-materials" hidden><div class="view-intro"><div class="eyebrow subtle">COMPOSITION & INTERACTIONS</div><h2>See what each material contributes.</h2><p>Normalized elemental composition, effective density, and reference-energy attenuation for every layer.</p></div><div id="materials-results"></div></section>

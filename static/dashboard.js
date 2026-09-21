@@ -82,7 +82,7 @@
     const result = {}, saved = value?.dashboard;
     if (!saved || typeof saved !== "object") return result;
     for (const key of ["logX", "edges", "layers", "linked", "wheel", "clickReference", "secondaryOpen", "controlsOpen"]) if (typeof saved[key] === "boolean") result[key] = saved[key];
-    if ([2, 3].includes(saved.layoutVersion) && typeof saved.wide === "boolean") result.wide = saved.wide;
+    if (saved.inputLayoutVersion === 1 && typeof saved.wide === "boolean") result.wide = saved.wide;
     if (["zoom", "pan", "locked"].includes(saved.gesture)) result.gesture = saved.gesture;
     if (["stack", "grid"].includes(saved.layout)) result.layout = saved.layout;
     if (Number.isInteger(saved.font) && saved.font >= 11 && saved.font <= 18) result.font = saved.font;
@@ -102,7 +102,7 @@
     const $ = selector => document.querySelector(selector);
     const $$ = selector => [...document.querySelectorAll(selector)];
     const settings = {panels: allPanels(), active: 0, layout: "grid", logX: true,
-      edges: true, layers: true, linked: true, gesture: "zoom", wheel: false, clickReference: false, font: 13, maxScale: 3, revision: 0, secondaryOpen: false, controlsOpen: false, wide: true, layoutVersion: 3};
+      edges: true, layers: true, linked: true, gesture: "zoom", wheel: false, clickReference: false, font: 13, maxScale: 3, revision: 0, secondaryOpen: false, controlsOpen: false, wide: false, layoutVersion: 3, inputLayoutVersion: 1};
     let result = null, configuration = null, unit = "mm", sequence = MAX_PLOTS, syncing = false, rendering = Promise.resolve(), queued = false;
     const chosen = () => settings.panels[settings.active];
     const button = (label, attr, active, disabled = false) => `<button type="button" ${attr} aria-pressed="${active}" ${disabled ? "disabled" : ""}>${safe(label)}</button>`;
