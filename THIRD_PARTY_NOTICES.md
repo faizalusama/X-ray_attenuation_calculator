@@ -43,6 +43,17 @@ underlying data source, not only this tool, in published work.
   <https://doi.org/10.1016/S0969-806X(01)00227-4>
 - XrayDB: <https://xraypy.github.io/XrayDB/>
 
+The bundled materials library also contains factual composition and density
+data from two public U.S. Government scientific references. Their source
+records, retrieval hashes and caveats travel with every material entry.
+
+- Hubbell, J. H. & Seltzer, S. M. *Tables of X-Ray Mass Attenuation
+  Coefficients and Mass Energy-Absorption Coefficients*, NIST SRD 126.
+  <https://doi.org/10.18434/T4D01F>
+- Detwiler, R. S., McConn, R. J., Grimes, T. F., Upton, S. A. & Engel, E. J.
+  (2021). *Compendium of Material Composition Data for Radiation Transport
+  Modeling*, PNNL-15870 Rev. 2. <https://doi.org/10.2172/1782721>
+
 ## Prior work in `legacy/`
 
 [`legacy/`](legacy/) preserves the original X-ray attenuation calculator for

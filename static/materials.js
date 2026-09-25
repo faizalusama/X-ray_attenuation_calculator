@@ -12,8 +12,8 @@
   const fmt = (value, digits = 4) => (value == null || !Number.isFinite(value)) ? "—" : Number(value).toPrecision(digits).replace(/(\.\d*?)0+(e|$)/, "$1$2").replace(/\.(e|$)/, "$1");
   const sub = formula => esc(formula).replace(/(\d+(?:\.\d+)?)/g, "<sub>$1</sub>");
 
-  // Category families keep the palette to nine colours (Okabe-Ito plus grey),
-  // which remain distinguishable with common colour-vision deficiencies.
+  // Families use a colour-blind-conscious base palette plus distinct neutral
+  // engineering colours. Marker shape also communicates provenance status.
   const FAMILIES = [
     {id: "oxide", label: "Oxide ceramics", color: "#0072B2", members: ["oxide_ceramic", "nuclear_ceramic"]},
     {id: "nonoxide", label: "Non-oxide ceramics", color: "#D55E00", members: ["non_oxide_ceramic"]},
@@ -24,6 +24,9 @@
     {id: "glass", label: "Glasses, borates, sulfates", color: "#7A5195", members: ["glass", "glass_ceramic", "borate", "sulfate"]},
     {id: "concrete", label: "Concrete", color: "#8C6D31", members: ["concrete"]},
     {id: "reference", label: "Reference media (tissue, polymer, fluid)", color: "#8A8F94", members: ["biological_reference", "polymer", "liquid", "gas", "detector_medium"]},
+    {id: "engineering", label: "Alloys and engineering materials", color: "#4E5D6C", members: ["alloy", "engineering_reference"]},
+    {id: "natural", label: "Geological materials", color: "#A6761D", members: ["geological"]},
+    {id: "special", label: "Nuclear and energetic materials", color: "#B2182B", members: ["nuclear_material", "explosive"]},
   ];
   const FAMILY_OF = Object.fromEntries(FAMILIES.flatMap(f => f.members.map(m => [m, f])));
   const CATEGORY_LABEL = {
@@ -32,6 +35,8 @@
     scintillator: "Scintillator", halide: "Halide", semiconductor: "Semiconductor", glass: "Glass",
     glass_ceramic: "Glass-ceramic", borate: "Borate", sulfate: "Sulfate", concrete: "Concrete", cement_phase: "Cement phase",
     biological_reference: "Biological reference", polymer: "Polymer", liquid: "Liquid", gas: "Gas", detector_medium: "Detector medium",
+    alloy: "Alloy", geological: "Geological material", explosive: "Energetic material", nuclear_material: "Nuclear material",
+    engineering_reference: "Engineering reference",
   };
   const TIER_LABEL = {reference_data: "Reference data", stoichiometric: "Stoichiometric", literature: "Literature"};
   const COMPARE_COLORS = ["#D55E00", "#009E73", "#CC79A7"];

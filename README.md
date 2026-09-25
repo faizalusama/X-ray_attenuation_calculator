@@ -59,7 +59,7 @@ SVG export includes the selected plot, its axes and configuration/provenance met
 
 ## What is included
 
-- **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, and illustrative materials presets.
+- **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, illustrative presets, and a 501-entry provenance-aware materials library spanning NIST reference media, PNNL engineering materials, and stoichiometric phases.
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
 - **Geometry:** multiple homogeneous planar layers, individual thicknesses in mm, and incidence angles measured from the surface normal.
 - **Energy:** 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.

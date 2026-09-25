@@ -34,7 +34,7 @@ def mass_fractions(material_or_layer):
 
 def test_library_loads_with_unique_ids_across_datasets():
     loaded = materials.load()
-    assert len(loaded) >= 140
+    assert len(loaded) == 501
     assert len({m.id for m in loaded}) == len(loaded)
     assert {m.tier for m in loaded} >= {"reference_data", "stoichiometric"}
 
@@ -71,9 +71,40 @@ def test_nist_dataset_records_its_provenance():
 
 
 def test_nist_mass_fractions_sum_to_one():
-    for material in materials.search(tier="reference_data"):
+    for material in (m for m in materials.load() if m.dataset_id == "nist-srd126-table2"):
         assert material.basis == "mass"
         assert sum(x for _, x in material.components) == pytest.approx(1.0, abs=1e-5), material.id
+
+
+def test_pnnl_rev2_import_is_complete_multielement_and_traceable():
+    dataset = materials.datasets()["pnnl-15870-rev2"]
+    imported = [m for m in materials.load() if m.dataset_id == "pnnl-15870-rev2"]
+    assert len(imported) == 359
+    assert dataset["doi"] == "10.2172/1782721"
+    assert dataset["report_number"] == "PNNL-15870 Rev. 2 / 200-DMAMC-128170"
+    assert dataset["retrieved_sha256"] == "72b26dba2c3b5583b86fe5d5fe27a43d2890331d0515ce787f1c18fd7321cee6"
+    assert len({m.reference_constants["pnnl_material_number"] for m in imported}) == len(imported)
+    assert all(len(m.components) >= 2 for m in imported)
+    assert all(m.density_status == "sourced" for m in imported)
+    assert all(sum(value for _, value in m.components) == pytest.approx(1, abs=5e-4) for m in imported)
+
+
+@pytest.mark.parametrize("identifier,category", [
+    ("pnnl-r2-008-aluminum-alloy-2024-o", "alloy"),
+    ("pnnl-r2-101-concrete-magnetite", "concrete"),
+    ("pnnl-r2-158-glass-lead", "glass"),
+    ("pnnl-r2-274-polyethylene-borated", "polymer"),
+])
+def test_pnnl_representative_engineering_materials(identifier, category):
+    material = materials.get(identifier)
+    assert material.category == category
+    assert material.reference_constants["pnnl_material_number"] > 0
+
+
+def test_pnnl_printed_rounding_is_preserved_and_engine_normalizes_it():
+    material = materials.get("pnnl-r2-321-sodium-iodide-with-8-wt-lithium-0-10-wt-thalium-doped")
+    assert sum(value for _, value in material.components) == pytest.approx(0.999672)
+    assert sum(mass_fractions(material).values()) == pytest.approx(1)
 
 
 def test_every_stoichiometric_density_is_marked_unverified():

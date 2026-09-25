@@ -45,6 +45,7 @@ CATEGORIES = (
     "electroceramic", "magnetic_ceramic", "scintillator", "halide", "semiconductor",
     "glass", "glass_ceramic", "borate", "sulfate", "concrete", "cement_phase",
     "biological_reference", "polymer", "liquid", "gas", "detector_medium",
+    "alloy", "geological", "explosive", "nuclear_material", "engineering_reference",
 )
 _ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _DOI = re.compile(r"^10\.\d{4,9}/\S+$")
