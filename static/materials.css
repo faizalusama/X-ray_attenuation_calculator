@@ -90,3 +90,10 @@
 .ml-primary{background:#087f8c;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
 .ml-primary:hover{background:#066a75}
 .ml-title-row>div:first-child{flex:1;min-width:280px}
+
+/* Match the library to the polished scientific workspace. */
+.ml-dialog{border-color:#becdd9;border-radius:16px;background:#f3f6fa;box-shadow:0 32px 90px rgba(13,33,50,.35)}.ml-dialog::backdrop{background:rgba(17,31,47,.55);backdrop-filter:blur(5px)}
+.ml-header{padding:20px 26px 16px;background:linear-gradient(110deg,#fff,#f3f6fb);border-color:#cedae4}.ml-header h2{color:#203b53;letter-spacing:-.4px}.ml-close{border-radius:9px;transition:background .15s,transform .15s}.ml-close:hover{transform:rotate(4deg)}
+.ml-browse{padding:18px;background:linear-gradient(180deg,#fff,#f7f9fc);border-color:#d3dee7}.ml-field input,.ml-field select{border-radius:8px;border-color:#c6d4df}.ml-item{border-radius:9px;transition:background .14s,border-color .14s,transform .14s}.ml-item:hover{transform:translateX(2px);background:#edf4f7}.ml-item[aria-pressed=true]{background:linear-gradient(100deg,#e2f2ef,#edf4fa);border-color:#73b3ae;box-shadow:0 4px 13px #2d6f7015}
+.ml-tabs{padding-top:12px;background:#f0f4f8}.ml-tabs [role=tab]{border-radius:9px 9px 0 0}.ml-tabs [role=tab]:hover{background:#f8fafc;color:#225c67}.ml-view{padding:21px 23px 27px}.ml-card{border-radius:12px;border-color:#d3dfe8;box-shadow:0 6px 18px rgba(31,55,78,.055)}.ml-chart-card{box-shadow:0 9px 25px rgba(31,55,78,.07)}.ml-badge{border:1px solid #dce5eb}.ml-primary{border-radius:9px;background:linear-gradient(105deg,#087f8c,#3e6ca5);box-shadow:0 5px 14px #176e8227}.ml-primary:hover{background:linear-gradient(105deg,#076d78,#355d91)}.ml-warning{border-radius:9px}.ml-table tbody tr:hover{background:#f4f8fa}
+@media(max-width:900px){.ml-dialog{width:98vw;height:96vh;border-radius:12px}.ml-view{padding:15px}.ml-body{background:#f3f6fa}}
