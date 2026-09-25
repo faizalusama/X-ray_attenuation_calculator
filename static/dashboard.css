@@ -108,3 +108,9 @@ body{font-size:16px;line-height:1.5}.page-heading h1,.dashboard-heading h2,.pane
 @media(min-width:1650px){.workspace{grid-template-columns:minmax(0,1fr) 390px}}
 @media(max-width:1200px){.workspace{grid-template-columns:minmax(0,1fr) 340px}.plot-card>header button{font-size:22px}}
 @media(max-width:900px){.workspace{grid-template-columns:minmax(0,1fr)}.page-heading h1,.dashboard-heading h2{font-size:22px}.topbar{flex-wrap:wrap}.dashboard-wide .plot-grid[data-layout=grid]{grid-template-columns:minmax(0,1fr)}}
+
+/* Size plots from the space actually available beside the input column. */
+.results-workspace{container:results/inline-size}.plot-grid[data-layout=grid]{grid-template-columns:minmax(0,1fr)}
+@container results (min-width:1180px){.plot-grid[data-layout=grid]{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html:fullscreen body{min-height:100vh}html:fullscreen main{width:100%;max-width:none;padding-left:18px;padding-right:18px}html:fullscreen .topbar{position:sticky;top:0;z-index:8}
+@media(min-width:2200px){.workspace{grid-template-columns:minmax(0,1fr) 430px;gap:30px}.plot-grid{gap:16px;padding:14px}.topbar{padding-left:30px;padding-right:30px}main{padding-left:30px;padding-right:30px}}

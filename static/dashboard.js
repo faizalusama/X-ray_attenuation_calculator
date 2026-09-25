@@ -34,6 +34,10 @@
     const converted = range.map(v => fromLog === toLog ? v : toLog ? Math.log10(v) : 10 ** v);
     return converted.every(Number.isFinite) && converted[1] > converted[0] ? converted : undefined;
   }
+  function plotHeight(width, viewportHeight = 900) {
+    const available = Number.isFinite(viewportHeight) ? viewportHeight * .72 : 648;
+    return Math.round(Math.max(430, Math.min(720, Number(width) * .66, available)));
+  }
   function fromMM(value, unit = "mm") { return value == null ? null : value / LENGTH_UNITS[unit]; }
   function toMM(value, unit = "mm") { return value == null ? null : value * LENGTH_UNITS[unit]; }
   function axisTitle(mode, lengthUnit) { const q = QUANTITIES[mode]; return `${q.label} · ${q.length ? lengthUnit : q.unit}`; }
@@ -289,6 +293,7 @@
         // Re-measure when switching between rows, grid and the input sidebar.
         // Plotly.react otherwise keeps a previous wide plot inside a narrow card.
         f.layout.width = Math.max(240, Math.floor(node.getBoundingClientRect().width));
+        f.layout.height = plotHeight(f.layout.width, globalThis.innerHeight);
         node.setAttribute("aria-label", `${QUANTITIES[p.primary].title}${p.secondary !== "none" ? ` with ${QUANTITIES[p.secondary].label} on the right axis` : ""}`);
         await Plotly.react(node, f.data, f.layout, plotOptions());
         if (fresh) bindPlot(node, p);
@@ -407,5 +412,5 @@
       preferences() { return {lengthUnit: unit, dashboard: copy(settings)}; }
     };
   }
-  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
+  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, plotHeight, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
 });

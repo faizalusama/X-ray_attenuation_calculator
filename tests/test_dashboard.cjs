@@ -1,7 +1,7 @@
 "use strict";
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {LENGTH_UNITS, toMM, fromMM, valuesFor, traceData, thicknessMap, cleanPreferences} = require('../static/dashboard.js');
+const {LENGTH_UNITS, toMM, fromMM, valuesFor, traceData, thicknessMap, cleanPreferences, plotHeight} = require('../static/dashboard.js');
 const {initial, cleanProject} = require('../static/app.js');
 const near = (a,b) => assert.ok(Math.abs(a-b) <= 1e-12 * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
 const result = {energy_keV:[10,20,40], optical_depth:[2,1,.5], transmission:[Math.exp(-2),Math.exp(-1),Math.exp(-.5)], removed_fraction:[1-Math.exp(-2),1-Math.exp(-1),1-Math.exp(-.5)], layers:[{name:'Sample', path_length_mm:10, mu_linear_cm_inv:[2,1,.5], mu_mass_cm2_g:[1,.5,.25], photoelectric_cm2_g:[.8,.3,.1], coherent_cm2_g:[.1,.1,.05], incoherent_cm2_g:[.1,.1,.1]}]};
@@ -11,6 +11,11 @@ test('unit changes preserve physical thickness over nm to metres',()=>{
   for (const unit of Object.keys(LENGTH_UNITS)) for (const mm of [0, 1e-6, .03, 1, 250, 1e9]) near(toMM(fromMM(mm, unit),unit),mm);
   assert.equal(fromMM(1,'µm'),1000);assert.equal(fromMM(1,'cm'),.1);assert.equal(toMM(1000,'nm'),.001);
   assert.equal(toMM(null,'µm'),null);
+});
+test('plot height grows with available screen space and remains readable',()=>{
+  assert.equal(plotHeight(500,700),430);
+  assert.equal(plotHeight(900,900),594);
+  assert.equal(plotHeight(1800,1400),720);
 });
 test('HVL, TVL and attenuation lengths use ray-path coefficients and selected units',()=>{
   const hvl=valuesFor(result,config,'hvl',0,'µm')[0].values;

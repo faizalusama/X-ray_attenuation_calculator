@@ -124,6 +124,11 @@
       if (!Number.isFinite(value)) return;
       if (slider.dataset.sliderField === "thickness_mm") slider.max = Math.max(displayLength(10), Number(slider.max), value > Number(slider.max) ? value * 1.2 : Number(slider.max));
       slider.value = value;
+      const box = slider.closest(".slider-box");
+      const output = box?.querySelector("[data-slider-output]");
+      const maximum = box?.querySelector("[data-slider-maximum]");
+      if (output) output.textContent = slider.dataset.sliderField === "thickness_mm" ? `${number(value)} ${state.lengthUnit}` : `${number(value)}°`;
+      if (maximum) maximum.textContent = slider.dataset.sliderField === "thickness_mm" ? `${number(Number(slider.max))} ${state.lengthUnit}` : `${number(Number(slider.max))}°`;
     });
     const energy = state.configuration.energy;
     if (energy.min_keV > 0 && energy.max_keV > energy.min_keV) {
@@ -133,7 +138,10 @@
     if (Number.isFinite(energy.reference_keV)) $("#reference-slider").value = energy.reference_keV;
   }
   function geometrySlider(fieldName, value, index, label, maximum) {
-    return `<label class="slider-label"><span>${label}</span><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${fieldName === "angle_deg" ? -89.8 : 0}" max="${maximum}" value="${esc(value)}" step="any"></label>`;
+    const thickness = fieldName === "thickness_mm";
+    const minimum = thickness ? 0 : -89.8;
+    const unit = thickness ? state.lengthUnit : "°";
+    return `<label class="slider-box ${thickness ? "thickness-slider" : "angle-slider"}"><span class="slider-heading"><span>${label}</span><output data-slider-output>${number(value)} ${unit}</output></span><span class="slider-track-shell"><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${minimum}" max="${maximum}" value="${esc(value)}" step="any"></span><span class="slider-scale"><span>${number(minimum)} ${unit}</span><span data-slider-maximum>${number(maximum)} ${unit}</span></span></label>`;
   }
   function field(label, name, value, index, extra = "", unit = "") {
     return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="number" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
@@ -624,6 +632,21 @@
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
   $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
   $("#load-project").addEventListener("click",()=>$("#project-file").click());
+  const fullscreenButton = $("#fullscreen-workspace");
+  if (!document.documentElement.requestFullscreen) fullscreenButton.hidden = true;
+  else {
+    fullscreenButton.addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+      } catch (exception) { error(`Full-screen mode is unavailable: ${exception.message}`); }
+    });
+    document.addEventListener("fullscreenchange", () => {
+      const active = !!document.fullscreenElement;
+      fullscreenButton.textContent = active ? "Exit full screen" : "Full screen";
+      fullscreenButton.setAttribute("aria-pressed", String(active));
+    });
+  }
   $("#project-file").addEventListener("change",async event=>{
     const file=event.target.files[0];if(!file)return;
     try{if(file.size>10*1024*1024)throw new Error("Project files must be smaller than 10 MB.");const documentValue=JSON.parse(await file.text());const config=cleanProject(documentValue);restoreUI(documentValue.ui);state.configuration=config;state.openLayer=0;syncControls();dirty();toast("Project loaded. Updating the live results.");}catch(exception){error(`Could not open project: ${exception.message}`);}finally{event.target.value="";}
