@@ -20,7 +20,8 @@
     design: {label: "Target thickness", title: "Stack thickness required for the target", length: true, log: true},
     map: {label: "Thickness map", title: "Transmission across energy and thickness", unit: "× current thickness"}
   });
-  const PALETTE = ["#087f8c", "#6366c9", "#dc8042", "#c34e76", "#319577", "#6686ad", "#9370af", "#987133"];
+  // High-contrast scientific colours remain distinct on screens and paper.
+  const PALETTE = ["#007C91", "#6556C6", "#D36B32", "#C13F72", "#198F71", "#3F78B5", "#8B5FB0", "#9A721F"];
   const FONT = '"Aptos", "Segoe UI", Arial, sans-serif';
   const MAX_PLOTS = Object.keys(QUANTITIES).length;
   const safe = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
@@ -76,8 +77,9 @@
         y: series.values.map(v => Number.isFinite(v) && (!log || v > 0) ? v : null),
         name: safe(`${series.name}${axis === "y2" ? " · right" : ""}`), uid: `${axis}-${mode}-${series.id}`,
         legendgroup: `${axis}-${mode}-${series.id}`, yaxis: axis,
-        line: {color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, width: series.dash ? 1.7 : 2.6, dash: axis === "y2" ? "dot" : series.dash ? "dash" : "solid", shape: "linear", simplify: false},
-        connectgaps: false, hovertemplate: `%{y:.6g} ${safe(unit)}<extra>%{fullData.name}</extra>`}));
+        line: {color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, width: series.dash ? 2 : 3, dash: axis === "y2" ? "dot" : series.dash ? "dash" : "solid", shape: "linear", simplify: false},
+        marker: {size: 7, color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, line: {color: "#fff", width: 1}},
+        connectgaps: false, hovertemplate: `<b>%{fullData.name}</b><br>Energy&nbsp; %{x:.6g} keV<br>${safe(QUANTITIES[mode].label)}&nbsp; %{y:.6g} ${safe(unit)}<extra></extra>`}));
     if (mode === "transmission" && result.uncertainty) {
       const group = `${axis}-transmission-stack`, convert = values => values.map(v => log && v <= 0 ? null : v * 100);
       traces.unshift({type: "scatter", x: result.energy_keV, y: convert(result.uncertainty.transmission_p025), yaxis: axis,
@@ -156,10 +158,10 @@
     }
     function axis(mode, log, side, p) {
       const color = side === "right" ? "#6954af" : "#38526a";
-      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 6, color}, standoff: 14},
+      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 5, color}, standoff: 17},
         type: log ? "log" : "linear", tickfont: {size: p.font, color}, tickformat: log ? "" : "~g", nticks: 5,
-        ticks: "outside", ticklen: 5, tickcolor: "#91a4b5", linecolor: "#b8c8d4", showline: true,
-        showgrid: p.grid && side !== "right", gridcolor: "#e8eef3", zeroline: false, automargin: true,
+        ticks: "outside", ticklen: 7, tickwidth: 1.4, tickcolor: "#8297aa", linecolor: "#9eb0bf", linewidth: 1.25, showline: true,
+        showgrid: p.grid && side !== "right", gridcolor: "#dce6ee", gridwidth: 1, zeroline: false, automargin: true,
         exponentformat: "power", showexponent: "all", fixedrange: settings.gesture === "locked",
         rangemode: "tozero", ...(!log && QUANTITIES[mode].percent ? {range: [0, 100], autorange: false} : {autorange: true})};
     }
@@ -167,9 +169,9 @@
       const isMap = p.primary === "map", secondary = !isMap && p.secondary !== "none";
       let traces;
       if (isMap) traces = [{type: "heatmap", ...thicknessMap(result, settings.maxScale), zmin: 0, zmax: 100, zsmooth: false,
-        colorscale: [[0,"#172947"],[.2,"#215879"],[.45,"#188c99"],[.7,"#6ac8b2"],[1,"#f2edb6"]],
-        colorbar: {title: {text: "T · %", side: "top"}, thickness: 12, outlinewidth: 0, ticksuffix: "%", tickfont: {size: p.font}},
-        hovertemplate: "Energy: %{x:.6g} keV<br>Thickness scale: %{y:.4g}×<br>Transmission: %{z:.6g}%<extra></extra>"}];
+        colorscale: [[0,"#17233f"],[.16,"#30356f"],[.34,"#285a8e"],[.52,"#168b9a"],[.7,"#4fbaa0"],[.86,"#b5d58a"],[1,"#f5e9a6"]],
+        colorbar: {title: {text: "<b>Transmission · %</b>", side: "top", font: {size: p.font}}, thickness: 16, len: .88, outlinewidth: 1, outlinecolor: "#ced9e2", bgcolor: "rgba(255,255,255,.88)", ticksuffix: "%", tickfont: {size: p.font}},
+        hovertemplate: "<b>Thickness map</b><br>Energy&nbsp; %{x:.6g} keV<br>Thickness scale&nbsp; %{y:.4g}×<br>Transmission&nbsp; %{z:.6g}%<extra></extra>"}];
       else traces = [...traceData(result, configuration, p.primary, p.layer, unit, "y", p.logY, p.layers),
         ...(secondary ? traceData(result, configuration, p.secondary, p.layer, unit, "y2", p.logY2, p.layers) : [])];
       const shape = (energy, color, dash, width = 1) => ({type: "line", xref: "x", yref: "paper", x0: energy, x1: energy, y0: 0, y1: 1, layer: isMap ? "above" : "below", line: {color, dash, width}});
@@ -194,16 +196,16 @@
       }
       const layout = {height: exporting ? 760 : settings.layout === "grid" ? 500 : 560,
         margin: {l: 78, r: secondary || isMap ? 85 : 20, t: 42, b: 65},
-        paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff", font: {family: FONT, size: p.font, color: "#314b61"},
-        hovermode: isMap ? "closest" : "x unified", hoverlabel: {bgcolor: "#fff", bordercolor: "#c5d6e2", font: {family: FONT, size: p.font, color: "#243d56"}},
+        paper_bgcolor: "#ffffff", plot_bgcolor: "#f8fbfd", font: {family: FONT, size: p.font, color: "#263f55"},
+        hovermode: isMap ? "closest" : "x unified", hoverdistance: 70, spikedistance: 70, hoverlabel: {bgcolor: "rgba(255,255,255,.97)", bordercolor: "#93aabd", align: "left", namelength: -1, font: {family: FONT, size: p.font, color: "#1f3448"}},
         dragmode: settings.gesture === "locked" ? false : settings.gesture,
         uirevision: `${p.id}-${p.primary}-${p.secondary}-${unit}-${settings.revision}`,
-        legend: {orientation: "h", x: 0, y: 1.02, xanchor: "left", yanchor: "bottom", font: {size: p.font - 1}, groupclick: "togglegroup"},
-        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 6}, standoff: 12}, type: p.logX ? "log" : "linear",
+        legend: {orientation: "h", x: 0, y: 1.035, xanchor: "left", yanchor: "bottom", font: {size: Math.max(12, p.font - 1), color: "#314c63"}, bgcolor: "rgba(247,250,253,.92)", bordercolor: "#d9e3eb", borderwidth: 1, itemsizing: "constant", itemclick: "toggle", itemdoubleclick: "toggleothers", groupclick: "togglegroup"},
+        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 5, color: "#304b61"}, standoff: 15}, type: p.logX ? "log" : "linear",
           range: p.logX ? [Math.log10(min), Math.log10(max)] : [min, max], autorange: false,
-          ticks: "outside", ticklen: 5, tickfont: {size: p.font}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
-          linecolor: "#b8c8d4", tickcolor: "#91a4b5", showline: true, showgrid: p.grid, gridcolor: "#e2e9f0", zeroline: false,
-          automargin: true, fixedrange: settings.gesture === "locked", showspikes: true, spikemode: "across", spikesnap: "cursor", spikecolor: "#92a7b8", spikethickness: 1, hoverformat: ".6g"},
+          ticks: "outside", ticklen: 7, tickwidth: 1.4, tickfont: {size: p.font, color: "#385268"}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
+          linecolor: "#9eb0bf", linewidth: 1.25, tickcolor: "#8297aa", showline: true, showgrid: p.grid, gridcolor: "#dce6ee", gridwidth: 1, zeroline: false,
+          automargin: true, fixedrange: settings.gesture === "locked", showspikes: true, spikemode: "across", spikesnap: "cursor", spikecolor: "#687f93", spikedash: "dot", spikethickness: 1.25, hoverformat: ".6g"},
         yaxis: axis(p.primary, !isMap && p.logY, "left", p), shapes, annotations,
         ...(secondary ? {yaxis2: {...axis(p.secondary, p.logY2, "right", p), overlaying: "y", side: "right", tickmode: "auto"}} : {})};
       for (const [name, range] of Object.entries(p.ranges)) if (layout[name]) Object.assign(layout[name], {range, autorange: false});

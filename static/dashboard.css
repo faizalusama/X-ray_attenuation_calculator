@@ -114,3 +114,12 @@ body{font-size:16px;line-height:1.5}.page-heading h1,.dashboard-heading h2,.pane
 @container results (min-width:1180px){.plot-grid[data-layout=grid]{grid-template-columns:repeat(2,minmax(0,1fr))}}
 html:fullscreen body{min-height:100vh}html:fullscreen main{width:100%;max-width:none;padding-left:18px;padding-right:18px}html:fullscreen .topbar{position:sticky;top:0;z-index:8}
 @media(min-width:2200px){.workspace{grid-template-columns:minmax(0,1fr) 430px;gap:30px}.plot-grid{gap:16px;padding:14px}.topbar{padding-left:30px;padding-right:30px}main{padding-left:30px;padding-right:30px}}
+
+/* Publication-style figure surfaces with stronger depth and hover focus. */
+.plot-card{border-radius:12px;border-color:#d7e2eb;box-shadow:0 8px 24px rgba(31,55,78,.07);transition:border-color .18s,box-shadow .18s,transform .18s}
+.plot-card:hover{border-color:#bccbd8;box-shadow:0 12px 30px rgba(31,55,78,.11)}
+.plot-card.selected{border-color:#728fac;box-shadow:0 0 0 2px #879fba2b,0 12px 30px rgba(31,55,78,.1)}
+.plot-card>header button{letter-spacing:-.2px}
+.plot-card .hoverlayer .hovertext{filter:drop-shadow(0 4px 7px rgba(32,53,72,.16))}
+.plot-card .legend{filter:drop-shadow(0 2px 4px rgba(32,53,72,.06))}
+.plot-card .main-svg:first-child{border-radius:0 0 10px 10px}
