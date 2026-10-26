@@ -62,3 +62,23 @@ def test_export_rejects_unexpected_names_and_payloads():
     assert client.post("/api/download", json={}).status_code == 415
     assert client.post("/api/download", data={"filename": "../secret.txt", "content": "x"}).status_code == 422
     assert client.post("/api/download", data={"content": "x"}).status_code == 422
+
+
+def test_static_assets_are_compressed_and_cached_by_version():
+    plotly = client.get("/static/vendor/plotly-4.0.0.min.js", headers={"Accept-Encoding": "gzip"})
+    assert plotly.status_code == 200
+    assert plotly.headers["content-encoding"] == "gzip"
+    assert "immutable" in plotly.headers["cache-control"]
+    versioned = client.get("/static/app.js?v=test", headers={"Accept-Encoding": "gzip"})
+    assert "max-age=31536000" in versioned.headers["cache-control"]
+    unversioned = client.get("/static/app.js")
+    assert unversioned.headers["cache-control"] == "no-cache"
+    # API responses must never be cached.
+    assert client.get("/api/health").headers["cache-control"] == "no-store"
+
+
+def test_page_offers_a_skip_link_to_main():
+    page = client.get("/").text
+    assert 'class="skip-link" href="#main"' in page
+    assert '<main id="main">' in page
+    assert "/static/readability.css" in page

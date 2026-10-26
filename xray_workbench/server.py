@@ -11,6 +11,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import MODEL, __version__, materials
@@ -42,6 +43,9 @@ MAX_BODY_BYTES = 2_000_000
 app = FastAPI(title="X-ray Attenuation Workbench", version=__version__,
               description="Local materials-science workbench; narrow-beam attenuation.")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]", "testserver"])
+# Plotly alone is 4.2 MB of text; compressed it travels at roughly a third of
+# that. Loopback is fast, but the same server also runs on shared machines.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
 @app.middleware("http")
@@ -50,8 +54,15 @@ async def security_headers(request: Request, call_next: Callable[[Request], Awai
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
-    if request.url.path.startswith("/api/"):
+    path = request.url.path
+    if path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
+    elif path.startswith("/static/"):
+        # Assets referenced with ?v=… or a versioned vendor filename never
+        # change in place, so the browser may keep them for a year; anything
+        # else is revalidated, so an edit is never masked by a stale copy.
+        versioned = "v=" in request.url.query or path.startswith("/static/vendor/")
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable" if versioned else "no-cache"
     return response
 
 
