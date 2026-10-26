@@ -43,6 +43,9 @@ dev = [
     "scipy>=1.14,<2",
     "ruff>=0.16",
     "mypy>=1.13",
+    # Maintainer importers read source PDFs (tools/import_pnnl_rev2.py). Installed
+    # with dev so CI type-checks them; never needed to run the workbench.
+    "pypdf>=5",
 ]
 notebook = ["jupyterlab>=4.2"]
 # NOT an independent check on the default backend: measured identical to the
