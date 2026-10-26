@@ -82,3 +82,13 @@ def test_page_offers_a_skip_link_to_main():
     assert 'class="skip-link" href="#main"' in page
     assert '<main id="main">' in page
     assert "/static/readability.css" in page
+
+
+def test_every_cached_asset_stamp_matches_its_content():
+    # Browsers keep ?v= assets for a year, so a stamp that does not change with
+    # the file would serve stale code. Fix with: python tools/stamp_assets.py
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    from stamp_assets import stale
+    assert stale() == []

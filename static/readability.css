@@ -48,7 +48,9 @@
 .eyebrow.subtle, .stack-block span, .stack-block strong, .stack-items span, .stack-footnote,
 .result-status, .chart-footer span, .warnings li, .warnings strong, .input-unit span,
 .small-label, .metric-label, .metric-note, .material-meta, .topbar-subtitle,
-.model-label span, .model-label strong, #model-scope > summary span {
+.model-label span, .model-label strong, #model-scope > summary span,
+.panel-heading .section-number, .layer-toggle span, .reference-field label span, .target-row p,
+#gesture-help, .plot-display-toolbar label, .target-note, #provenance-short, .page-footer span {
   font-size: max(var(--rd-min-text), 1em) !important;
 }
 
@@ -79,6 +81,9 @@ label:has(> input[type=checkbox]), label:has(> input[type=radio]) {
   min-height: var(--rd-target); padding: 0 4px; cursor: pointer;
 }
 input[type=checkbox], input[type=radio] { width: 16px; height: 16px; accent-color: var(--rd-focus); }
+
+/* Range sliders: a 28 px hit area without changing the drawn track. */
+#reference-slider, #plot-font-size { min-height: var(--rd-target); }
 
 /* --- Comfortable reading: numbers line up in tables and metrics. */
 .metric-value, .detail-metric strong, td, input[type=number] { font-variant-numeric: tabular-nums; }

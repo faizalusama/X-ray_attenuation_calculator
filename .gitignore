@@ -32,3 +32,6 @@ result.json
 
 # Pre-edit snapshots created by tools/snapshot.py
 _snapshots/
+
+# Interface audit output (tools/ui_audit.py)
+ui-audit-report.json

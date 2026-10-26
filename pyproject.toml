@@ -163,5 +163,5 @@ exclude = ["^legacy/", "^\\.venv/"]
 
 [[tool.mypy.overrides]]
 # XrayDB ships no type information; xraylib is a SWIG wrapper around a C library.
-module = ["xraydb.*", "xraylib.*", "xraylib"]
+module = ["xraydb.*", "xraylib.*", "xraylib", "playwright.*"]
 ignore_missing_imports = true

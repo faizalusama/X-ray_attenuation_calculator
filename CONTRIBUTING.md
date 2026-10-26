@@ -1,5 +1,7 @@
 # Contributing
 
+AI agents: the same rules, written for agents, are in [AGENTS.md](AGENTS.md).
+
 This is scientific software: a wrong number that looks plausible is worse than
 a crash. The rules below exist to keep that from happening quietly.
 
@@ -26,6 +28,18 @@ With Node.js available, also:
 ```powershell
 node --check static/app.js
 node tests/test_frontend.cjs
+```
+
+After editing anything in `static/`, refresh the cache stamps (a test fails if you forget):
+
+```powershell
+python tools/stamp_assets.py
+```
+
+To audit the interface against WCAG 2.2 AA (needs Playwright; CI runs it on every push):
+
+```powershell
+python tools/ui_audit.py
 ```
 
 If you changed any file deliberately, refresh the integrity record:
