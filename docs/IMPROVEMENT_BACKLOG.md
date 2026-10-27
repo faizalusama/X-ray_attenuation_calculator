@@ -14,6 +14,8 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
+- Claude Code · `claude/dark-mode` · 2026-10-27 · Ready item 1, dark theme
+
 ## Ready
 
 ### Accessibility and readability
