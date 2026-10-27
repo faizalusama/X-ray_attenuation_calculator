@@ -1,0 +1,219 @@
+{
+  "python": "3.14.6",
+  "numpy": "2.5.4",
+  "xraydb": "4.5.8",
+  "cases": [
+    {
+      "name": "pure_aluminium",
+      "sweep_samples": 17,
+      "reference_transmission": 0.9126856950306909,
+      "effective_densities": [
+        2.699
+      ]
+    },
+    {
+      "name": "equal_mass_Al_Fe",
+      "sweep_samples": 20,
+      "reference_transmission": 0.47498679355843404,
+      "effective_densities": [
+        4.0
+      ]
+    },
+    {
+      "name": "oxide_mole_parts",
+      "sweep_samples": 17,
+      "reference_transmission": 0.8426553349785963,
+      "effective_densities": [
+        2.23
+      ]
+    },
+    {
+      "name": "mass_ideal_density",
+      "sweep_samples": 17,
+      "reference_transmission": 0.9081914999105459,
+      "effective_densities": [
+        2.283503649635037
+      ]
+    },
+    {
+      "name": "volume_ideal_density",
+      "sweep_samples": 17,
+      "reference_transmission": 0.8459312080678261,
+      "effective_densities": [
+        2.5520000000000005
+      ]
+    },
+    {
+      "name": "solid_porosity",
+      "sweep_samples": 17,
+      "reference_transmission": 0.836696745054858,
+      "effective_densities": [
+        2.9625000000000004
+      ]
+    },
+    {
+      "name": "parenthesized_formula",
+      "sweep_samples": 17,
+      "reference_transmission": 0.9005902953326923,
+      "effective_densities": [
+        2.2
+      ]
+    },
+    {
+      "name": "hydrate_formula",
+      "sweep_samples": 20,
+      "reference_transmission": 0.8655495627665267,
+      "effective_densities": [
+        2.2
+      ]
+    },
+    {
+      "name": "zero_thickness",
+      "sweep_samples": 17,
+      "reference_transmission": 1.0,
+      "effective_densities": [
+        2.699
+      ]
+    },
+    {
+      "name": "oblique_two_layer",
+      "sweep_samples": 20,
+      "reference_transmission": 0.5843855417249815,
+      "effective_densities": [
+        2.7,
+        7.8
+      ]
+    }
+  ],
+  "sweep_energy_evaluations": 179,
+  "max_mass_coefficient_relative_error": 4.1944281600129977e-16,
+  "max_optical_depth_relative_error": 5.740121327213797e-16,
+  "max_transmission_absolute_error": 1.1102230246251565e-16,
+  "nist_comparisons": [
+    {
+      "formula": "Al",
+      "energy_keV": 20,
+      "nist_cm2_g": 3.441,
+      "calculated_cm2_g": 3.4418704884978504,
+      "relative_difference_percent": 0.025297544256045953
+    },
+    {
+      "formula": "Al",
+      "energy_keV": 50,
+      "nist_cm2_g": 0.3681,
+      "calculated_cm2_g": 0.368150072130624,
+      "relative_difference_percent": 0.013602860805222416
+    },
+    {
+      "formula": "Al",
+      "energy_keV": 100,
+      "nist_cm2_g": 0.1704,
+      "calculated_cm2_g": 0.17041720847806102,
+      "relative_difference_percent": 0.010098872101541074
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 20,
+      "nist_cm2_g": 25.68,
+      "calculated_cm2_g": 25.68302313253822,
+      "relative_difference_percent": 0.011772322968150556
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 50,
+      "nist_cm2_g": 1.958,
+      "calculated_cm2_g": 1.957388226067571,
+      "relative_difference_percent": -0.031244838224154723
+    },
+    {
+      "formula": "Fe",
+      "energy_keV": 100,
+      "nist_cm2_g": 0.3717,
+      "calculated_cm2_g": 0.3717235309719578,
+      "relative_difference_percent": 0.006330635447361146
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 20,
+      "nist_cm2_g": 86.36,
+      "calculated_cm2_g": 86.374113376371,
+      "relative_difference_percent": 0.016342492323992805
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 50,
+      "nist_cm2_g": 8.041,
+      "calculated_cm2_g": 8.04199332152508,
+      "relative_difference_percent": 0.012353208868047425
+    },
+    {
+      "formula": "Pb",
+      "energy_keV": 100,
+      "nist_cm2_g": 5.549,
+      "calculated_cm2_g": 5.548753877553148,
+      "relative_difference_percent": -0.0044354378600180875
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 20,
+      "nist_cm2_g": 0.8096,
+      "calculated_cm2_g": 0.8098311646022252,
+      "relative_difference_percent": 0.02855293999816756
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 50,
+      "nist_cm2_g": 0.2269,
+      "calculated_cm2_g": 0.2269357370246479,
+      "relative_difference_percent": 0.01575012104358869
+    },
+    {
+      "formula": "H2O",
+      "energy_keV": 100,
+      "nist_cm2_g": 0.1707,
+      "calculated_cm2_g": 0.17072358521748965,
+      "relative_difference_percent": 0.013816764785974111
+    }
+  ],
+  "fe_k_edge_brackets": [
+    {
+      "energy_keV": 7.1112888000000005,
+      "nist_limit_cm2_g": 53.19,
+      "calculated_cm2_g": 53.21149642697454,
+      "relative_difference_percent": 0.04041441431574296
+    },
+    {
+      "energy_keV": 7.1127112,
+      "nist_limit_cm2_g": 407.6,
+      "calculated_cm2_g": 407.59806951457205,
+      "relative_difference_percent": -0.0004736225289442324
+    }
+  ],
+  "legacy_constructed_case": {
+    "energy_keV": 50,
+    "correct_mass_mu": 1.1627691490990975,
+    "old_double_weighted_mass_mu": 0.5813845745495487,
+    "correct_transmission": 0.830237840969376,
+    "old_transmission": 0.9111738807545879
+  },
+  "example": {
+    "engine_photon_weighted_transmission": 0.7802626916899833,
+    "scalar_photon_weighted_transmission": 0.7802626916899835,
+    "energy_weighted_transmission": 0.8619866648941318,
+    "incident_mean_energy_keV": 40.0,
+    "transmitted_mean_energy_keV": 44.189562006464314,
+    "reference_transmission": 0.817370241763721,
+    "target_scale": 11.417978438587083
+  },
+  "uncertainty_quantiles": {
+    "analytic": [
+      0.6917930412535532,
+      0.7794083022339529
+    ],
+    "sampled": [
+      0.6911848377689147,
+      0.7791926308527161
+    ],
+    "max_absolute_difference": 0.0006082034846385254
+  }
+}

@@ -56,6 +56,15 @@ _(agent · branch · date · item)_
 
 ## Done
 
+- 2026-10-27 · Codex · `codex/joss-submission` · JOSS draft refinement and
+  reproducible calculation review in
+  [draft PR #4](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/4),
+  targeting `claude/citation-and-discoverability`. The 1,316-word paper has
+  eight verified references and a visually checked four-page JOSS preview.
+  Numerical checks found no discrepancy in the assessed cases; no production
+  calculation code changed. Actual research use, personal details and human
+  author review remain outstanding; see `paper/SUBMISSION_NOTES.md`.
+
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and
   versioned caching; content-hash asset stamps; CI interface audit.
