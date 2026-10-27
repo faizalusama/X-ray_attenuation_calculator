@@ -1,5 +1,30 @@
 # Validation record — version 1.0.0
 
+## Accessible workspace pass — 27 October 2026
+
+Verified in the isolated `codex/accessible-workspace` checkout based on
+`interface-refresh`, using Windows, Python 3.14.6 and headless Chromium.
+All 688 Python tests and 33 JavaScript tests passed. Ruff and mypy passed
+(including the installed Playwright types). The documented example spectral
+transmission remains exactly `0.7802626916899833`. The physics engine,
+backend implementations and material datasets were not edited.
+
+The expanded interface audit passed all 24 view/viewport combinations: eight
+states (Overview, expanded reference table, Materials, Spectrum, Uncertainty,
+Methods, library browsing and selected-material details), each at 1440×900,
+768×1024 and 375×812. No measured contrast, text-size, target-size, naming,
+structure, plot-description, keyboard-navigation or horizontal-overflow
+violations were found; there were no page errors. It also verifies that an
+expanded reference table retains keyboard focus when a live thickness update
+finishes. Screenshots were inspected for layout and readability.
+
+These are bounded automated checks, not a complete WCAG conformance or
+assistive-technology certification. SVG text and contrast over gradients or
+translucent backgrounds are reported as unmeasured. Spectrum and Uncertainty
+tab checks cover their default input states. Dedicated testing with screen
+readers, populated results in these tabs and library landscape views remains
+future verification work.
+
 Numbering note: this project was developed as `0.2.0` and renumbered to `1.0.0`
 for its first stable release. Entries below written before the renumber refer to
 the same code.

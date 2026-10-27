@@ -14,6 +14,11 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
+- Codex · `codex/accessible-workspace` · 2026-10-26 · Items 2–3: consolidate
+  accessibility styles and provide per-plot reference-energy summaries;
+  extend interface verification to protect both changes. Based on
+  `interface-refresh`; isolated checkout for concurrent Claude Code work.
+
 ## Ready
 
 ### Accessibility and readability
@@ -53,6 +58,15 @@ _(agent · branch · date · item)_
 11. **Single source for asset stamps in exports.** SVG exports embed the
     workbench version; confirm they also record the materials-library dataset
     and backend versions used.
+12. **Preserve useful scroll positions between analysis views.** The expanded
+    audit screenshots show that switching from a deeply scrolled plot to a
+    shorter tab can initially hide its introduction. Restore a per-view scroll
+    position or bring the newly selected panel's heading into view; scope
+    application tab handling so it cannot hide the library's nested panels.
+13. **Complete manual accessibility verification.** The expanded audit now
+    reports its unmeasured gradient/transparency and SVG text contrast. Add
+    populated Spectrum/Uncertainty states and the library landscape to the
+    automated coverage, and verify plot descriptions with a screen reader.
 
 ## Done
 
