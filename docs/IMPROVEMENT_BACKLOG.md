@@ -14,6 +14,11 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
+- Codex · `codex/joss-submission` · 2026-10-27 · Refine `paper/paper.md`
+  and bibliography for current JOSS requirements; verify claims, citations,
+  metadata and compilation. Based on `claude/citation-and-discoverability`;
+  author confirmation of research-use evidence and disclosures is pending.
+
 ## Ready
 
 ### Accessibility and readability

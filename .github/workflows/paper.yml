@@ -1,0 +1,42 @@
+name: JOSS paper preview
+
+on:
+  push:
+    paths:
+      - 'paper/**'
+      - '.github/workflows/paper.yml'
+  pull_request:
+    paths:
+      - 'paper/**'
+      - '.github/workflows/paper.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  paper:
+    name: Compile JOSS draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build with the official Open Journals generator
+        # Inspected 27 October 2026. The action invokes openjournals/inara:latest.
+        uses: openjournals/openjournals-draft-action@af22ceb4b8f9eff6b3a13c05747ccc2f573cf2e6
+        with:
+          journal: joss
+          paper-path: paper/paper.md
+
+      - name: Upload draft PDF
+        uses: actions/upload-artifact@v5
+        with:
+          name: joss-paper-preview
+          path: paper/paper.pdf
+          if-no-files-found: error
+          retention-days: 30

@@ -1,5 +1,6 @@
-% Every DOI below was resolved against Crossref or DataCite on 27 Oct 2026
-% with tools/verify_doi.py. Re-run it before submission.
+% DOI targets checked with tools/verify_doi.py (Crossref/DataCite), 27 Oct 2026.
+% NIST author/year/version fields follow NIST's requested online citations;
+% registry creator/year metadata may differ from the requested online versions.
 
 @article{elam2002,
   author  = {Elam, W. T. and Ravel, B. D. and Sieber, J. R.},
@@ -14,10 +15,12 @@
 
 @misc{nist126,
   author    = {Hubbell, J. H. and Seltzer, S. M.},
-  title     = {Tables of {X}-Ray Mass Attenuation Coefficients and Mass Energy-Absorption Coefficients, {NIST} Standard Reference Database 126},
+  title     = {Tables of {X}-Ray Mass Attenuation Coefficients and Mass Energy-Absorption Coefficients (version 1.4), {NIST} Standard Reference Database 126},
   publisher = {National Institute of Standards and Technology},
-  year      = {1995},
-  doi       = {10.18434/T4D01F}
+  year      = {2004},
+  doi       = {10.18434/T4D01F},
+  url       = {https://physics.nist.gov/PhysRefData/XrayMassCoef/cover.html},
+  urldate   = {2026-10-27}
 }
 
 % XCOM: reference exactly as NIST asks, from
@@ -28,8 +31,8 @@
   publisher = {National Institute of Standards and Technology, Gaithersburg, MD},
   year      = {2010},
   doi       = {10.18434/T48G6X},
-  url       = {http://physics.nist.gov/xcom}
-}
+  url       = {https://physics.nist.gov/PhysRefData/Xcom/html/xcom1.html},
+  urldate   = {2026-10-27}
 }
 
 @article{henke1993,
@@ -63,9 +66,24 @@
   doi         = {10.2172/1782721}
 }
 
-@misc{xraydb,
-  author = {Newville, Matthew},
-  title  = {{XrayDB}: {X}-ray reference data for the elements},
-  url    = {https://xraypy.github.io/XrayDB/},
-  note   = {Python package, version 4.5.8}
+% Version DOI, as requested by the XrayDB documentation's citation link.
+@software{xraydb,
+  author    = {Newville, Matt and {easyXAFS} and Whittington, Nathan and Levantino, Matteo and Schlepuetz, Christian and {Aleksei} and Guenzing, Damian and Rakitin, Max and Kim, Sang-Woo and {kalvdans} and De Nolf, Wout},
+  title     = {{xraypy/XrayDB}: 4.5.8},
+  publisher = {Zenodo},
+  year      = {2025},
+  version   = {4.5.8},
+  doi       = {10.5281/zenodo.16114067},
+  url       = {https://github.com/xraypy/XrayDB/tree/4.5.8}
+}
+
+% Preserve the archive's registered title, which predates the shorter brand.
+@software{workbench2026,
+  author    = {Jalaludeen, Mohamed Faizal Ussama},
+  title     = {{X}-ray Attenuation Workbench for Multicomponent Materials and Multilayers},
+  publisher = {Zenodo},
+  year      = {2026},
+  version   = {1.0.0},
+  doi       = {10.5281/zenodo.22878495},
+  url       = {https://github.com/faizalusama/X-ray_attenuation_calculator}
 }
