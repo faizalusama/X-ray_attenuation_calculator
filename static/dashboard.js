@@ -69,6 +69,72 @@
     const scales = Array.from({length: steps}, (_, i) => i * maxScale / (steps - 1));
     return {x: result.energy_keV, y: scales, z: scales.map(s => result.optical_depth.map(t => 100 * Math.exp(-t * s)))};
   }
+  function readableNumber(value) {
+    if (!Number.isFinite(value)) return "Unavailable";
+    if (value === 0) return "0";
+    return Math.abs(value) < .001 || Math.abs(value) >= 1e6 ? value.toExponential(5) : Number(value.toPrecision(6)).toString();
+  }
+  // Text alternatives use direct API reference values, never interpolated curves.
+  // Channel values are only supplied on the sweep, so label their sample energy.
+  function plotReadout(result, configuration, p, unit = "mm", maxScale = 3) {
+    const ref = result.reference, energy = ref.energy_keV, rows = [], notes = [];
+    const fmt = readableNumber, range = result.energy_keV;
+    const axes = [[p.primary, "y", p.logY], ...(p.secondary && p.secondary !== "none" && p.primary !== "map" ? [[p.secondary, "y2", p.logY2]] : [])];
+    const add = (mode, axis, id, name, value, atEnergy = energy, note = "") => {
+      const visible = p.visibility?.[`${axis}-${mode}-${id}`];
+      if (visible === false || visible === "legendonly") return;
+      const q = QUANTITIES[mode];
+      rows.push({axis: axis === "y2" ? "Right" : "Left", quantity: q.label, name, value,
+        unit: q.length ? unit : q.unit, energy: atEnergy, note});
+    };
+    for (const [mode, axis, log] of axes) {
+      const layerRows = (key, convert = v => v) => result.layers.forEach((l, i) => add(mode, axis, `${mode}-${i}`, l.name, convert(l.reference[key])));
+      switch (mode) {
+        case "transmission":
+          add(mode, axis, "stack", "Whole stack", 100 * ref.transmission);
+          if (p.layers !== false && result.layers.length > 1) result.layers.forEach((l, i) => add(mode, axis, `layer-${i}`, l.name, 100 * l.reference.transmission));
+          if (result.uncertainty?.reference) {
+            const u = result.uncertainty.reference;
+            notes.push(`95% measurement-uncertainty interval at the reference: ${fmt(u.p025 * 100)}–${fmt(u.p975 * 100)}%.`);
+          }
+          break;
+        case "removed": add(mode, axis, "removed", "Whole stack", 100 * ref.removed_fraction); notes.push("Removal includes absorption and scattering out of the primary beam; it is not absorbed energy or dose."); break;
+        case "mass": layerRows("mu_mass_cm2_g"); break;
+        case "linear": layerRows("mu_linear_cm_inv"); break;
+        case "hvl": layerRows("hvl_mm", v => fromMM(v, unit)); break;
+        case "tvl": layerRows("tvl_mm", v => fromMM(v, unit)); break;
+        case "length": layerRows("attenuation_length_mm", v => fromMM(v, unit)); break;
+        case "tau":
+          add(mode, axis, "tau", "Whole stack", ref.optical_depth);
+          // API path length is mm; linear attenuation is cm⁻¹. Convert once.
+          if (p.layers !== false) result.layers.forEach((l, i) => add(mode, axis, `tau-${i}`, l.name, l.reference.mu_linear_cm_inv * (l.path_length_mm / 10)));
+          break;
+        case "design": {
+          const total = configuration.layers.reduce((sum, l) => sum + l.thickness_mm, 0);
+          add(mode, axis, "design", `${fmt(ref.target_transmission * 100)}% target`, Number.isFinite(ref.target_thickness_scale) ? fromMM(total * ref.target_thickness_scale, unit) : null);
+          notes.push("Total normal thickness with all layers scaled proportionally; an unavailable value means no finite scaling solution.");
+          break;
+        }
+        case "channels": {
+          const layer = result.layers[p.layer] || result.layers[0];
+          const nearest = range.reduce((best, e, i) => Math.abs(e - energy) < Math.abs(range[best] - energy) ? i : best, 0);
+          notes.push(`${layer.name}: total mass attenuation at the reference is ${fmt(layer.reference.mu_mass_cm2_g)} cm²/g. Channel values use the evaluated sample at ${fmt(range[nearest])} keV; no interpolation.`);
+          for (const [key, label] of [["photoelectric", "Photoelectric"], ["coherent", "Coherent"], ["incoherent", "Incoherent"]]) add(mode, axis, key, `${layer.name} · ${label}`, layer[`${key}_cm2_g`][nearest], range[nearest]);
+          break;
+        }
+        case "map":
+          for (const scale of [...new Set([0, Math.min(1, maxScale), maxScale])]) rows.push({axis: "Map", quantity: "Transmission", name: `${fmt(scale)}× thickness`, value: 100 * Math.exp(-ref.optical_depth * scale), unit: "%", energy, note: ""});
+          notes.push(`Transmission over 0–${fmt(maxScale)}× current thickness. All layers scale together with fixed composition, density and angle.`);
+          break;
+      }
+      if (log) for (const row of rows.filter(r => r.axis === (axis === "y2" ? "Right" : "Left"))) if (row.value === 0) row.note = "Zero is omitted on the logarithmic axis.";
+    }
+    const first = p.primary === "map" ? rows[1] : rows[0];
+    const headline = first ? `${first.quantity}: ${fmt(first.value)} ${first.unit} (${first.name}${first.energy !== energy ? `; sampled at ${fmt(first.energy)} keV` : ""}).` : "All series are hidden; use the plot legend to show them.";
+    const outside = energy < range[0] || energy > range.at(-1) ? " Reference energy is outside the plotted sweep; reference values are evaluated directly." : "";
+    return {text: `Reference ${fmt(energy)} keV. ${headline}${rows.length > 1 ? ` ${rows.length} values in the table.` : ""}${outside}`,
+      rows, notes, caption: `Values for ${QUANTITIES[p.primary].label} at reference ${fmt(energy)} keV${axes.some(([mode]) => mode === "channels") ? " (channel sample energies are listed separately)" : ""}`};
+  }
   function traceData(result, configuration, mode, layerIndex, lengthUnit, axis = "y", log = false, showLayers = true) {
     const unit = QUANTITIES[mode].length ? lengthUnit : QUANTITIES[mode].unit;
     const traces = valuesFor(result, configuration, mode, layerIndex, lengthUnit)
@@ -234,7 +300,7 @@
     function plotOptions() { return {responsive: true, displayModeBar: false, displaylogo: false, scrollZoom: settings.wheel && settings.gesture !== "locked", doubleClick: settings.gesture === "locked" ? false : "reset", showTips: false}; }
     function bindPlot(graph, original) {
       const current = () => settings.panels.find(p => p.id === original.id);
-      graph.on("plotly_restyle", () => { const p = current(); if (!p) return; p.visibility = Object.fromEntries(graph.data.filter(t => t.uid && t.visible != null).map(t => [t.uid, t.visible])); callbacks.onChange?.(); });
+      graph.on("plotly_restyle", () => { const p = current(); if (!p) return; p.visibility = Object.fromEntries(graph.data.filter(t => t.uid && t.visible != null).map(t => [t.uid, t.visible])); updateReadout(graph.closest(".plot-card"), p); callbacks.onChange?.(); });
       graph.on("plotly_relayout", async changes => {
         if (syncing) return;
         const p = current(); if (!p) return;
@@ -267,6 +333,15 @@
         if (settings.clickReference && settings.gesture !== "locked" && event.points?.length) callbacks.onReference(event.points[0].x);
       });
     }
+    function updateReadout(card, p) {
+      const readout = plotReadout(result, configuration, p, unit, settings.maxScale);
+      const body = card.querySelector(".plot-reference-body"), hadFocus = body.contains(document.activeElement);
+      const scrollLeft = body.querySelector(".table-wrap")?.scrollLeft || 0;
+      card.querySelector(".plot-summary").textContent = readout.text;
+      body.innerHTML = `<div class="table-wrap" tabindex="0" role="region" aria-label="Reference values for ${safe(QUANTITIES[p.primary].label)}"><table class="component-table"><caption>${safe(readout.caption)}</caption><thead><tr><th scope="col">Series / quantity</th><th scope="col">Energy · keV</th><th scope="col">Value</th><th scope="col">Unit</th></tr></thead><tbody>${readout.rows.map(r => `<tr><th scope="row">${safe(r.name)}<br>${safe(r.quantity)} · ${safe(r.axis)}${r.note ? `<br>${safe(r.note)}` : ""}</th><td>${safe(readableNumber(r.energy))}</td><td>${safe(readableNumber(r.value))}</td><td>${safe(r.unit)}</td></tr>`).join("")}</tbody></table></div>${readout.notes.map(note => `<p>${safe(note)}</p>`).join("")}`;
+      const table = body.querySelector(".table-wrap"); table.scrollLeft = scrollLeft;
+      if (hadFocus) table.focus({preventScroll: true});
+    }
     async function draw() {
       controls();
       if (!result || $("#view-overview").hidden) return;
@@ -279,7 +354,7 @@
         let card = $(`[data-plot-card="${p.id}"]`);
         if (!card) {
           card = document.createElement("article"); card.className = "plot-card"; card.dataset.plotCard = p.id;
-          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="card-controls"></div><div class="scientific-plot" id="plot-${p.id}" role="img"></div><p class="plot-note"></p>`;
+          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="card-controls"></div><div class="scientific-plot" id="plot-${p.id}" role="img" aria-describedby="plot-summary-${p.id}"></div><p class="plot-summary" id="plot-summary-${p.id}"></p><details class="plot-reference-details"><summary>Reference values &amp; text description</summary><div class="plot-reference-body"></div></details><p class="plot-note"></p>`;
           grid.appendChild(card);
         }
         card.classList.toggle("selected", index === settings.active);
@@ -297,6 +372,7 @@
         f.layout.width = Math.max(240, Math.floor(node.getBoundingClientRect().width));
         f.layout.height = plotHeight(f.layout.width, globalThis.innerHeight);
         node.setAttribute("aria-label", `${QUANTITIES[p.primary].title}${p.secondary !== "none" ? ` with ${QUANTITIES[p.secondary].label} on the right axis` : ""}`);
+        updateReadout(card, p);
         await Plotly.react(node, f.data, f.layout, plotOptions());
         if (fresh) bindPlot(node, p);
       }
@@ -414,5 +490,5 @@
       preferences() { return {lengthUnit: unit, dashboard: copy(settings)}; }
     };
   }
-  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, plotHeight, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
+  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, plotHeight, fromMM, toMM, valuesFor, thicknessMap, traceData, readableNumber, plotReadout, cleanPreferences, create};
 });

@@ -57,6 +57,14 @@ Graphs and active controls lead the page. Reference measurements and expandable 
 
 SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG.
 
+Every plot also has a visible reference-energy summary and an expandable
+**Reference values & text description** table. These use the directly evaluated
+reference values, preserve the selected length units and independent axes, and
+follow series visibility. Interaction channels are available only at sweep
+samples: their table identifies the actual sampled energy explicitly. The
+tables can be opened with the keyboard, and keep keyboard focus during live
+recalculation. Screen readers receive the summary through the plot description.
+
 ## What is included
 
 - **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, illustrative presets, and a 501-entry provenance-aware materials library spanning NIST reference media, PNNL engineering materials, and stoichiometric phases.

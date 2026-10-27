@@ -6,6 +6,71 @@ const {initial, cleanProject} = require('../static/app.js');
 const near = (a,b) => assert.ok(Math.abs(a-b) <= 1e-12 * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
 const result = {energy_keV:[10,20,40], optical_depth:[2,1,.5], transmission:[Math.exp(-2),Math.exp(-1),Math.exp(-.5)], removed_fraction:[1-Math.exp(-2),1-Math.exp(-1),1-Math.exp(-.5)], layers:[{name:'Sample', path_length_mm:10, mu_linear_cm_inv:[2,1,.5], mu_mass_cm2_g:[1,.5,.25], photoelectric_cm2_g:[.8,.3,.1], coherent_cm2_g:[.1,.1,.05], incoherent_cm2_g:[.1,.1,.1]}]};
 const config = {layers:[{thickness_mm:10}], target_transmission:.1};
+const {plotReadout, readableNumber, allPanels} = require('../static/dashboard.js');
+const referenceResult = {...result, reference:{energy_keV:30, transmission:.456789123, removed_fraction:.543210877, optical_depth:.783533429, target_transmission:.1, target_thickness_scale:2.938719}, layers:result.layers.map(l=>({...l, reference:{mu_mass_cm2_g:.3917667145, mu_linear_cm_inv:.783533429, transmission:.456789123, hvl_mm:8.84642, tvl_mm:29.38719, attenuation_length_mm:12.76269}}))};
+
+test('every default plot has a text readout with named quantities and explicit units',()=>{
+  for(const p of allPanels()){
+    const readout=plotReadout(referenceResult,config,p);
+    assert.match(readout.text,/Reference 30 keV/);
+    assert.ok(readout.rows.length>0,p.primary);
+    for(const row of readout.rows){assert.ok(row.name);assert.ok(row.unit);assert.ok(Number.isFinite(row.value));}
+  }
+});
+
+test('text readouts use direct reference values instead of nearest sweep transmission',()=>{
+  const p=allPanels()[0], readout=plotReadout(referenceResult,config,p);
+  assert.equal(readout.rows[0].value,100*referenceResult.reference.transmission);
+  assert.notEqual(readout.rows[0].value,100*result.transmission[1]);
+  const offSweep=plotReadout({...referenceResult,reference:{...referenceResult.reference,energy_keV:80}},config,p);
+  assert.match(offSweep.text,/outside the plotted sweep/);
+  assert.equal(offSweep.rows[0].value,readout.rows[0].value);
+});
+
+test('reference readouts respect hidden series, layer controls and independent axes',()=>{
+  const p={...allPanels()[0],secondary:'mass',logY2:true};
+  const r={...referenceResult,layers:[...referenceResult.layers,{...referenceResult.layers[0],name:'Second layer'}]};
+  assert.equal(plotReadout(r,config,p).rows.length,5);
+  assert.equal(plotReadout(r,config,{...p,layers:false}).rows.length,3);
+  const hidden=plotReadout(r,config,{...p,layers:false,visibility:{'y-transmission-stack':'legendonly','y2-mass-mass-1':false}});
+  assert.equal(hidden.rows.length,1);assert.equal(hidden.rows[0].axis,'Right');assert.equal(hidden.rows[0].unit,'cm²/g');
+  assert.match(plotReadout(referenceResult,config,{...allPanels()[0],visibility:{'y-transmission-stack':'legendonly'}}).text,/All series are hidden/);
+});
+
+test('reference readouts preserve zero and very small values on log plots',()=>{
+  const r={...referenceResult,reference:{...referenceResult.reference,transmission:0}};
+  const zero=plotReadout(r,config,{...allPanels()[0],logY:true});
+  assert.equal(zero.rows[0].value,0);assert.match(zero.rows[0].note,/Zero is omitted/);
+  assert.equal(readableNumber(1e-200),'1.00000e-200');assert.equal(readableNumber(null),'Unavailable');
+  assert.equal(readableNumber(Infinity),'Unavailable');assert.equal(readableNumber(0),'0');
+});
+
+test('channel readout discloses the exact evaluated sample and direct reference total',()=>{
+  const p=allPanels().find(p=>p.primary==='channels');
+  const readout=plotReadout(referenceResult,config,p);
+  assert.equal(readout.rows[0].energy,20);assert.equal(readout.rows[0].value,.3);
+  assert.match(readout.notes[0],/total mass attenuation at the reference is 0.391767/);
+  assert.match(readout.notes[0],/sample at 20 keV; no interpolation/);
+  assert.match(readout.text,/sampled at 20 keV/);
+});
+
+test('path length and target readouts convert the exact API values to display units',()=>{
+  const p=allPanels().find(p=>p.primary==='hvl');
+  assert.equal(plotReadout(referenceResult,config,p,'µm').rows[0].value,referenceResult.layers[0].reference.hvl_mm*1000);
+  const design={...p,primary:'design'};
+  assert.equal(plotReadout(referenceResult,config,design,'cm').rows[0].value,referenceResult.reference.target_thickness_scale);
+  assert.equal(plotReadout({...referenceResult,reference:{...referenceResult.reference,target_thickness_scale:null}},config,design).rows[0].value,null);
+});
+
+test('map readout labels scaling and uses the reference optical depth',()=>{
+  const p=allPanels().find(p=>p.primary==='map');
+  const rows=plotReadout(referenceResult,config,p,'mm',.5).rows;
+  assert.equal(rows.length,2);assert.equal(rows[0].value,100);
+  assert.equal(rows[1].value,100*Math.exp(-referenceResult.reference.optical_depth*.5));
+  assert.equal(rows[1].name,'0.5× thickness');
+  assert.match(plotReadout(referenceResult,config,p,'mm',.5).text,/0.5× thickness/);
+  assert.match(plotReadout(referenceResult,config,p).text,/1× thickness/);
+});
 
 test('unit changes preserve physical thickness over nm to metres',()=>{
   for (const unit of Object.keys(LENGTH_UNITS)) for (const mm of [0, 1e-6, .03, 1, 250, 1e9]) near(toMM(fromMM(mm, unit),unit),mm);

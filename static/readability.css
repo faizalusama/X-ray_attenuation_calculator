@@ -1,4 +1,4 @@
-/* Readability and accessibility layer — loaded last, on purpose.
+/* Shared accessibility primitives — loaded last, on purpose.
 
    Every rule here answers a measured WCAG 2.2 AA failure from an in-browser
    audit (26 Oct 2026): 53 text elements below 4.5:1 contrast, 51 below 12 px,
@@ -12,8 +12,10 @@
      --rd-teal    #0b6b6f   ≥ 5.65:1    accent text
      --rd-amber   #7a5512   ≥ 6.03:1    model notes and warnings
 
-   When the base stylesheets adopt these tokens, delete the matching rule here
-   rather than letting the two drift apart. */
+   Component text colours, text sizes and target dimensions now live beside
+   the component rules in styles.css and dashboard.css. This file owns only
+   the shared tokens, keyboard navigation, checkbox/radio semantics, numeric
+   alignment, reduced-motion and forced-colour support. */
 
 :root {
   --rd-muted: #56697a;
@@ -28,7 +30,7 @@
 
 /* --- Skip link: keyboard users reach the workbench without tabbing the header. */
 .skip-link {
-  position: absolute; left: 12px; top: -48px; z-index: 1000;
+  position: fixed; left: 12px; top: -64px; z-index: 1000;
   padding: 10px 16px; border-radius: 8px;
   background: #203951; color: #fff; font-weight: 600; font-size: 14px;
   text-decoration: none; transition: top .15s;
@@ -41,49 +43,11 @@
   outline-offset: 2px;
 }
 
-/* --- Text floor: nothing below 12 px. These are the exact elements the audit
-       found at 8–11 px. */
-.plot-note, .composition-grid span, .slider-scale span, .length-unit-controls small,
-.layer-number, .composition-heading span, .add-component, .unit-chip, .run-note,
-.eyebrow.subtle, .stack-block span, .stack-block strong, .stack-items span, .stack-footnote,
-.result-status, .chart-footer span, .warnings li, .warnings strong, .input-unit span,
-.small-label, .metric-label, .metric-note, .material-meta, .topbar-subtitle,
-.model-label span, .model-label strong, #model-scope > summary span,
-.panel-heading .section-number, .layer-toggle span, .reference-field label span, .target-row p,
-#gesture-help, .plot-display-toolbar label, .target-note, #provenance-short, .page-footer span {
-  font-size: max(var(--rd-min-text), 1em) !important;
-}
-
-/* --- Contrast: the audit's failing colours, replaced with computed ones. */
-.plot-note, .slider-scale span, .length-unit-controls small, .composition-heading span,
-.stack-block strong, .chart-footer span, .control-group > span, .secondary-details summary span,
-#plot-settings > summary span, #model-scope > summary span,
-.model-label span {
-  color: var(--rd-muted) !important;
-}
-.composition-grid span, .stack-items span, .stack-block span, .stack-footnote, .eyebrow.subtle {
-  color: var(--rd-strong) !important;
-}
-.input-unit span { color: var(--rd-unit) !important; }
-.add-component, .layer-number, .run-note, .result-status { color: var(--rd-teal) !important; }
-.warnings li, .warnings strong, .ideas-trigger span { color: var(--rd-amber) !important; }
-
-/* --- Target size (WCAG 2.2 §2.5.8). Icon buttons grow to 28 px; checkbox
-       labels become the target, which the standard accepts when the label
-       activates the same control. */
-.mini-button {
-  min-width: var(--rd-target) !important; min-height: var(--rd-target) !important;
-  display: inline-flex !important; align-items: center; justify-content: center;
-}
-.layer-toggle, .secondary-details > summary, .add-component { min-height: var(--rd-target) !important; }
 label:has(> input[type=checkbox]), label:has(> input[type=radio]) {
   display: inline-flex; align-items: center; gap: 6px;
   min-height: var(--rd-target); padding: 0 4px; cursor: pointer;
 }
 input[type=checkbox], input[type=radio] { width: 16px; height: 16px; accent-color: var(--rd-focus); }
-
-/* Range sliders: a 28 px hit area without changing the drawn track. */
-#reference-slider, #plot-font-size { min-height: var(--rd-target); }
 
 /* --- Comfortable reading: numbers line up in tables and metrics. */
 .metric-value, .detail-metric strong, td, input[type=number] { font-variant-numeric: tabular-nums; }

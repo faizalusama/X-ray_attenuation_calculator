@@ -22,12 +22,6 @@ _(agent · branch · date · item)_
    change, verified by screenshots), then add a `prefers-color-scheme: dark`
    palette that passes the interface audit. Plotly figures need matching
    template colours.
-2. **Fold `static/readability.css` into the base stylesheets.** It is a
-   deliberate override layer from the October audit. Move each rule to its
-   source and delete it there; the audit must stay at zero.
-3. **Screen-reader pass on the plots.** Each Plotly figure needs a text
-   summary of what it shows at the reference energy, as the materials library
-   already provides.
 
 ### Performance
 4. **Render off-screen plots lazily.** All 11 plots draw at load; render a plot
@@ -53,8 +47,25 @@ _(agent · branch · date · item)_
 11. **Single source for asset stamps in exports.** SVG exports embed the
     workbench version; confirm they also record the materials-library dataset
     and backend versions used.
+12. **Preserve useful scroll positions between analysis views.** The expanded
+    audit screenshots show that switching from a deeply scrolled plot to a
+    shorter tab can initially hide its introduction. Restore a per-view scroll
+    position or bring the newly selected panel's heading into view; scope
+    application tab handling so it cannot hide the library's nested panels.
+13. **Complete manual accessibility verification.** The expanded audit now
+    reports its unmeasured gradient/transparency and SVG text contrast. Add
+    populated Spectrum/Uncertainty states and the library landscape to the
+    automated coverage, and verify plot descriptions with a screen reader.
 
 ## Done
+
+- 2026-10-27 · Codex · `codex/accessible-workspace` · Items 2–3 implemented in
+  [PR #2](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/2)
+  targeting `interface-refresh` (awaiting owner integration): component
+  accessibility styles folded into base CSS; plot reference summaries and
+  keyboard-accessible tables; 24 audited view/viewport states with zero
+  measured violations. See `VALIDATION.md` for coverage limits. Shared hot
+  spots: `dashboard.js` readouts and generated `index.html` asset stamps.
 
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and
