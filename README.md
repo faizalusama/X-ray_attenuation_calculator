@@ -143,6 +143,16 @@ node tests/test_frontend.cjs
 
 The existing DOI identifies the original software, not this unpublished extension. Authorship is preserved in `CITATION.cff`; the original citation is retained under `legacy/`. No new DOI, release, repository commit, or publication has been made.
 
+## How to cite
+
+Cite the **version you used**, so readers can reproduce your numbers:
+
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Workbench* (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.22878495
+
+Please also cite the cross-section data the results come from: Elam, W. T., Ravel, B. D. & Sieber, J. R. (2002), *Radiation Physics and Chemistry* 63, 121–128, https://doi.org/10.1016/S0969-806X(01)00227-4. The concept DOI [10.5281/zenodo.17602370](https://doi.org/10.5281/zenodo.17602370) always resolves to the newest release. GitHub's "Cite this repository" button produces the same reference from `CITATION.cff`.
+
+**Results from 0.1.x are not interchangeable with 1.0.0.** The 0.1.x script and notebook applied each component's mass fraction twice, so for multicomponent materials they underestimated the linear attenuation coefficient: by about 30% for a borosilicate, 50% for soda-lime and 60% for a sodium aluminosilicate glass. Single-component results are unaffected.
+
 ## License
 
 This project is released under the **MIT License** — see [LICENSE](LICENSE).
