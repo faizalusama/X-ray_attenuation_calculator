@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below. Please also cite the underlying Elam atomic data; see THIRD_PARTY_NOTICES.md."
-title: "X-ray Attenuation Workbench for Multicomponent Materials and Multilayers"
+title: "X-ray Attenuation Workbench"
 version: "1.0.0"
 type: software
 license: MIT
@@ -24,7 +24,41 @@ identifiers:
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
+    orcid: "https://orcid.org/0000-0003-0077-691X"
+    affiliation: Aalborg University
 repository-code: "https://github.com/faizalusama/X-ray_attenuation_calculator"
 abstract: >-
   A local graphical and programmable workbench for narrow-beam X-ray
-  attenuation in multicomponent materials and planar multilayers.
+  attenuation in multicomponent materials and planar multilayers: glasses,
+  ceramics, composites and filters. It computes energy-dependent mass and
+  linear attenuation, transmission, interaction channels, half- and
+  tenth-value layers and attenuation lengths from chemical composition and
+  density, with spectra, Monte Carlo uncertainty and a provenance-tracked
+  materials library.
+keywords:
+  - X-ray attenuation
+  - mass attenuation coefficient
+  - Beer-Lambert law
+  - transmission
+  - oxide glasses
+  - ceramics
+  - multilayers
+  - materials science
+  - X-ray scattering
+  - Python
+references:
+  - type: article
+    title: "A new atomic database for X-ray spectroscopic calculations"
+    authors:
+      - family-names: Elam
+        given-names: W. T.
+      - family-names: Ravel
+        given-names: B. D.
+      - family-names: Sieber
+        given-names: J. R.
+    journal: Radiation Physics and Chemistry
+    volume: 63
+    start: 121
+    end: 128
+    year: 2002
+    doi: 10.1016/S0969-806X(01)00227-4

@@ -1,0 +1,31 @@
+{
+  "title": "X-ray Attenuation Workbench",
+  "upload_type": "software",
+  "description": "<p>A local graphical and programmable workbench for narrow-beam X-ray attenuation in multicomponent materials and planar multilayers: glasses, ceramics, composites and filters.</p><p>From chemical composition (mass, mole or volume fractions) and density, it computes energy-dependent mass and linear attenuation coefficients, transmission and removed fraction, photoelectric, coherent and incoherent contributions, half- and tenth-value layers, attenuation lengths and the thickness needed for a target transmission, over 1–800 keV with sampling around absorption edges. It also evaluates measured photon spectra, propagates density and thickness uncertainty by Monte Carlo, and includes a materials library whose every entry records its source.</p><p>Cross-sections are the Elam, Ravel &amp; Sieber (2002) data via XrayDB; please cite that work as well. Version 1.0.0 supersedes the 0.1.x calculator, whose multicomponent results double-counted mass fractions.</p>",
+  "creators": [
+    {
+      "name": "Jalaludeen, Mohamed Faizal Ussama",
+      "orcid": "0000-0003-0077-691X",
+      "affiliation": "Aalborg University"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "X-ray attenuation",
+    "mass attenuation coefficient",
+    "Beer-Lambert law",
+    "transmission",
+    "oxide glasses",
+    "ceramics",
+    "multilayers",
+    "materials science",
+    "X-ray scattering",
+    "Python"
+  ],
+  "related_identifiers": [
+    {"identifier": "10.1016/S0969-806X(01)00227-4", "relation": "references", "scheme": "doi", "resource_type": "publication-article"},
+    {"identifier": "10.18434/T4D01F", "relation": "references", "scheme": "doi", "resource_type": "dataset"},
+    {"identifier": "10.2172/1782721", "relation": "references", "scheme": "doi", "resource_type": "publication-report"},
+    {"identifier": "10.5281/zenodo.17602371", "relation": "isNewVersionOf", "scheme": "doi", "resource_type": "software"}
+  ]
+}
