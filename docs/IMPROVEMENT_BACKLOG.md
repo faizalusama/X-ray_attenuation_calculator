@@ -14,6 +14,8 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
+- Claude routine · `claude/routine-2026-10-28-materials-tests` · 2026-10-28 · Ready item 10, frontend tests for `static/materials.js`
+
 ## Ready
 
 ### Accessibility and readability
