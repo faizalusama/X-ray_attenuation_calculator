@@ -5,9 +5,6 @@
 // only through window.AttenuationWorkbench, so presets and library entries
 // enter the calculation through exactly the same path.
 (() => {
-  if (typeof document === "undefined") return;
-
-  const $ = (selector, scope = document) => scope.querySelector(selector);
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
   const fmt = (value, digits = 4) => (value == null || !Number.isFinite(value)) ? "—" : Number(value).toPrecision(digits).replace(/(\.\d*?)0+(e|$)/, "$1$2").replace(/\.(e|$)/, "$1");
   const sub = formula => esc(formula).replace(/(\d+(?:\.\d+)?)/g, "<sub>$1</sub>");
@@ -41,6 +38,42 @@
   const TIER_LABEL = {reference_data: "Reference data", stoichiometric: "Stoichiometric", literature: "Literature"};
   const COMPARE_COLORS = ["#D55E00", "#009E73", "#CC79A7"];
   const MAX_COMPARE = 3;
+
+  function familyFor(category) { return FAMILY_OF[category] || FAMILIES[FAMILIES.length - 1]; }
+
+  // Pure helpers below are exported for tests/test_materials.cjs.
+  function filterMaterials(items, {query = "", family = "", sourcedOnly = false} = {}) {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    return items.filter(m => {
+      if (family && familyFor(m.category).id !== family) return false;
+      if (sourcedOnly && m.density_status !== "sourced") return false;
+      const hay = `${m.id} ${m.name} ${(m.formulas || []).join(" ")}`.toLowerCase();
+      return words.every(w => hay.includes(w));
+    });
+  }
+
+  // List order follows the family legend, then the name.
+  function libraryOrder(items) {
+    const rank = category => FAMILIES.indexOf(familyFor(category));
+    return [...items].sort((a, b) => rank(a.category) - rank(b.category) || a.name.localeCompare(b.name));
+  }
+
+  const massPercent = w => (w * 100).toFixed(w < 0.001 ? 3 : 2);
+
+  // Toggle one material; the oldest comparison is dropped beyond MAX_COMPARE.
+  function withComparison(compare, id) {
+    if (compare.includes(id)) return compare.filter(x => x !== id);
+    return [...compare, id].slice(-MAX_COMPARE);
+  }
+
+  function shortestHvl(points) { return [...points].sort((a, b) => a.hvl_mm - b.hvl_mm)[0]; }
+
+  if (typeof module === "object" && module.exports) {
+    module.exports = {esc, fmt, sub, FAMILIES, CATEGORY_LABEL, MAX_COMPARE, familyFor, filterMaterials, libraryOrder, massPercent, withComparison, shortestHvl};
+  }
+  if (typeof document === "undefined") return;
+
+  const $ = (selector, scope = document) => scope.querySelector(selector);
 
   const ui = {items: [], query: "", family: "", sourcedOnly: false, selected: null, compare: [],
               details: new Map(), view: "material", landscape: new Map(), landscapeEnergy: 60, landscapeAxis: "hvl_mm"};
@@ -88,17 +121,7 @@
     return dialog;
   }
 
-  function familyFor(category) { return FAMILY_OF[category] || FAMILIES[FAMILIES.length - 1]; }
-
-  function filtered() {
-    const words = ui.query.toLowerCase().split(/\s+/).filter(Boolean);
-    return ui.items.filter(m => {
-      if (ui.family && familyFor(m.category).id !== ui.family) return false;
-      if (ui.sourcedOnly && m.density_status !== "sourced") return false;
-      const hay = `${m.id} ${m.name} ${(m.formulas || []).join(" ")}`.toLowerCase();
-      return words.every(w => hay.includes(w));
-    });
-  }
+  function filtered() { return filterMaterials(ui.items, ui); }
 
   function renderList() {
     const list = filtered();
@@ -132,7 +155,7 @@
   function compositionBar(fractions) {
     const entries = Object.entries(fractions).sort((a, b) => b[1] - a[1]);
     const shades = ["#1f4e79", "#2e7d99", "#3a9d8f", "#78b17a", "#c2b75a", "#d98b4a", "#b35c63", "#7d5a8c", "#5c6f82", "#9aa5ad"];
-    const pct = w => (w * 100).toFixed(w < 0.001 ? 3 : 2);
+    const pct = massPercent;
     const text = entries.map(([el, w]) => `${el} ${pct(w)}%`).join(", ");
     const segments = entries.map(([el, w], i) => `<span class="ml-seg" style="flex-basis:${w * 100}%;background:${shades[i % shades.length]}" title="${esc(el)}: ${pct(w)} wt%">${w > 0.07 ? esc(el) : ""}</span>`).join("");
     return `<div class="ml-bar" role="img" aria-label="Elemental mass fractions: ${esc(text)}">${segments}</div>
@@ -233,11 +256,7 @@
   }
 
   function toggleCompare(id) {
-    if (ui.compare.includes(id)) ui.compare = ui.compare.filter(x => x !== id);
-    else {
-      if (ui.compare.length >= MAX_COMPARE) ui.compare.shift();
-      ui.compare.push(id);
-    }
+    ui.compare = withComparison(ui.compare, id);
     renderMaterial();
   }
 
@@ -293,7 +312,7 @@
     plot.removeAllListeners?.("plotly_click");
     plot.on("plotly_click", event => { const id = event.points?.[0]?.customdata; if (id) select(id, true); });
     const shown = data.points.filter(p => visible.has(p.id));
-    const best = [...shown].sort((a, b) => a.hvl_mm - b.hvl_mm)[0];
+    const best = shortestHvl(shown);
     summary.textContent = `${shown.length} materials at ${energy} keV (1 mm, listed densities). ` +
       (gases.length ? `${gases.length} gases are omitted from this plot because their densities are about 1000 times lower; they remain in the list. ` : "") +
       (best ? `Shortest half-value layer: ${best.name}, ${fmt(best.hvl_mm)} mm${best.density_status === "sourced" ? "" : " (unverified density)"}.` : "");
@@ -362,8 +381,7 @@
     if (!ui.items.length) {
       try {
         const data = await getJSON("/api/materials");
-        const rank = id => FAMILIES.indexOf(familyFor(id));
-        ui.items = data.materials.sort((a, b) => rank(a.category) - rank(b.category) || a.name.localeCompare(b.name));
+        ui.items = libraryOrder(data.materials);
         const sourced = ui.items.filter(m => m.density_status === "sourced").length;
         $("#ml-subtitle").textContent = `${ui.items.length} entries · ${sourced} with sourced densities · every number carries its source`;
       } catch (exc) { $("#ml-subtitle").textContent = `Could not load the library: ${exc.message}`; }

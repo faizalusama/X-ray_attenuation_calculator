@@ -14,8 +14,6 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
-- Claude routine · `claude/routine-2026-10-28-materials-tests` · 2026-10-28 · Ready item 10, frontend tests for `static/materials.js`
-
 ## Ready
 
 ### Accessibility and readability
@@ -49,15 +47,34 @@ _(agent · branch · date · item)_
    thickness field and convert explicitly.
 
 ### Engineering
-10. **Frontend tests for `static/materials.js`.** It has no Node unit tests;
-    extract pure helpers (filtering, formatting) and test them like
-    `tests/test_frontend.cjs`.
 11. **Single source for asset stamps in exports.** SVG exports embed the
     workbench version; confirm they also record the materials-library dataset
     and backend versions used.
+12. **Reference values depend on the OpenBLAS kernel by one ULP.** On an
+    AVX-512 Linux container (numpy 2.5.3 and 2.5.4, Python 3.13), the
+    `examples/borosilicate-multilayer.json` run gives `mean_energy_out_keV`
+    44.189562006464314 instead of the documented 44.18956200646431; with
+    `OPENBLAS_CORETYPE=Haswell` or `Sandybridge` it is the documented value,
+    with `SkylakeX` it is not. Transmission and thickness scale are unaffected.
+    The `np.dot` reductions in `physics.py` (spectrum block) use BLAS `ddot`,
+    whose summation order varies by CPU. Options for the owner: document the
+    one-ULP platform dependence in `VALIDATION.md`, or switch these
+    reductions to an order-fixed sum (`math.fsum`), which may itself move the
+    last digit and so needs a deliberate, documented physics PR.
+13. **mypy fails when Playwright is installed.** The mypy override for
+    `playwright.*` only helps while the package is absent (as in CI). With
+    playwright 1.63.0 or 1.64.1 installed, `python -m mypy` reports
+    `tools/ui_audit.py:62: No overload variant of "on" of "Page"` for the
+    `pageerror` handler's extra default argument. Type the handler as a
+    one-argument callable so local runs match CI.
 
 ## Done
 
+- 2026-10-28 · Claude routine · `claude/routine-2026-10-28-materials-tests` ·
+  Item 10: pure helpers of `static/materials.js` (escaping, number and formula
+  formatting, family mapping, search filter, library order, mass percent,
+  comparison toggle, shortest half-value layer) exported and covered by 10
+  Node tests in `tests/test_materials.cjs`, which CI now runs.
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and
   versioned caching; content-hash asset stamps; CI interface audit.

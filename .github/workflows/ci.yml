@@ -96,6 +96,7 @@ jobs:
         run: |
           node tests/test_frontend.cjs
           node tests/test_dashboard.cjs
+          node tests/test_materials.cjs
 
   interface:
     name: Interface audit (WCAG 2.2 AA checks)
