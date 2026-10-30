@@ -43,8 +43,13 @@ _(agent · branch · date · item)_
 7. **Keyboard shortcuts** for frequent actions (refresh, add layer, open
    library), listed in a help dialog opened with `?`.
 8. **Undo for destructive edits** (remove layer, remove component).
-9. **Unit-aware inputs:** accept `2 mm`, `500 µm` or `0.2 cm` typed into a
-   thickness field and convert explicitly.
+9. **Unit-aware inputs, remaining slices.** The layer thickness field is done
+   (see *Done*). Not yet unit-aware: the slider maxima, the thickness-map
+   "Maximum thickness scale" (dimensionless, so out of scope), and energy
+   fields (`keV`/`eV`/`MeV` could follow the same `parseLength` pattern).
+   The thickness field is now `type="text"`, so it no longer gets the
+   `tabular-nums` rule in `readability.css` (`input[type=number]`); add
+   `input[inputmode=decimal]` there or in the base stylesheet.
 
 ### Engineering
 10. **Frontend tests for `static/materials.js`.** It has no Node unit tests;
@@ -53,9 +58,20 @@ _(agent · branch · date · item)_
 11. **Single source for asset stamps in exports.** SVG exports embed the
     workbench version; confirm they also record the materials-library dataset
     and backend versions used.
+12. **`ui-audit-report.json` is swept into the manifest.** `python tools/ui_audit.py`
+    writes the report to the repository root by default and the file is not in
+    `.gitignore`, so a following `python tools/manifest.py write` records it
+    (78 → 79 entries on 2026-10-30). Ignore it in `.gitignore` and the manifest
+    tree walk, or default the report path to a temporary directory.
 
 ## Done
 
+- 2026-10-30 · Claude routine · `claude/routine-2026-10-30-unit-aware-thickness`
+  · Item 9, first slice: the layer thickness field accepts `2 mm`, `500 µm`
+  (also `μm`, `um`), `0.2 cm`, `50 nm` or `1 m`; a bare number keeps the
+  display unit and converts exactly as before. Unknown units are rejected
+  ("Check input"), never guessed. `parseLength` in `static/app.js` with 5
+  Node tests in `tests/test_frontend.cjs`.
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and
   versioned caching; content-hash asset stamps; CI interface audit.

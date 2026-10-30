@@ -22,6 +22,17 @@
   const displayUnits = typeof AttenuationDashboard !== "undefined" ? AttenuationDashboard : (typeof require === "function" ? require("./dashboard.js") : null);
   const displayLength = value => displayUnits.fromMM(value, state.lengthUnit);
   const canonicalLength = value => displayUnits.toMM(value, state.lengthUnit);
+  const LENGTH_ALIASES = Object.freeze({um: "µm", "μm": "µm"});
+  // Reads a thickness field: a bare number is in the display unit; "2 mm", "500 µm" or "0.2 cm" carry their own.
+  // Returns millimetres (the canonical unit), null when empty, NaN for an unknown unit or malformed number.
+  function parseLength(source, displayUnit = "mm") {
+    const text = String(source ?? "").trim();
+    if (!text) return null;
+    const match = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)\s*([^\s\d.+-]*)$/i.exec(text);
+    if (!match) return NaN;
+    const typed = match[2].toLowerCase(), unit = typed ? LENGTH_ALIASES[typed] || typed : displayUnit;
+    return Object.hasOwn(displayUnits.LENGTH_UNITS, unit) ? displayUnits.toMM(Number(match[1]), unit) : NaN;
+  }
   const STORAGE_KEY = "attenuation-lab-workspace-v1";
   function remember() {
     if (!dashboard) return;
@@ -143,8 +154,8 @@
     const unit = thickness ? state.lengthUnit : "°";
     return `<label class="slider-box ${thickness ? "thickness-slider" : "angle-slider"}"><span class="slider-heading"><span>${label}</span><output data-slider-output>${number(value)} ${unit}</output></span><span class="slider-track-shell"><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${minimum}" max="${maximum}" value="${esc(value)}" step="any"></span><span class="slider-scale"><span>${number(minimum)} ${unit}</span><span data-slider-maximum>${number(maximum)} ${unit}</span></span></label>`;
   }
-  function field(label, name, value, index, extra = "", unit = "") {
-    return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="number" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
+  function field(label, name, value, index, extra = "", unit = "", type = "number") {
+    return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="${type}" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
   }
   function renderLayers() {
     const layers = state.configuration.layers;
@@ -163,7 +174,7 @@
           <div class="density-help">Relative parts are normalized automatically.${layer.basis === "volume" ? " Constituent densities are required." : " Chemical formula units define mole parts."}</div>
           <div class="field-grid"><label>Density model<select data-layer="${index}" data-field="density_mode"><option value="bulk" ${layer.density_mode === "bulk" ? "selected" : ""}>Measured bulk</option><option value="solid" ${layer.density_mode === "solid" ? "selected" : ""}>Solid + porosity</option><option value="ideal" ${ideal ? "selected" : ""}>Ideal mixture</option></select></label>${field(ideal ? "Density (computed)" : layer.density_mode === "solid" ? "Solid density · g/cm³" : "Bulk density · g/cm³", "density_g_cm3", ideal ? "" : layer.density_g_cm3, index, `${ideal ? 'placeholder="Computed automatically"' : ""} min="0.000000000001" max="10000" ${ideal ? "disabled" : "required"}`)}</div>
           ${layer.density_mode !== "bulk" ? `<div class="field-grid">${field("Porosity · fraction", "porosity", layer.porosity, index, 'min="0" max="0.999999" required')}<p class="density-help">${ideal ? "Additive constituent volume; measured densities are preferred." : "Effective density = solid density × (1 − porosity)."}</p></div>` : '<div class="density-help">Measured bulk density already accounts for pores.</div>'}
-          <div class="field-grid layer-bottom-fields">${field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `min="0" max="${displayLength(1e9)}" required`, state.lengthUnit)}${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}</div>
+          <div class="field-grid layer-bottom-fields">${field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `inputmode="decimal" autocomplete="off" spellcheck="false" required title="A number in ${state.lengthUnit}, or with its own unit: 2 mm, 500 µm, 0.2 cm"`, state.lengthUnit, "text")}${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}</div>
           <div class="geometry-sliders">${geometrySlider("thickness_mm", displayLength(layer.thickness_mm), index, `Explore thickness · ${state.lengthUnit}`, displayLength(Math.max(10, layer.thickness_mm * 1.2)))}${geometrySlider("angle_deg", layer.angle_deg, index, "Explore angle", 89.8)}</div>
         </div></article>`;
     }).join("");
@@ -535,7 +546,7 @@
   }
 
   // Pure data helpers are also exercised directly by Node regression tests.
-  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, parseSpectrumText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
+  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, parseSpectrumText, parseLength, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
   if (typeof document === "undefined") return;
 
   $("#config-form").noValidate=true;
@@ -560,7 +571,7 @@
       dirty();
     }else if(input.dataset.field){
       const layer=state.configuration.layers[Number(input.dataset.layer)];
-      layer[input.dataset.field]=input.dataset.field==="thickness_mm"?canonicalLength(numeric(input)):input.type==="number"?numeric(input):input.value;
+      layer[input.dataset.field]=input.dataset.field==="thickness_mm"?parseLength(input.value,state.lengthUnit):input.type==="number"?numeric(input):input.value;
       if(input.dataset.field==="name") {
         const toggle=$(`[data-action="toggle"][data-index="${input.dataset.layer}"]`);
         if(toggle) toggle.firstElementChild.textContent=input.value;
@@ -578,6 +589,11 @@
       if(layer.density_mode==="bulk") layer.porosity=0;
       renderLayers();
     } else if(input.dataset.field==="basis") renderLayers();
+    else if(input.dataset.field==="thickness_mm") {
+      // Once committed, a typed unit is shown converted to the display unit, so the field never mixes units.
+      const value=state.configuration.layers[Number(input.dataset.layer)].thickness_mm;
+      if(Number.isFinite(value)&&/[^\d\s.eE+-]/.test(input.value)) input.value=displayLength(value);
+    }
   });
   $("#layer-list").addEventListener("click",event=>{
     const button=event.target.closest("[data-action]");if(!button)return;

@@ -117,3 +117,36 @@ test('standalone SVG has visible title, legend, units, sources and exact embedde
   assert.match(output,/cm²\/g/);assert.match(output,/>Source: XrayDB/);assert.match(output,/Configuration SHA-256/);
   assert.match(output,/zero values omitted/);assert.match(output,/<metadata>/);assert.match(output,/&quot;reference_keV&quot;:30/);
 });
+
+const {parseLength} = require('../static/app.js');
+test('plain numbers use the selected display unit exactly as before',()=>{
+  assert.equal(parseLength('2', 'mm'), 2);
+  assert.equal(parseLength('500', 'µm'), 500 * 1e-3);
+  assert.equal(parseLength('0.2', 'cm'), 0.2 * 10);
+  assert.equal(parseLength(' 1.5e-1 ', 'mm'), 0.15);
+  assert.equal(parseLength('.5', 'm'), 500);
+});
+
+test('a typed unit overrides the display unit and converts to millimetres',()=>{
+  assert.equal(parseLength('2 mm', 'µm'), 2);
+  assert.equal(parseLength('500 µm', 'mm'), 500 * 1e-3);
+  assert.equal(parseLength('0.2 cm', 'mm'), 0.2 * 10);
+  assert.equal(parseLength('0.2cm', 'mm'), 0.2 * 10);
+  assert.equal(parseLength('50 nm', 'mm'), 50 * 1e-6);
+  assert.equal(parseLength('1 m', 'mm'), 1000);
+  assert.equal(parseLength('3 MM', 'µm'), 3);
+});
+
+test('micro sign, Greek mu and ASCII "um" all mean micrometres',()=>{
+  for (const text of ['500 µm', '500 μm', '500 um', '500 UM']) assert.equal(parseLength(text, 'mm'), 500 * 1e-3, text);
+});
+
+test('empty input is missing, not zero',()=>{
+  assert.equal(parseLength('', 'mm'), null);
+  assert.equal(parseLength('   ', 'mm'), null);
+  assert.equal(parseLength(null, 'mm'), null);
+});
+
+test('unknown units and malformed numbers are rejected rather than guessed',()=>{
+  for (const text of ['2 in', '2 inches', '2 mmm', 'mm', '2..5', '2,5', '2 5 mm', '1/2 mm', 'abc', '2 m m', 'Infinity']) assert.ok(Number.isNaN(parseLength(text, 'mm')), text);
+});
