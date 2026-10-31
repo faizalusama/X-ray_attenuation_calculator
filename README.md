@@ -147,7 +147,7 @@ Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* 
 
 Cite the exact version you used, so that your numbers can be traced to the code that produced them. Each version has its own DOI, listed on the [Zenodo page](https://doi.org/10.5281/zenodo.17602370). The concept DOI 10.5281/zenodo.17602370 covers all versions and always resolves to the newest.
 
-> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.0.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.17602370
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.0.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23843930
 
 Please also cite the atomic data behind every reported number:
 
