@@ -4,23 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="An offline scientific workbench for X-ray attenuation in materials, glasses, ceramics and multilayers.">
-  <title>Attenuation Lab · X-ray workbench</title>
+  <meta name="description" content="An offline scientific calculator for X-ray attenuation in multicomponent materials, glasses, ceramics and multilayers.">
+  <title>X-ray Attenuation Calculator for Multicomponent Materials</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2313273b'/%3E%3Cpath d='M10 25h8l5-12 6 23 4-11h5' fill='none' stroke='%237ddcc6' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/styles.css"><link rel="stylesheet" href="/static/dashboard.css?v=20260921f">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
-  <script src="/static/dashboard.js?v=20260921f" defer></script>
-  <script src="/static/app.js?v=20260921f" defer></script>
+  <script src="/static/dashboard.js?v=20261031a" defer></script>
+  <script src="/static/app.js?v=20261031a" defer></script>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand-name">Attenuation<span>Lab</span><span class="brand-divider"></span><span class="topbar-subtitle">Materials research workspace</span></div>
+      <div class="brand-name">X-ray Attenuation&nbsp;<span>Calculator</span><span class="brand-divider"></span><span class="topbar-subtitle">Materials research workspace</span></div>
       <div class="topbar-right"><span class="local-badge"><i></i> Local workspace</span><button class="button quiet small" id="load-project">Open project</button><button class="button outline small" id="save-project">Save project <span aria-hidden="true">↗</span></button></div>
     </header>
     <main id="main">
       <section class="page-heading">
-        <div><div class="eyebrow"><span></span> MATERIALS · GLASSES · CERAMICS</div><h1>X-ray attenuation workbench</h1><p>From composition to transmission. Understand every layer.</p></div>
+        <div><div class="eyebrow"><span></span> MATERIALS · GLASSES · CERAMICS</div><h1>X-ray attenuation calculator</h1><p>From composition to transmission. Understand every layer.</p></div>
         <div class="model-label"><span class="model-dot"></span><div><strong>Beer–Lambert model</strong><span>Narrow beam · 1–800 keV</span></div></div>
       </section>
       <div class="workspace">
@@ -90,7 +90,7 @@
         </section>
       </div>
       <section id="suggestions-section" class="suggestions-strip expanded" hidden aria-label="Suggestions for this system"><div class="suggestions-heading"><span class="eyebrow">RESEARCH ASSIST</span><h2>Suggestions for your system</h2><span id="suggestions-context">Based on the latest valid calculation</span><button type="button" id="close-suggestions" aria-label="Close suggestions">Close ×</button></div><div id="smart-suggestions" class="suggestions-grid"></div></section>
-      <footer class="page-footer"><span>ATTENUATION LAB <span class="footer-dot">·</span> Scientific materials workbench</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span></span></footer>
+      <footer class="page-footer"><span>X-RAY ATTENUATION CALCULATOR <span class="footer-dot">·</span> For multicomponent materials</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span></span></footer>
     </main>
   </div>
   <input type="file" id="project-file" accept="application/json,.json" hidden>

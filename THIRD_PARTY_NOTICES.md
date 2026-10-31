@@ -1,6 +1,6 @@
 # Third-party notices
 
-The X-ray Attenuation Workbench is distributed under the MIT License (see
+The X-ray Attenuation Calculator is distributed under the MIT License (see
 [LICENSE](LICENSE)). That licence covers this project's own source only. The
 components below keep their own terms, and redistributing the workbench
 redistributes them too.

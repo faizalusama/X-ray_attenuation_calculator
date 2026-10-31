@@ -20,7 +20,7 @@ future divergence in either upstream package is reported loudly instead of
 silently changing results. xraylib also exposes quantities XrayDB does not,
 notably the mass energy-absorption coefficient, which later work may need.
 
-Optional dependency: ``pip install xray-attenuation-workbench[xraylib]``.
+Optional dependency: ``pip install xray-attenuation-calculator[xraylib]``.
 """
 
 from __future__ import annotations

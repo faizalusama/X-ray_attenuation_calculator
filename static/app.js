@@ -262,7 +262,7 @@
         state.stale = true;
         markPending("Unable to update the result.");
         setStatus("Check configuration", "error");
-        error(exception.message === "Failed to fetch" ? "Cannot reach the local calculation server. Start the workbench server and refresh this page." : exception.message);
+        error(exception.message === "Failed to fetch" ? "Cannot reach the local calculation server. Start the local server and refresh this page." : exception.message);
       }
     } finally {
       if (requestId === state.activeRequest) {
@@ -442,7 +442,7 @@
     const details = [
       `${chart.logX ? "Logarithmic" : "Linear"} energy axis · ${chart.logY ? "Logarithmic y axis; zero values omitted" : "Linear y axis"}`,
       `Reference energy: ${configuration.energy.reference_keV} keV · Narrow-beam primary attenuation`,
-      `Source: ${provenance.engine} · XrayDB ${provenance.xraydb_version}${provenance.workbench_version ? ` · Workbench ${provenance.workbench_version}` : ""}`,
+      `Source: ${provenance.engine} · XrayDB ${provenance.xraydb_version}${provenance.workbench_version ? ` · Calculator ${provenance.workbench_version}` : ""}`,
       `Model: ${provenance.model} · Computed: ${provenance.timestamp_utc}`,
       ...(provenance.configuration_sha256 ? [`Configuration SHA-256: ${provenance.configuration_sha256}`] : []),
       "Complete configuration and provenance are embedded in this SVG's metadata."

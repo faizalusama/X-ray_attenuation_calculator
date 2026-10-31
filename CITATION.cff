@@ -1,20 +1,21 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below. Please also cite the underlying Elam atomic data; see THIRD_PARTY_NOTICES.md."
-title: "X-ray Attenuation Workbench for Multicomponent Materials and Multilayers"
-version: "1.0.0"
+title: "X-ray Attenuation Calculator for Multicomponent Materials"
+version: "1.0.1"
 type: software
 license: MIT
-# First stable release. It supersedes the 0.1.x calculator, whose original
-# citation (version DOI 10.5281/zenodo.17602371) is preserved in
-# legacy/CITATION.cff; that script double-weighted mass fractions.
+# Version 1.0.1 gives the same calculated numbers as 1.0.0, the first stable
+# release. Both supersede the 0.1.x calculator, whose original citation (version
+# DOI 10.5281/zenodo.17602371) is preserved in legacy/CITATION.cff; that script
+# double-weighted mass fractions.
 # The DOI below is the Zenodo *concept* DOI: it covers every version and
 # resolves to the newest, so citations aggregate across releases.
 doi: 10.5281/zenodo.17602370
-date-released: 2026-09-21
+date-released: 2026-10-31
 identifiers:
   - type: doi
     value: 10.5281/zenodo.17602370
-    description: Concept DOI, covering all versions (preferred for citation).
+    description: Concept DOI, covering all versions.
   - type: doi
     value: 10.5281/zenodo.22878495
     description: Version DOI for 1.0.0 specifically.
@@ -24,7 +25,41 @@ identifiers:
 authors:
   - family-names: Jalaludeen
     given-names: Mohamed Faizal Ussama
+    orcid: "https://orcid.org/0000-0003-0077-691X"
+    affiliation: Aalborg University
 repository-code: "https://github.com/faizalusama/X-ray_attenuation_calculator"
 abstract: >-
-  A local graphical and programmable workbench for narrow-beam X-ray
-  attenuation in multicomponent materials and planar multilayers.
+  A local graphical and programmable calculator for narrow-beam X-ray
+  attenuation in multicomponent materials and planar multilayers: glasses,
+  ceramics, composites and filters. It computes energy-dependent mass and
+  linear attenuation, transmission, interaction channels, half- and
+  tenth-value layers and attenuation lengths from chemical composition and
+  density, with user-supplied spectra and Monte Carlo uncertainty.
+keywords:
+  - X-ray attenuation
+  - mass attenuation coefficient
+  - multicomponent materials
+  - Beer-Lambert law
+  - transmission
+  - oxide glasses
+  - ceramics
+  - multilayers
+  - materials science
+  - X-ray scattering
+  - Python
+references:
+  - type: article
+    title: "A new atomic database for X-ray spectroscopic calculations"
+    authors:
+      - family-names: Elam
+        given-names: W. T.
+      - family-names: Ravel
+        given-names: B. D.
+      - family-names: Sieber
+        given-names: J. R.
+    journal: Radiation Physics and Chemistry
+    volume: 63
+    start: 121
+    end: 128
+    year: 2002
+    doi: 10.1016/S0969-806X(01)00227-4

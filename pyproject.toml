@@ -3,9 +3,9 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "xray-attenuation-workbench"
+name = "xray-attenuation-calculator"
 dynamic = ["version"]          # single source of truth: xray_workbench/__init__.py
-description = "X-ray attenuation, composition and multilayer materials workbench"
+description = "X-ray attenuation calculator for multicomponent materials and multilayers"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
@@ -14,7 +14,7 @@ authors = [{name = "Mohamed Faizal Ussama Jalaludeen"}]
 keywords = ["x-ray", "attenuation", "beer-lambert", "materials-science",
             "glass", "ceramics", "multilayer", "xraydb", "spectroscopy"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
