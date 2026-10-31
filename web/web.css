@@ -1,0 +1,5 @@
+/* Browser build only: the engine status strip above the application. */
+#engine-status{padding:7px 16px;font-size:14px;line-height:1.4;text-align:center;background:#fff4dd;color:#5b4310}
+#engine-status.ready{background:#e8f4f1;color:#14524a}
+#engine-status.failed{background:#fbe9e7;color:#8a1f11}
+#engine-status a{color:inherit;font-weight:600}

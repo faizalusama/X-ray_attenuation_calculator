@@ -4,9 +4,15 @@
 [![CI](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. Version 1.0.1 gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
+A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. **[Use it in your browser](https://faizalusama.github.io/X-ray_attenuation_calculator/)** with nothing to install, or run it locally as described below. Version 1.1.0 adds the browser version and gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
 
 > **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
+
+## Use it in your browser
+
+Open **https://faizalusama.github.io/X-ray_attenuation_calculator/**. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, from this site and the jsDelivr CDN. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
+
+Results match the local version to within floating-point rounding; see the [validation record](docs/VALIDATION.md). Each exported result records the runtime in its provenance.
 
 ## Start the graphical application
 
@@ -135,19 +141,21 @@ node --check static/app.js
 node tests/test_frontend.cjs
 ```
 
+`python tools/build_web.py` builds the browser version into `_site/`. `python tools/web_parity.py` then compares it with the native engine, number by number; it needs Playwright. CI runs both.
+
 `tools/manifest.py` maintains `MANIFEST.sha256`, the record of what a release actually contained. Run `python tools/manifest.py write` after an intentional change and commit the result. `tools/snapshot.py` takes timestamped copies of the authored files into a git-ignored `_snapshots/` directory; it is a safety net for working without version control, not a replacement for it. All of these run in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) across Python 3.12–3.14 on Linux, Windows and macOS.
 
 ## Original project and publication
 
 `legacy/` preserves the supplied archive for attribution and reproducibility. **Do not use its old script or stored notebook results for new calculations.** The original script applied each component's mass fraction twice; this version fixes the mixture rule. The archived notebook also contains exploratory density and attenuation-length averaging that must not be used as the new calculation method.
 
-Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* ([10.5281/zenodo.17602371](https://doi.org/10.5281/zenodo.17602371)). Version 1.0.0 was published as *X-ray Attenuation Workbench for Multicomponent Materials and Multilayers* ([10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495)); this release gives the same calculated numbers. The original citation is retained under `legacy/`.
+Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* ([10.5281/zenodo.17602371](https://doi.org/10.5281/zenodo.17602371)). Version 1.0.0 was published as *X-ray Attenuation Workbench for Multicomponent Materials and Multilayers* ([10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495)); this release gives the same calculated numbers. Version 1.0.1 ([10.5281/zenodo.23843930](https://doi.org/10.5281/zenodo.23843930)) introduced the current title. The original citation is retained under `legacy/`.
 
 ## How to cite
 
 Cite the exact version you used, so that your numbers can be traced to the code that produced them. Each version has its own DOI, listed on the [Zenodo page](https://doi.org/10.5281/zenodo.17602370). The concept DOI 10.5281/zenodo.17602370 covers all versions and always resolves to the newest.
 
-> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.0.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23843930
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.17602370
 
 Please also cite the atomic data behind every reported number:
 

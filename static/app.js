@@ -394,6 +394,7 @@
     if (name === "spectrum") renderSpectrum();
   }
   function download(contents, filename, type) {
+    if (window.AttenuationWeb) { window.AttenuationWeb.download(contents, filename, type); return; }
     // Native HTTP attachments also work in embedded browsers that block blob URLs.
     let frame = $("#download-target");
     if (!frame) {frame=document.createElement("iframe");frame.id="download-target";frame.name="download-target";frame.hidden=true;frame.title="File export";document.body.appendChild(frame);}

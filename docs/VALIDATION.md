@@ -1,4 +1,4 @@
-# Validation record — versions 1.0.0 and 1.0.1
+# Validation record — versions 1.0.0 to 1.1.0
 
 Numbering note: this project was developed as `0.2.0` and renumbered to `1.0.0`
 for its first stable release. Entries below written before the renumber refer to
@@ -179,3 +179,25 @@ Agreement this close suggests the Elam and NIST tabulations share underlying the
 - The software had several names, including "Attenuation Lab" in the interface. It now has one title, and `tests/test_citation.py` keeps the README, interface and citation files in agreement. The Python module `xray_workbench`, the `xray-workbench` command and the result key `workbench_version` are unchanged, so existing scripts and saved projects keep working.
 
 `legacy/` is unchanged.
+
+## Version 1.1.0 — 31 October 2026
+
+Adds a browser version. The same `xray_workbench` package runs inside the browser through Pyodide 314.0.7; nothing is reimplemented. `physics.py`, `results.py` and the backends are unchanged from 1.0.1. New files are `xray_workbench/browser.py`, `web/`, `tools/build_web.py` and `tools/web_parity.py`.
+
+**Native numbers unchanged.** For the 16 configurations described under 1.0.1, the serialized native results are byte-identical across `v1.0.0`, `v1.0.1` and this version (the same SHA-256, `4d50d8cd05b54d9c…`).
+
+**Browser against native.** The same 16 configurations were run in the browser and compared with the native engine on Windows (Python 3.14.6, NumPy 2.5.3). The browser used Python 3.14.2 and NumPy 2.4.6.
+
+- Of 247,930 numbers, 242,569 are identical and 5,361 differ. The browser version is therefore **not** byte-identical to the native engine.
+- The largest relative difference is 5.7 × 10⁻¹⁴, on a transmission of 7.9 × 10⁻⁹⁴. Differences of this size are consistent with different maths libraries and NumPy builds rounding the last bits differently.
+- The documented reference values are identical: spectral transmission 0.7802626916899833 and thickness multiplier 11.417978438587083. So is the 14 keV transmission of each glass of arXiv:2608.15675, to every digit.
+
+`tools/web_parity.py` repeats this comparison in CI, on Linux, and fails above 10⁻¹² relative. That limit was set after the measurement above, at about 20 times its maximum.
+
+**Loading.** A first visit transfers about 30 MB. With the page visible on one desktop computer, five loads took between 7.5 and 17.5 s, including 13.3 s with an empty cache. Two other loads took about 60 s: one with the page in a hidden pane, and one under phone-size emulation. That second stall was in the library-loading step and did not recur when repeated, and its cause was not established. The page reports its progress and says so if loading takes more than 30 s. A calculation then took 0.05–0.3 s.
+
+**Interface.** Checked in a Chromium-based browser at desktop and 375-pixel widths: all eleven plots render, a misspelled formula gives the same message as the local server, the formula warnings appear, and project, SVG, CSV and JSON exports reach the browser's download path with the expected content. No horizontal overflow or console errors appeared.
+
+**Not checked.** Firefox, Safari and real phones. The local JavaScript suites need Node.js, which this machine lacks; they run in CI. As before, this is a check of the numerical implementation, not experimental validation.
+
+**Other new checks.** `tests/test_web.py` holds the browser routes to the same answers as the local server and checks that the site runs the same `physics.py`. Results from the browser record their runtime in `provenance.runtime`.

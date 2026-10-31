@@ -53,7 +53,7 @@ xraylib = ["xraylib>=4.1"]
 xray-workbench = "xray_workbench.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/faizalusama/X-ray_attenuation_calculator"
+Homepage = "https://faizalusama.github.io/X-ray_attenuation_calculator/"
 Repository = "https://github.com/faizalusama/X-ray_attenuation_calculator"
 Issues = "https://github.com/faizalusama/X-ray_attenuation_calculator/issues"
 
@@ -73,6 +73,7 @@ packages = ["xray_workbench"]
 include = [
     "/xray_workbench",
     "/static",
+    "/web",
     "/tests",
     "/docs",
     "/examples",
@@ -109,7 +110,7 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedE
 [tool.ruff]
 line-length = 120
 target-version = "py312"
-extend-exclude = [".venv", "legacy", "static/vendor", "_snapshots"]
+extend-exclude = [".venv", "legacy", "static/vendor", "_snapshots", "_site"]
 
 [tool.ruff.lint]
 select = [
@@ -160,5 +161,5 @@ exclude = ["^legacy/", "^\\.venv/"]
 
 [[tool.mypy.overrides]]
 # XrayDB ships no type information; xraylib is a SWIG wrapper around a C library.
-module = ["xraydb.*", "xraylib.*", "xraylib"]
+module = ["xraydb.*", "xraylib.*", "xraylib", "playwright.*"]
 ignore_missing_imports = true
