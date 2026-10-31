@@ -57,7 +57,7 @@ def _load_configuration(path: Path) -> dict[str, Any]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="xray-workbench", description="X-ray Attenuation Workbench")
+    parser = argparse.ArgumentParser(prog="xray-workbench", description="X-ray Attenuation Calculator")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__} ({MODEL})")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT,
                         help=f"loopback port for the graphical application (default {DEFAULT_PORT})")
@@ -92,10 +92,10 @@ def main(argv: list[str] | None = None) -> None:
     import uvicorn
     url = f"http://127.0.0.1:{args.port}"
     if not args.no_browser and _existing_workbench(url):
-        print(f"Opening the running X-ray Attenuation Workbench: {url}")
+        print(f"Opening the running X-ray Attenuation Calculator: {url}")
         webbrowser.open(url)
         return
-    print(f"X-ray Attenuation Workbench {__version__}: {url}\nPress Ctrl+C to stop.")
+    print(f"X-ray Attenuation Calculator {__version__}: {url}\nPress Ctrl+C to stop.")
     if not args.no_browser:
         timer = threading.Timer(1.5, lambda: webbrowser.open(url))
         timer.daemon = True

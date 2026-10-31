@@ -1,10 +1,10 @@
-# X-ray Attenuation Workbench
+# X-ray Attenuation Calculator for Multicomponent Materials
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17602370.svg)](https://doi.org/10.5281/zenodo.17602370)
 [![CI](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A local scientific application for multicomponent glasses, ceramics, composites, filters, and planar multilayers. Version 1.0.0 is the first stable release of Mohamed Faizal Ussama Jalaludeen's X-ray attenuation work, superseding the 0.1.x calculator preserved under `legacy/`. Released 21 September 2026; cite it via the Zenodo concept DOI [10.5281/zenodo.17602370](https://doi.org/10.5281/zenodo.17602370), which covers all versions. The 1.0.0 release itself is [10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495).
+A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. Version 1.0.1 gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
 
 > **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
 
@@ -32,7 +32,7 @@ python3 -m venv .venv
 
 The application opens at **http://127.0.0.1:8765**. Keep the terminal open while using it; Ctrl+C stops the server. Use `python launch.py --port 8766` if the default port is occupied. The server binds to this computer only.
 
-The workbench can also be installed as a package, which provides an `xray-workbench` command equivalent to `python launch.py`:
+The calculator can also be installed as a package, which provides an `xray-workbench` command equivalent to `python launch.py`:
 
 ```powershell
 python -m pip install .
@@ -82,13 +82,13 @@ See [scientific methods and references](docs/SCIENTIFIC_METHODS.md), [validation
 
 Cross-sections come from a selectable backend, named in the configuration as `"backend": "elam"` and recorded in every result's provenance. The default is `elam` (XrayDB's Elam tables). Each backend declares its hard energy domain, the narrower range its authors consider reliable, the interaction channels it actually provides, its atomic-number range and its edge convention. Backends are never averaged together: where sources disagree, the disagreement is the information.
 
-An optional `xraylib` backend is available via `pip install "xray-attenuation-workbench[xraylib]"`. **It is not an independent check.** Measured on 20 September 2026, xraylib 4.3.0 returns the same coefficients as XrayDB 4.5.8 to within floating-point rounding (bit-identical on Windows, at most 1.9 × 10⁻¹⁵ relative on Linux and macOS) across all 99 element/energy samples tested — the two packages expose the same evaluated data. It therefore declares `shares_data_with = ("elam",)`, and the comparison tools refuse to treat the pair as cross-database validation. The two do disagree on edge *labels* (Ba K: 37.4410 vs 37.4406 keV), so they are not interchangeable for edge work.
+An optional `xraylib` backend is available via `pip install "xray-attenuation-calculator[xraylib]"`. **It is not an independent check.** Measured on 20 September 2026, xraylib 4.3.0 returns the same coefficients as XrayDB 4.5.8 to within floating-point rounding (bit-identical on Windows, at most 1.9 × 10⁻¹⁵ relative on Linux and macOS) across all 99 element/energy samples tested — the two packages expose the same evaluated data. It therefore declares `shares_data_with = ("elam",)`, and the comparison tools refuse to treat the pair as cross-database validation. The two do disagree on edge *labels* (Ba K: 37.4410 vs 37.4406 keV), so they are not interchangeable for edge work.
 
 This project currently has **no independent cross-database validation**. The NIST reference comparison in the [validation record](docs/VALIDATION.md) covers a small off-edge subset only. See the [roadmap](docs/ROADMAP.md) for the planned NIST XCOM adapter.
 
 ## Input conventions
 
-Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Mole fractions refer to **formula units of the entered components**. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point.
+Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Mole fractions refer to **formula units of the entered components**. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point. Two spellings parse validly but rarely mean what was typed, so the result carries a warning: a period before further elements (`CuSO4.5H2O`, `BaO.2TiO2`), and an all-capitals formula that hides a two-letter element (`SIO2` is sulfur + iodine + oxygen). Check the reported mass fractions either way.
 
 Angles are from the surface normal, so normal incidence is 0°. The effective path is thickness / cos(angle). HVL, TVL, and attenuation length are distances **along the ray** in an individual homogeneous material, not the thickness of the complete multilayer stack. Target scaling multiplies all layer thicknesses at their existing angles and composition.
 
@@ -141,12 +141,24 @@ node tests/test_frontend.cjs
 
 `legacy/` preserves the supplied archive for attribution and reproducibility. **Do not use its old script or stored notebook results for new calculations.** The original script applied each component's mass fraction twice; this version fixes the mixture rule. The archived notebook also contains exploratory density and attenuation-length averaging that must not be used as the new calculation method.
 
-The existing DOI identifies the original software, not this unpublished extension. Authorship is preserved in `CITATION.cff`; the original citation is retained under `legacy/`. No new DOI, release, repository commit, or publication has been made.
+Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* ([10.5281/zenodo.17602371](https://doi.org/10.5281/zenodo.17602371)). Version 1.0.0 was published as *X-ray Attenuation Workbench for Multicomponent Materials and Multilayers* ([10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495)); this release gives the same calculated numbers. The original citation is retained under `legacy/`.
+
+## How to cite
+
+Cite the exact version you used, so that your numbers can be traced to the code that produced them. Each version has its own DOI, listed on the [Zenodo page](https://doi.org/10.5281/zenodo.17602370). The concept DOI 10.5281/zenodo.17602370 covers all versions and always resolves to the newest.
+
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.0.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.17602370
+
+Please also cite the atomic data behind every reported number:
+
+> Elam, W. T., Ravel, B. D., & Sieber, J. R. (2002). A new atomic database for X-ray spectroscopic calculations. *Radiation Physics and Chemistry*, 63, 121–128. https://doi.org/10.1016/S0969-806X(01)00227-4
+
+`CITATION.cff` holds the same information in machine-readable form, and GitHub's "Cite this repository" button reads it.
 
 ## License
 
 This project is released under the **MIT License** — see [LICENSE](LICENSE).
 
-The published repository of the original calculator states "Free to use and modify" and its README refers to a `LICENSE` file, but no such file exists there. That phrasing grants no defined rights, so the original work should be given the same explicit licence before anything is distributed.
+The original 0.1.x calculator states "Free to use and modify" and its README refers to a `LICENSE` file that does not exist in that version; its Zenodo record lists CC BY 4.0. From 1.0.0 onward the terms are the MIT License above.
 
 Third-party components keep their own terms, including the Plotly.js bundled under `static/vendor/`. They are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The Elam atomic data underlying every reported number carry their own citation expectations that the MIT licence does not address; cite the data source, not only this tool.

@@ -12,6 +12,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
+from itertools import pairwise
 from math import cos, isfinite, log, radians, sqrt
 from numbers import Real
 from typing import Any
@@ -30,6 +31,8 @@ ENERGY_RANGE_KEV = (1.0, 800.0)
 EDGE_BRACKET_RELATIVE = 1e-4
 _NUMBER = re.compile(r"(?:\d+(?:\.\d*)?|\.\d+)")
 _ELEMENT = re.compile(r"[A-Z][a-z]?")
+# A period before further elements, except occupancies such as Si0.5Al0.5O2.
+_PERIOD_BEFORE_ELEMENT = re.compile(r"(?:(?<![0-9])|[1-9])\.\d+[A-Z(\[]")
 
 
 def _number(value: Any, label: str, minimum: float | None = None,
@@ -156,6 +159,24 @@ def _parse_formula(formula: str) -> tuple[tuple[str, float], ...]:
     if any(not isfinite(count) or not 0 < count <= 1e12 for count in counts.values()):
         raise ValueError(f"Formula '{formula}' has atom counts outside the supported numeric range.")
     return tuple(sorted(counts.items(), key=lambda item: xraydb.atomic_number(item[0])))
+
+
+def _formula_warnings(formula: str) -> list[str]:
+    """Flag spellings that parse validly but rarely mean what was typed. Numbers are unaffected."""
+    found = []
+    if _PERIOD_BEFORE_ELEMENT.search(formula):
+        found.append(f"Formula '{formula}' was read with '.' as a decimal point. For a hydrate or oxide sum "
+                     "such as CuSO4·5H2O or BaO·2TiO2, use the middle dot '·'.")
+    if not any(character.islower() for character in formula):
+        for first, second in pairwise(formula):
+            if first.isupper() and second.isupper():
+                try:
+                    _atomic_mass(first + second.lower())
+                except ValueError:
+                    continue
+                found.append(f"Formula '{formula}' was read as {first} + {second}, not {first}{second.lower()}. "
+                             "Element symbols are case sensitive.")
+    return found
 
 
 @dataclass(frozen=True)
@@ -343,6 +364,8 @@ def calculate(payload: JsonObject) -> JsonObject:
         "Independent-atom mixture coefficients omit chemical-state near-edge structure, diffraction, coherent interfaces and microstructure-dependent transport. Edge brackets locate tabulated steps; they do not predict XANES/EXAFS.",
     ]
     warnings.extend(backend.domain_warnings(float(evaluation.min()), float(evaluation.max())))
+    warnings.extend(dict.fromkeys(message for layer in layers for component in layer.components
+                                  for message in _formula_warnings(component["formula"])))
     if not low <= reference_energy <= high:
         warnings.append("Reference energy lies outside the plotted sweep and was evaluated directly.")
     if any(item.get("density_mode") == "ideal" for item in raw_layers):

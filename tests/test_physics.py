@@ -244,6 +244,23 @@ def test_range_boundaries_and_high_energy_warning():
     assert any("250 keV" in warning for warning in result["warnings"])
 
 
+@pytest.mark.parametrize("formula,reason", [
+    ("CuSO4.5H2O", "decimal point"),
+    ("BaO.2TiO2", "decimal point"),
+    ("SIO2", "case sensitive"),
+    ("NIO", "case sensitive"),
+])
+def test_formula_spellings_that_rarely_mean_what_was_typed_warn(formula, reason):
+    warnings = calculate(request([layer(formula)]))["warnings"]
+    assert any(formula in warning and reason in warning for warning in warnings)
+
+
+@pytest.mark.parametrize("formula", ["SiO2", "Al2O3", "H2O", "Si0.5Al0.5O2", "YBa2Cu3O6.9", "CuSO4·5H2O", "Ca3(PO4)2"])
+def test_ordinary_formulas_do_not_warn(formula):
+    warnings = calculate(request([layer(formula)]))["warnings"]
+    assert not any("decimal point" in warning or "case sensitive" in warning for warning in warnings)
+
+
 @pytest.mark.parametrize("density,thickness,porosity", [
     (1e-12, 1e-300, np.nextafter(1.0, 0.0)),
     (1e-12, 1e9, 0),

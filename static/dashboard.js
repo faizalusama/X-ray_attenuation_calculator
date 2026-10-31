@@ -264,7 +264,7 @@
     async function draw() {
       controls();
       if (!result || $("#view-overview").hidden) return;
-      if (!Plotly) throw new Error("The local plotting bundle could not be loaded. Refresh the workbench.");
+      if (!Plotly) throw new Error("The local plotting bundle could not be loaded. Refresh the page.");
       const grid = $("#plot-grid"); grid.dataset.layout = settings.layout;
       const currentIds = settings.panels.map(p => String(p.id));
       [...grid.children].forEach(card => { if (!currentIds.includes(card.dataset.plotCard)) { Plotly.purge(card.querySelector(".scientific-plot")); card.remove(); } });

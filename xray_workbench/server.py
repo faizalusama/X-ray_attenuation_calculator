@@ -39,8 +39,8 @@ def _static_root() -> Path:
 
 STATIC_ROOT = _static_root()
 MAX_BODY_BYTES = 2_000_000
-app = FastAPI(title="X-ray Attenuation Workbench", version=__version__,
-              description="Local materials-science workbench; narrow-beam attenuation.")
+app = FastAPI(title="X-ray Attenuation Calculator", version=__version__,
+              description="Local narrow-beam X-ray attenuation calculator for multicomponent materials.")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]", "testserver"])
 
 

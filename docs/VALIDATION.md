@@ -1,4 +1,4 @@
-# Validation record — version 1.0.0
+# Validation record — versions 1.0.0 and 1.0.1
 
 Numbering note: this project was developed as `0.2.0` and renumbered to `1.0.0`
 for its first stable release. Entries below written before the renumber refer to
@@ -122,7 +122,7 @@ Consequently **this project still has no independent cross-database
 validation.** Agreement between these two backends measures nothing. The
 xraylib backend declares `shares_data_with = ("elam",)`,
 `backends/compare.py` excludes the pair from legitimate cross-checks, and
-`tests/test_backend_equivalence.py` asserts the exact equality so that any
+`tests/test_backend_equivalence.py` asserts agreement within 10⁻⁹ relative so that any
 future upstream divergence surfaces as a test failure rather than a silent
 change in published numbers.
 
@@ -140,7 +140,7 @@ identical coefficients, so edge labels are not interchangeable.
 
 Version 1.0.0 was released on 21 September 2026. Experimental validation and independent scientific review remain outstanding. Transport of scattered/fluorescent photons, calibrated source generation, diffraction/near-edge fine structure, detector response, and broader correlated uncertainty are explicitly outside this implemented model; see [ROADMAP.md](ROADMAP.md).
 
-The licence decision is now made: the project is released under the MIT License, recorded in [LICENSE](../LICENSE), `CITATION.cff` and the package metadata, with third-party terms listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Experimental validation, independent scientific review, a version-specific release citation and installation testing on the operating systems now covered by CI remain outstanding.
+The licence decision is now made: the project is released under the MIT License, recorded in [LICENSE](../LICENSE), `CITATION.cff` and the package metadata, with third-party terms listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Experimental validation, independent scientific review and installation testing on the operating systems now covered by CI remain outstanding.
 
 ## Interactive dashboard pass — 21 September 2026
 
@@ -153,3 +153,29 @@ Additional commands: `node tests/test_dashboard.cjs` and `node --check static/da
 Per-plot controls follow-up: all 25 JavaScript tests passed, including independent scale/typography restoration and linear/logarithmic linked-energy range conversion. Browser verification confirmed different font sizes and y-axis scales persist independently after reload, bold SVG axis titles render, and the page has no horizontal overflow or console errors.
 
 Typography follow-up: enlarged headings and plot labels, compact figure margins and logarithmic power labels were checked in the browser. The transmission plot rendered spaced decade labels without horizontal page overflow or console errors. All 25 JavaScript tests passed.
+
+## Version 1.0.1 — 31 October 2026
+
+Documentation, metadata and input warnings only. `xray_workbench/physics.py` gained two warning messages for mistyped formulas; no calculation line changed.
+
+**Numbers unchanged.** Every calculated value was compared between the `v1.0.0` tag and this version for 16 configurations: the four glasses of arXiv:2608.15675 with uncertainty and a spectrum, all ten presets and a four-layer stack on a 1500-point 1–800 keV sweep, plus the saved example. The serialized results are byte-identical (the same SHA-256, `4d50d8cd05b54d9c…`, from both). Provenance and warning text were excluded from that comparison because they carry the version and timestamp. Regenerating `examples/verified-example-result.json` changed only its version and timestamp.
+
+**Checks on this version.** 156 Python tests and 14 subtests passed on Windows with Python 3.14.6. `ruff check` and `mypy --strict` report no issues. The JavaScript suites need Node.js, which this machine lacks; they run in CI. The renamed interface was checked in a browser at desktop and 375-pixel widths, with no horizontal overflow or console errors.
+
+**Independent comparison.** This was a one-off run on a clean copy of the `v1.0.0` tag; it is not part of the test suite.
+
+- Those four glasses at seven energies from 5 to 100 keV matched a hand calculation using separately typed atomic masses and raw `mu_elam` values, within 6.5 × 10⁻⁶ relative.
+- Their mass attenuation coefficients, built from NIST's elemental tables (SRD 126), agreed within 0.04% at 10, 15 and 20 keV.
+- NIST's own tabulated values for borosilicate (Pyrex) and lead glass agreed within 0.03% at seven energies from 5 to 100 keV, using NIST's Table 2 compositions.
+
+Agreement this close suggests the Elam and NIST tabulations share underlying theory. It checks units, composition handling and the mixture rule. It is not experimental validation.
+
+**Corrected in this version.**
+
+- The README said "No new DOI, release, repository commit, or publication has been made", which was already false when 1.0.0 was published.
+- This record said the backend test asserts exact equality; it allows 10⁻⁹ relative, as the correction above explains.
+- The package classifier said Alpha although 1.0.0 was described as stable.
+- The 1.0.0 Zenodo record had no ORCID, affiliation or keywords. `.zenodo.json` and `CITATION.cff` now carry them.
+- The software had several names, including "Attenuation Lab" in the interface. It now has one title, and `tests/test_citation.py` keeps the README, interface and citation files in agreement. The Python module `xray_workbench`, the `xray-workbench` command and the result key `workbench_version` are unchanged, so existing scripts and saved projects keep working.
+
+`legacy/` is unchanged.
