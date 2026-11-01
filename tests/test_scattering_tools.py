@@ -55,3 +55,14 @@ def test_reflectivity_route_handles_stack_and_checks_thickness_count():
     assert max(answer["plots"][0]["traces"][0]["y"]) <= 1
     with pytest.raises(ValueError, match="one film thickness"):
         scattering_tools(request("reflectivity", layers=[SI], film_thickness_angstrom="100"))
+
+def test_contrast_has_zero_same_phase_and_porod_symmetry():
+    water = {**SI, "name": "Water", "density_g_cm3": 1, "components": [{"formula": "H2O", "fraction": 1}]}
+    same = scattering_tools(request("contrast", layers=[SI], other_layer=0))["data"]
+    assert same["xray_contrast_squared_inv_angstrom4"] == 0
+    a = scattering_tools(request("contrast", layers=[SI,water], volume_fraction=0.3))["data"]
+    b = scattering_tools(request("contrast", layer=water, layers=[SI,water], other_layer=0, volume_fraction=0.7))["data"]
+    assert a == pytest.approx(b, rel=1e-14)
+    zero = scattering_tools(request("contrast", layers=[SI,water], volume_fraction=0))["data"]
+    assert zero["xray_porod_invariant_inv_angstrom4"] == 0
+    assert a["neutron_contrast_squared_inv_angstrom4"] > 0

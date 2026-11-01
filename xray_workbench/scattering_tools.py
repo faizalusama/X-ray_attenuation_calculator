@@ -15,7 +15,7 @@ import xraydb
 from . import __version__
 from ._types import JsonObject
 from .physics import _number, _object, _prepare_layer
-from .scattering import AVOGADRO
+from .scattering import AVOGADRO, _table
 from .sources import HC_KEV_ANGSTROM
 
 R_E_ANGSTROM = 2.8179403262e-5
@@ -125,8 +125,54 @@ def reflectivity(payload: JsonObject) -> JsonObject:
                   notes)
 
 
+def neutron_sld(raw: Any) -> complex | None:
+    layer = _prepare_layer(raw, 0)
+    values = _table("neutron_sears1992.json")["values"]
+    if any(s not in values for s in layer.elements):
+        return None
+    return sum((layer.density * AVOGADRO * weight / float(xraydb.atomic_mass(symbol)) * 1e-29 *
+                complex(values[symbol]["b_coherent_fm"], values[symbol]["b_coherent_imaginary_fm"])
+                for symbol, weight in layer.elements.items()), start=0j)
+
+
+def contrast(payload: JsonObject) -> JsonObject:
+    energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
+    layers = payload.get("layers")
+    if not isinstance(layers, list) or not 1 <= len(layers) <= 24:
+        raise ValueError("Contrast needs 1–24 layer compositions.")
+    index = _number(payload.get("other_layer", min(1, len(layers)-1)), "Second phase index", 0, len(layers)-1)
+    if not index.is_integer():
+        raise ValueError("Second phase index must be an integer.")
+    first_raw, second_raw = payload.get("layer"), layers[int(index)]
+    first, second = optical_constants(first_raw, energy), optical_constants(second_raw, energy)
+    phi = _number(payload.get("volume_fraction", 0.5), "First phase volume fraction", 0, 1)
+    x1 = complex(first["sld_real_inv_angstrom2"], -first["sld_absorptive_inv_angstrom2"])
+    x2 = complex(second["sld_real_inv_angstrom2"], -second["sld_absorptive_inv_angstrom2"])
+    dx = abs(x1-x2)**2
+    n1, n2 = neutron_sld(first_raw), neutron_sld(second_raw)
+    dn = abs(n1-n2)**2 if n1 is not None and n2 is not None else None
+    fraction = np.linspace(0, 1, 201)
+    scale = 2*pi*pi*fraction*(1-fraction)
+    data = {"xray_contrast_squared_inv_angstrom4": dx, "neutron_contrast_squared_inv_angstrom4": dn,
+            "xray_porod_invariant_inv_angstrom4": 2*pi*pi*phi*(1-phi)*dx,
+            "neutron_porod_invariant_inv_angstrom4": 2*pi*pi*phi*(1-phi)*dn if dn is not None else None}
+    traces = {"X-ray": scale*dx}
+    if dn is not None:
+        traces["Neutron"] = scale*dn
+    return result("contrast", data,
+                  [("X-ray |ΔSLD|²", dx, "Å⁻⁴"), ("Neutron |ΔSLD|²", dn, "Å⁻⁴"),
+                   ("X-ray Porod invariant", data["xray_porod_invariant_inv_angstrom4"], "Å⁻⁴"),
+                   ("Neutron Porod invariant", data["neutron_porod_invariant_inv_angstrom4"], "Å⁻⁴")],
+                  [plot("Two-phase Porod invariant", "First phase volume fraction", "Integral q² I(q) dq (Å⁻⁴)", fraction, traces)],
+                  ["Phases: " + first["name"] + " / " + second["name"] + ". Phase fractions are independent of stack thickness.",
+                   "Q_P = 2π² φ(1−φ)|ΔSLD|² for a statistically isotropic, homogeneous, sharp two-phase system in absolute scattering units.",
+                   "Natural-isotope nuclear neutron contrast only; magnetic scattering, polydispersity and finite-q truncation are not modeled."])
+
+
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "contrast":
+        return contrast(payload)
     if payload.get("tool") == "reflectivity":
         return reflectivity(payload)
     if payload.get("tool", "optics") == "optics":

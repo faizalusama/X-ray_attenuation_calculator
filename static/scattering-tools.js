@@ -28,12 +28,16 @@
     if (!layers.length || !api.referenceEnergy()) return;
     const select = $("#st-layer"), kept = Math.min(Number(select.value) || 0, layers.length - 1);
     select.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); select.value = String(kept);
+    document.querySelectorAll("[data-layer-choice]").forEach(s => {
+      const previous = s.value, value = previous === "" ? Math.min(1, layers.length-1) : Math.min(Number(previous), layers.length-1);
+      s.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); s.value = String(value);
+    });
     const tool = $("#st-tool").value;
     document.querySelectorAll("[data-st-tool]").forEach(p => { p.hidden = p.dataset.stTool !== tool; });
     invalidate(); const id = revision;
     const payload = {tool, layer: layers[kept], layers, energy_keV: api.referenceEnergy()};
     document.querySelectorAll('[data-st-tool="' + tool + '"] [data-arg]').forEach(input => {
-      payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
+      payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : (input.type === "number" || input.hasAttribute("data-number")) ? Number(input.value) : input.value;
     });
     $("#st-status").textContent = "Calculating…";
     try {
