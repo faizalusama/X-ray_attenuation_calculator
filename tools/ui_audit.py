@@ -4,8 +4,8 @@
     python tools/ui_audit.py --report ui-audit.json --report-only
 
 Starts the workbench on a free loopback port, loads it in headless Chromium at
-desktop, tablet and phone sizes, audits every analysis tab in the light and dark
-themes, and writes a JSON report. Tab navigation is exercised with
+desktop, tablet and phone sizes, audits every analysis tab and the materials library
+in the light and dark themes, and writes a JSON report. Tab navigation is exercised with
 the keyboard. CI runs this on every push. These automated checks cover only
 the criteria listed in ui_audit.js, not a complete WCAG conformance audit.
 
@@ -118,11 +118,37 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
             page.locator("#theme-toggle").click()
             page.locator("#theme-toggle").click()
             page.wait_for_function("document.documentElement.dataset.theme === 'dark'")
+            page.wait_for_timeout(500)  # let the 160 ms colour transitions finish before measuring
             for view in ("overview", *ANALYSIS_VIEWS):
                 page.locator(f"#tab-{view}").click()
                 page.locator(f"#view-{view}").wait_for(state="visible")
                 views[f"dark_{view}"] = page.evaluate(AUDIT_SCRIPT)
                 capture(f"dark-{view}")
+            # Then the materials library, in the theme the page is showing.
+            page.locator("#tab-overview").click()
+            page.click("#open-materials-library")
+            page.wait_for_selector("#materials-dialog[open] .ml-item", timeout=30_000)
+            views["dark_materials_library"] = page.evaluate(AUDIT_SCRIPT)
+            capture("dark-materials-library")
+            page.locator("#materials-dialog .ml-item").first.click()
+            page.wait_for_function("""() => document.querySelector('#ml-curve-summary')?.textContent.startsWith('At 60 keV:')""",
+                                   timeout=60_000)
+            views["dark_material_detail"] = page.evaluate(AUDIT_SCRIPT)
+            page.keyboard.press("Escape")
+            page.locator("#theme-toggle").click()
+            page.wait_for_function("document.documentElement.dataset.theme === 'light'")
+            page.wait_for_timeout(500)
+            page.click("#open-materials-library")
+            page.wait_for_selector("#materials-dialog[open] .ml-item", timeout=30_000)
+            views["materials_library"] = page.evaluate(AUDIT_SCRIPT)
+            capture("materials-library")
+            # The former audit stopped at the empty library panel, missing
+            # composition tables, provenance and the material's plotted curve.
+            page.locator("#materials-dialog .ml-item").first.click()
+            page.wait_for_function("""() => document.querySelector('#ml-curve-summary')?.textContent.startsWith('At 60 keV:')""",
+                                   timeout=60_000)
+            views["material_detail"] = page.evaluate(AUDIT_SCRIPT)
+            capture("material-detail")
             views["page_errors"] = errors
             report[name] = views
             page.close()

@@ -97,6 +97,7 @@ jobs:
         run: |
           node tests/test_frontend.cjs
           node tests/test_dashboard.cjs
+          node tests/test_materials.cjs
 
   interface:
     name: Interface audit (WCAG 2.2 AA checks)
@@ -144,6 +145,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e . playwright
           python -m playwright install --with-deps chromium
+
+      # The Pyodide release is 340 MB; keep what the site needs between runs.
+      - uses: actions/cache@v4
+        with:
+          path: .pyodide-cache
+          key: pyodide-${{ hashFiles('tools/build_web.py') }}
 
       - name: Build the site
         run: python tools/build_web.py

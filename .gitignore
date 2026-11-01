@@ -33,3 +33,6 @@ result.json
 
 # Pre-edit snapshots created by tools/snapshot.py
 _snapshots/
+
+# Pyodide files kept between site builds by tools/build_web.py
+.pyodide-cache/

@@ -17,7 +17,7 @@ version means replacing the accompanying licence text as well.
 
 ## Browser version
 
-The site at https://faizalusama.github.io/X-ray_attenuation_calculator/ serves an unmodified XrayDB wheel and, at run time, loads the components below from the jsDelivr CDN. They are not redistributed in this repository. As with any website, GitHub Pages and jsDelivr receive ordinary request information such as your IP address; the values you enter stay in your browser.
+The site at https://faizalusama.github.io/X-ray_attenuation_calculator/ serves an unmodified XrayDB wheel and unmodified copies of the components below, taken from the official Pyodide release and checked against its published SHA-256 when the site is built. They are not stored in this repository. As with any website, GitHub Pages receives ordinary request information such as your IP address; the values you enter stay in your browser.
 
 | Component | Licence |
 |---|---|

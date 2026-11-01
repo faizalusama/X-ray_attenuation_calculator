@@ -10,7 +10,7 @@ A local scientific application for narrow-beam X-ray attenuation in multicompone
 
 ## Use it in your browser
 
-Open **https://faizalusama.github.io/X-ray_attenuation_calculator/**. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, from this site and the jsDelivr CDN. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
+Open **https://faizalusama.github.io/X-ray_attenuation_calculator/**. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, all of it from this site. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
 
 Results match the local version to within floating-point rounding; see the [validation record](docs/VALIDATION.md). Each exported result records the runtime in its provenance.
 
@@ -70,6 +70,7 @@ The interface has automatic, light and dark themes, and removing a layer or comp
 ## What is included
 
 - **Composition:** chemical formula parsing, automatic molecular masses, normalized wt% / mol% / at.% / vol% input, elemental mass breakdown, and illustrative materials presets.
+- **Materials library:** searchable compositions from NIST SRD 126 and PNNL-15870 Rev. 2, plus stoichiometric phases whose densities are typical values, clearly marked unverified. Compare curves, view a density-against-attenuation overview, and add any entry to the stack. See [docs/MATERIALS.md](docs/MATERIALS.md).
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
 - **Geometry:** multiple homogeneous planar layers, individual thicknesses or areal densities, and incidence angles measured from the surface normal.
 - **Energy:** X-ray anode lines, wavelength or energy input, 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.

@@ -19,7 +19,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ("styles.css", "dashboard.css", "readability.css")
+SOURCES = ("styles.css", "dashboard.css", "readability.css", "materials.css")
 TARGET = ROOT / "static" / "dark.css"
 THEME = 'html[data-theme="dark"]'
 COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b")
@@ -134,12 +134,18 @@ def convert(text: str) -> list[str]:
     return output
 
 
+#: Colours the inversion leaves below AA contrast, found by tools/ui_audit.py. Last, so they win.
+OVERRIDES = f"""{THEME} .button.quiet{{color:#b8c9d3}}
+{THEME} .angle-slider .slider-heading output{{color:#b9aee0}}
+"""
+
+
 def generate() -> str:
     parts = [HEADER]
     for name in SOURCES:
         text = re.sub(r"/\*.*?\*/", "", (ROOT / "static" / name).read_text(encoding="utf-8"), flags=re.S)
         parts.extend(convert(text))
-    return "".join(parts)
+    return "".join(parts) + OVERRIDES
 
 
 def main() -> int:

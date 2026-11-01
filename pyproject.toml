@@ -40,6 +40,9 @@ dev = [
     "pytest>=8.3",
     "httpx>=0.28",
     "pytest-cov>=5",
+    # Maintainer importers read source PDFs (tools/import_pnnl_rev2.py). Installed
+    # with dev so CI type-checks them; never needed to run the calculator.
+    "pypdf>=5",
     "scipy>=1.14,<2",
     "ruff>=0.16",
     "mypy>=1.13",

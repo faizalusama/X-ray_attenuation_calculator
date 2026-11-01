@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from tools.build_web import PYODIDE_VERSION, build, locked_version
+from tools.build_web import PYODIDE_VERSION, build, locked_version, pyodide_files
 from tools.web_parity import configurations, count_numbers, differences
 from xray_workbench import __version__
 from xray_workbench.browser import handle
@@ -26,7 +26,9 @@ def without_timestamp(result):
     return result
 
 
-@pytest.mark.parametrize("route", ["health", "presets", "xray-sources"])
+@pytest.mark.parametrize("route", ["health", "presets", "xray-sources", "materials", "materials?q=alumina",
+                                   "materials?category=glass&verified_density=true", "materials/landscape?energy_keV=40",
+                                   "materials/stoich-alumina-corundum?thickness_mm=2"])
 def test_read_routes_match_the_local_server(route):
     status, text = handle(route)
     assert status == 200
@@ -105,3 +107,32 @@ def test_comparison_covers_the_measured_glasses():
     assert {"v-SiO2", "NCS-80", "NAS-60", "CAS-N", "example"} <= set(configs)
     assert len(configs) == 16
     assert count_numbers({"a": [1.0, 2], "b": "text", "provenance": {"c": 3}}) == 2
+
+
+@pytest.mark.parametrize("route,status", [("materials/not-an-entry", 404), ("materials/landscape?energy_keV=2000", 422),
+                                          ("materials/landscape?thickness_mm=0", 422)])
+def test_material_errors_match_the_local_server(route, status):
+    answer = TestClient(app).get(f"/api/{route}")
+    assert answer.status_code == status
+    assert handle(route)[0] == status
+    assert json.loads(handle(route)[1]) == answer.json()
+
+
+def test_the_site_packages_the_library_data(tmp_path):
+    info = build(tmp_path / "site", fetch_wheel=False)
+    with zipfile.ZipFile(tmp_path / "site" / "engine" / info["engine_zip"]) as archive:
+        assert "xray_workbench/materials/data/pnnl_15870_rev2.json" in archive.namelist()
+
+
+def test_the_site_loads_nothing_from_a_third_party(tmp_path):
+    info = build(tmp_path / "site", fetch_wheel=False)
+    assert info["pyodide_url"] == "../pyodide/"
+    for path in [*(tmp_path / "site" / "static" / "web").iterdir(), tmp_path / "site" / "index.html"]:
+        assert "jsdelivr" not in path.read_text(encoding="utf-8")
+
+
+def test_a_release_that_does_not_match_the_pin_is_refused(tmp_path):
+    fake = tmp_path / "release.tar.bz2"
+    fake.write_bytes(b"not the release")
+    with pytest.raises(SystemExit, match="does not match"):
+        pyodide_files(tmp_path / "cache", fake)

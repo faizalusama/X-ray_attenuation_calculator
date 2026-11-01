@@ -14,7 +14,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from . import MODEL, __version__
+from . import MODEL, __version__, materials
 from ._types import JsonObject
 from .physics import presets
 from .results import run_calculation
@@ -82,6 +82,31 @@ def get_presets() -> JsonObject:
 @app.get("/api/xray-sources")
 def get_xray_sources() -> JsonObject:
     return {"sources": xray_sources()}
+
+
+@app.get("/api/materials")
+def list_materials(q: str = "", category: str | None = None, tier: str | None = None,
+                   verified_density: bool = False) -> JsonObject:
+    """Search the materials library."""
+    return materials.catalogue(q, category, tier, verified_density)
+
+
+@app.get("/api/materials/landscape")
+def materials_landscape(energy_keV: float = 60.0, thickness_mm: float = 1.0) -> JsonObject:
+    """Every library entry evaluated at one energy: the data behind the overview plot."""
+    try:
+        return materials.landscape_report(energy_keV, thickness_mm)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.get("/api/materials/{identifier}")
+def material_detail(identifier: str, thickness_mm: float = 1.0) -> JsonObject:
+    """Full provenance for one entry, plus a ready-to-use calculation layer."""
+    try:
+        return materials.report(identifier, thickness_mm)
+    except ValueError as exc:
+        raise HTTPException(404, str(exc)) from exc
 
 
 @app.post("/api/calculate")

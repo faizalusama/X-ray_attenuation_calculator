@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from urllib.parse import parse_qsl, unquote
 
-from . import MODEL, __version__
+from . import MODEL, __version__, materials
 from .physics import presets
 from .results import run_calculation
 from .sources import xray_sources
@@ -20,8 +21,28 @@ def _invalid_constant(value: str) -> Any:
     raise ValueError(f"Non-finite JSON number: {value}")
 
 
+def _materials(route: str, query: dict[str, str]) -> tuple[int, str]:
+    thickness = query.get("thickness_mm", "1")
+    if route == "materials":
+        verified = query.get("verified_density", "").lower() in ("1", "true", "yes", "on")
+        answer = materials.catalogue(query.get("q", ""), query.get("category"), query.get("tier"), verified)
+        return 200, json.dumps(answer, allow_nan=False)
+    missing = 422 if route == "materials/landscape" else 404
+    try:
+        if route == "materials/landscape":
+            answer = materials.landscape_report(float(query.get("energy_keV", "60")), float(thickness))
+        else:
+            answer = materials.report(unquote(route.removeprefix("materials/")), float(thickness))
+        return 200, json.dumps(answer, allow_nan=False)
+    except ValueError as exc:
+        return missing, json.dumps({"detail": str(exc)})
+
+
 def handle(route: str, body: str | None = None, runtime: str = "") -> tuple[int, str]:
     """Return ``(status, JSON text)`` for an API route. ``runtime`` is recorded in provenance."""
+    route, _, query = route.partition("?")
+    if route == "materials" or route.startswith("materials/"):
+        return _materials(route, dict(parse_qsl(query)))
     if route == "health":
         return 200, json.dumps({"status": "ok", "version": __version__, "model": MODEL})
     if route == "presets":

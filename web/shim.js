@@ -3,11 +3,13 @@
 // Browser build only. Answers the local server's /api routes from the same Python
 // engine, running in a Web Worker, so app.js and dashboard.js need no second code path.
 (function () {
-  const ROUTES = {"/api/calculate": "calculate", "/api/presets": "presets", "/api/health": "health", "/api/xray-sources": "xray-sources"};
+  const ROUTE = /^\/api\/((?:calculate|presets|health|xray-sources|materials(?:\/[^?]*)?)(?:\?.*)?)$/;
   const LOCAL_INSTALL = "https://github.com/faizalusama/X-ray_attenuation_calculator#start-the-graphical-application";
   const pending = new Map();
   const nativeFetch = window.fetch.bind(window);
-  const worker = new Worker(new URL("engine_worker.js", document.currentScript.src), {type: "module"});
+  const workerURL = new URL("engine_worker.js", document.currentScript.src);
+  workerURL.search = new URL(document.currentScript.src).search;
+  const worker = new Worker(workerURL, {type: "module"});
   const strip = document.createElement("div");
   let nextId = 1, failure = null, settleReady;
 
@@ -63,9 +65,9 @@
   worker.onerror = event => { if (!failure) fail(event.message || "the engine stopped unexpectedly"); };
 
   window.fetch = function (input, init) {
-    const route = ROUTES[typeof input === "string" ? input : input.url];
-    if (!route) return nativeFetch(input, init);
-    return request(route, init && init.body).then(({status, text}) =>
+    const match = ROUTE.exec(typeof input === "string" ? input : input.url);
+    if (!match) return nativeFetch(input, init);
+    return request(match[1], init && init.body).then(({status, text}) =>
       new Response(text, {status, headers: {"Content-Type": "application/json"}}));
   };
 

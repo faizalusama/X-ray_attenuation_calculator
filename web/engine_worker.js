@@ -14,8 +14,9 @@ async function boot() {
   const base = new URL("../../engine/", self.location);
   const info = await (await fetch(new URL("build-info.json", base), {cache: "no-cache"})).json();
   progress("Loading the Python runtime (step 1 of 3)…");
-  const {loadPyodide} = await import(`${info.pyodide_url}pyodide.mjs`);
-  const pyodide = await loadPyodide({indexURL: info.pyodide_url});
+  const indexURL = new URL(info.pyodide_url, base).href;
+  const {loadPyodide} = await import(`${indexURL}pyodide.mjs`);
+  const pyodide = await loadPyodide({indexURL});
   mark("runtime");
   progress("Loading the scientific libraries (step 2 of 3)…");
   await pyodide.loadPackage(info.pyodide_packages, {messageCallback: () => {}});
