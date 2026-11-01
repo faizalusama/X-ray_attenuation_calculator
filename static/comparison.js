@@ -15,7 +15,7 @@
     let latest = null, revision = 0;
     const invalidate = () => { revision++; latest = null; output.innerHTML = ""; document.querySelector("#batch-export").disabled = true; status.textContent = "Run comparison to refresh results."; };
     input.addEventListener("input", invalidate);
-    window.addEventListener("attenuation:update", invalidate);
+    window.addEventListener("attenuation:update", () => { if (latest && latest.energy_keV !== window.AttenuationWorkbench.referenceEnergy()) invalidate(); });
     document.querySelector("#batch-file").addEventListener("change", async event => {
       const file = event.target.files[0]; if (!file) return;
       try {

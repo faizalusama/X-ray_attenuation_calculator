@@ -350,6 +350,8 @@ def pdf_transform(payload: JsonObject) -> JsonObject:
     nyquist = pi/float(np.max(np.diff(q)))
     if r_max > nyquist:
         raise ValueError(f"Maximum r exceeds the conservative sampling limit {nyquist:.6g} Å from the largest Q interval.")
+    if r_max/(points-1) > pi/float(q[-1]):
+        raise ValueError("r grid is too coarse for Qmax; increase r grid points.")
     window = payload.get("window", "none")
     if window not in ("none", "lorch"):
         raise ValueError("Window must be none or lorch.")

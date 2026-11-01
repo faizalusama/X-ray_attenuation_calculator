@@ -119,6 +119,11 @@ def _source_table(elements: dict[str, float], density: float, two_theta: float, 
     return table
 
 
+@lru_cache(maxsize=4)
+def _quadrature(points: int) -> tuple[np.ndarray, np.ndarray]:
+    return np.polynomial.legendre.leggauss(points)
+
+
 @lru_cache(maxsize=2)
 def _table(name: str) -> JsonObject:
     return json.loads((Path(__file__).parent / "scattering_data" / name).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
@@ -149,7 +154,7 @@ def differential_scattering(symbols: list[str], fractions: np.ndarray, energy: f
     # Do not extrapolate f0 or S past their respective domains.
     integral = None
     if 1 / wavelength <= min(6.0, float(grid[-1])):
-        u, weights = np.polynomial.legendre.leggauss(512)
+        u, weights = _quadrature(512)
         _, ii, cc = evaluate(4 * pi / wavelength * np.sqrt((1 - u) / 2))
         mean_mass = sum(c * float(xraydb.atomic_mass(s)) for s, c in zip(symbols, fractions, strict=True))
         factor = 2 * pi * AVOGADRO * 1e-24 / mean_mass
@@ -175,8 +180,8 @@ def capillary_absorption(mu_r: float) -> JsonObject:
     if mu_r > 30:
         return {"two_theta_deg": angles.tolist(), "absorption": None, "polarization": factors,
                 "note": "Disc integration withheld for muR > 30; optically thick surface sampling needs a dedicated method."}
-    y, wy = np.polynomial.legendre.leggauss(128)
-    u, wu = np.polynomial.legendre.leggauss(80)
+    y, wy = _quadrature(128)
+    u, wu = _quadrature(80)
     half = np.sqrt(1 - y ** 2)
     x = half[:, None] * u[None, :]
     yy = np.broadcast_to(y[:, None], x.shape)

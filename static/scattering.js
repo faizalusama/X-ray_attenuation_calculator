@@ -6,6 +6,7 @@
   const COLORS = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#7A5195", "#8C6D31"];
   const MAX_PAIR_CURVES = 8;
   const ionsByLayer = new Map();
+  let layerSignature = "";
   let latest = null, requestId = 0, timer = null;
 
   function number(value, digits = 4) {
@@ -152,6 +153,8 @@
     const panel = document.querySelector("#view-scattering"), api = window.AttenuationWorkbench;
     if (!panel || panel.hidden || !api) return;
     const layers = api.layers(), energy = api.referenceEnergy();
+    const signature = JSON.stringify(layers);
+    if (signature !== layerSignature) { layerSignature = signature; ionsByLayer.clear(); document.querySelector("#ts-edge").innerHTML = ""; }
     if (!layers.length || !energy) return;
     const select = document.querySelector("#ts-layer"), kept = Number(select.value) || 0;
     select.innerHTML = layers.map((layer, i) => `<option value="${i}">${esc(layer.name || `Layer ${i + 1}`)}</option>`).join("");
@@ -201,7 +204,7 @@
       ionsByLayer.set(index, choices); schedule();
     });
     document.querySelector("#ts-export").addEventListener("click", exportCurves);
-    window.addEventListener("attenuation:update", () => { ionsByLayer.clear(); document.querySelector("#ts-edge").innerHTML = ""; schedule(); });
+    window.addEventListener("attenuation:update", schedule);
   }
 
   if (typeof document !== "undefined") {

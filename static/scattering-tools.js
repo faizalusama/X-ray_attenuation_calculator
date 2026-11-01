@@ -6,7 +6,12 @@
   const colors = ["#0072B2", "#D55E00", "#009E73", "#CC79A7"];
   let latest = null, revision = 0, timer;
   function invalidate() {
-    revision++; latest = null; $("#st-output").innerHTML = ""; $("#st-export").disabled = true;
+    revision++; latest = null; $("#st-output").innerHTML = ""; $("#st-export").disabled = true; $("#st-export-csv").disabled = true;
+  }
+  function curvesCSV(answer) {
+    const rows = [["plot", "curve", "x", "x_units", "y", "y_units"]];
+    for (const p of answer.plots) for (const t of p.traces) p.x.forEach((x,i) => rows.push([p.title,t.name,x,p.xlabel,t.y[i],p.ylabel]));
+    return rows.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(",")).join("\r\n") + "\r\n";
   }
   function draw(answer) {
     $("#st-output").innerHTML = '<div class="ts-cards">' + answer.values.map(v => '<article class="ts-card"><div class="ts-card-label">' + esc(v.label) + '</div><div class="ts-card-value">' + esc(number(v.value)) + ' <span>' + esc(v.unit) + '</span></div></article>').join("") + '</div>' +
@@ -16,7 +21,7 @@
     if (!window.Plotly) return;
     const dark = document.documentElement.dataset.theme === "dark";
     answer.plots.forEach((p,i) => window.Plotly.react("st-plot-" + i,
-      p.traces.map((t,j) => ({type: "scatter", mode: p.sticks ? "lines" : "lines", name: t.name, x: p.x, y: t.y, line: {width: 2.5, color: colors[j % colors.length]}})),
+      p.traces.map((t,j) => ({type: "scatter", mode: "lines", name: t.name, x: p.x, y: t.y, line: {width: 2.5, color: colors[j % colors.length]}})),
       {title: {text: p.title, font: {size: 15}}, margin: {l: 72, r: 18, t: 48, b: 62}, xaxis: {title: {text: p.xlabel}},
         yaxis: {title: {text: p.ylabel}, type: p.log_y ? "log" : "linear"}, font: {size: 13, color: dark ? "#dbe5ee" : "#253647"},
         paper_bgcolor: dark ? "#18222c" : "#fff", plot_bgcolor: dark ? "#18222c" : "#fff", legend: {orientation: "h"}},
@@ -44,7 +49,7 @@
       const response = await fetch("/api/scattering-tools", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
       const answer = await response.json(); if (id !== revision) return;
       if (!response.ok) throw new Error(answer.detail || "Scattering calculation failed.");
-      latest = {...answer, configuration: payload}; draw(answer); $("#st-export").disabled = false;
+      latest = {...answer, configuration: payload}; draw(answer); $("#st-export").disabled = false; $("#st-export-csv").disabled = !answer.plots.length;
       $("#st-status").textContent = "Calculated at " + api.referenceEnergy() + " keV. Export includes inputs and data provenance.";
     } catch (exception) { if (id === revision) $("#st-status").textContent = exception.message; }
   }
@@ -65,8 +70,10 @@
     $("#st-tool").addEventListener("change", schedule);
     $("#st-controls").addEventListener("input", () => { invalidate(); schedule(); });
     $("#st-run").addEventListener("click", run);
+    $("#st-export-csv").addEventListener("click", () => { if (latest) window.AttenuationWorkbench.download(curvesCSV(latest), "scattering-tools.csv", "text/csv;charset=utf-8"); });
     $("#st-export").addEventListener("click", () => { if (latest) window.AttenuationWorkbench.download(JSON.stringify(latest,null,2) + "\n", "scattering-tools.json", "application/json"); });
     window.addEventListener("attenuation:update", schedule);
   }
+  if (typeof module !== "undefined") module.exports = {curvesCSV};
   if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded", install);
 })();

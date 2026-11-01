@@ -123,3 +123,17 @@ def test_transform_accepts_csv_and_rejects_duplicate_or_aliased_grid():
         scattering_tools(request("pdf", q=[0,1,1], sq=[1,1,1]))
     with pytest.raises(ValueError, match="sampling limit"):
         scattering_tools(request("pdf", q=[0,1,2], sq=[1,1,1], r_max_angstrom=10))
+
+@pytest.mark.parametrize("payload", [
+    request("optics"),
+    request("reflectivity", layers=[SI]),
+    request("contrast", layers=[SI]),
+    request("converter"),
+    request("powder", hkl_max=2),
+    request("pdf", q=[0,0.1,0.2], sq=[1,1.1,1], r_max_angstrom=2),
+])
+def test_every_tool_has_identical_server_and_browser_results(payload):
+    status, text = handle("scattering-tools", json.dumps(payload))
+    response = TestClient(app).post("/api/scattering-tools", json=payload)
+    assert status == response.status_code == 200
+    assert json.loads(text) == response.json()
