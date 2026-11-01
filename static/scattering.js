@@ -5,6 +5,7 @@
 (function () {
   const COLORS = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#7A5195", "#8C6D31"];
   const MAX_PAIR_CURVES = 8;
+  const ionsByLayer = new Map();
   let latest = null, requestId = 0, timer = null;
 
   function number(value, digits = 4) {
@@ -53,6 +54,9 @@
   }
 
   function renderTables(r) {
+    document.querySelector("#ts-ion-controls").innerHTML = r.elements.map(e =>
+      '<label>' + esc(e.symbol) + ' form factor<select data-ion="' + esc(e.symbol) + '">' + e.ion_choices.map(ion =>
+        '<option value="' + esc(ion) + '"' + (ion === e.ion ? ' selected' : '') + '>' + esc(ion) + '</option>').join("") + '</select></label>').join("");
     document.querySelector("#ts-elements").innerHTML = table("Elements", ["Element", "Atomic fraction", "Mass fraction", "f₀(0)", "f′", "f″"],
       r.elements.map(e => [esc(e.symbol), number(e.atomic_fraction), number(e.mass_fraction), number(e.f0_at_zero), number(e.f_prime), number(e.f_double_prime)]));
     document.querySelector("#ts-pairs").innerHTML = table("Pair weights", ["Pair", "w at Q = 0", `w at Q = ${number(r.curves.q.at(-1), 3)} Å⁻¹`],
@@ -133,7 +137,8 @@
     const index = Math.min(kept, layers.length - 1);
     select.value = String(index);
     const id = ++requestId;
-    const body = {layer: layers[index], energy_keV: energy, two_theta_max_deg: Number(document.querySelector("#ts-two-theta").value),
+    const ions = ionsByLayer.get(index) || {};
+    const body = {layer: layers[index], ions, energy_keV: energy, two_theta_max_deg: Number(document.querySelector("#ts-two-theta").value),
                   capillary_diameter_mm: Number(document.querySelector("#ts-capillary").value), target_q: Number(document.querySelector("#ts-target").value)};
     const status = document.querySelector("#ts-status");
     try {
@@ -165,8 +170,14 @@
   function install() {
     if (!document.querySelector("#view-scattering")) return;
     ["#ts-layer", "#ts-two-theta", "#ts-capillary", "#ts-target"].forEach(id => document.querySelector(id).addEventListener("input", schedule));
+    document.querySelector("#ts-ion-controls").addEventListener("change", event => {
+      if (!event.target.dataset.ion) return;
+      const index = Number(document.querySelector("#ts-layer").value);
+      const choices = Object.fromEntries([...document.querySelectorAll("[data-ion]")].map(s => [s.dataset.ion, s.value]));
+      ionsByLayer.set(index, choices); schedule();
+    });
     document.querySelector("#ts-export").addEventListener("click", exportCurves);
-    window.addEventListener("attenuation:update", schedule);
+    window.addEventListener("attenuation:update", () => { ionsByLayer.clear(); schedule(); });
   }
 
   if (typeof document !== "undefined") {

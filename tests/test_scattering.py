@@ -222,3 +222,15 @@ def test_differential_scattering_limits_and_integral():
         # SiO2 at 20 keV: independent approximations agree within 0.5%; not a fitted normalization.
         assert ratio == pytest.approx(1, abs=0.005)
     assert total_scattering(request(energy=100))["differential"]["integrated"] is None
+
+def test_ionic_electron_counts_and_neutral_attenuation():
+    sample = layer([("Fe", 1)], 7.87)
+    neutral = total_scattering(request(sample, energy=20))
+    ionic = total_scattering(request(sample, energy=20, ions={"Fe": "Fe2+"}))
+    assert ionic["elements"][0]["f0_at_zero"] == pytest.approx(24, abs=0.02)
+    assert ionic["attenuation"] == neutral["attenuation"]
+    assert ionic["curves"]["mean_f_squared"][0] < neutral["curves"]["mean_f_squared"][0]
+    with pytest.raises(ValueError, match="Unknown ionic"):
+        total_scattering(request(sample, ions={"Fe": "O2-"}))
+    with pytest.raises(ValueError, match="selected layer"):
+        total_scattering(request(sample, ions={"O": "O2-"}))

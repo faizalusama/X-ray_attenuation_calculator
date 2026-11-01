@@ -43,7 +43,7 @@ NEAR_EDGE = 0.02
 #: Fluorescence lines below the 1 keV floor of the calculator's energy range are not listed.
 MIN_LINE_KEV = 1.0
 CURVE_POINTS = 301
-LIMITS = ("Independent-atom, neutral-atom form factors.",
+LIMITS = ("Independent-atom form factors; optional ionic fits affect f0 and pair weights only.",
           "Pair weights use f0(Q) without f' or f''.",
           "Compton curves use the incoherent scattering-function approximation with Klein-Nishina recoil.",
           "Absorption figures describe the beam path only: no multiple-scattering, polarization or container correction.")
@@ -159,7 +159,7 @@ def differential_scattering(symbols: list[str], fractions: np.ndarray, energy: f
             "coherent_barn_sr_atom": coh.tolist(),
             "coherent_fraction": np.divide(coh, coh + inc, out=np.zeros_like(coh), where=coh + inc > 0).tolist(),
             "integrated": integral, "source": table["source"],
-            "note": "Independent-atom form-factor approximation; compare integrals with Elam, never rescale to force agreement."}
+            "note": "Neutral-atom Compton/coherent comparison, independent of ionic choices. Independent-atom form-factor approximation; compare integrals with Elam, never rescale to force agreement."}
 
 
 def total_scattering(payload: Any) -> JsonObject:
@@ -187,7 +187,15 @@ def total_scattering(payload: Any) -> JsonObject:
     if q_max > Q_LIMIT:
         warnings.append(f"Qmax is beyond the {Q_LIMIT:.1f} 1/Å limit of the form-factor fits, so the curves stop there.")
     q = np.linspace(0, curve_max, CURVE_POINTS)
-    factors = {str(s): np.asarray(xraydb.f0(s, q / (4 * pi)), dtype=float) for s in symbols}
+    ions = _object(payload.get("ions", {}), "Ionic form-factor choices")
+    if any(s not in symbols for s in ions):
+        raise ValueError("Ionic choices must refer to elements in the selected layer.")
+    choices = {s: xraydb.f0_ions(s) for s in symbols}
+    selected = {s: ions.get(s, s) for s in symbols}
+    for symbol, ion in selected.items():
+        if not isinstance(ion, str) or ion not in choices[symbol]:
+            raise ValueError(f"Unknown ionic form factor for {symbol}: {ion}.")
+    factors = {s: np.asarray(xraydb.f0(selected[s], q / (4 * pi)), dtype=float) for s in symbols}
     mean = sum(c * factors[s] for c, s in zip(fractions, symbols, strict=True))
     mean_squares = sum(c * factors[s] ** 2 for c, s in zip(fractions, symbols, strict=True))
 
@@ -202,6 +210,7 @@ def total_scattering(payload: Any) -> JsonObject:
     for index, symbol in enumerate(symbols):
         f_prime, f_double_prime = _anomalous(symbol, energy)
         elements.append({"symbol": symbol, "atomic_number": int(numbers[index]), "atomic_fraction": float(fractions[index]),
+                         "ion": selected[symbol], "ion_choices": choices[symbol],
                          "mass_fraction": float(mass_fractions[index]), "f0_at_zero": float(factors[symbol][0]),
                          "f_prime": f_prime, "f_double_prime": f_double_prime})
     differential = differential_scattering(symbols, fractions, energy, q)
