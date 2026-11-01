@@ -94,7 +94,7 @@ def test_every_cached_asset_stamp_matches_its_content():
 
 
 def test_new_export_names_are_accepted():
-    for filename in ("attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv", "attenuation-plot-map.csv"):
+    for filename in ("total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv", "attenuation-plot-map.csv"):
         assert client.post("/api/download", data={"filename": filename, "content": "x"}).status_code == 200
 
 
