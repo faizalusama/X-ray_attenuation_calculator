@@ -143,7 +143,7 @@ def main() -> int:
                         worst, worst_at = difference, path
         sample = {"name": "Silicon", "basis": "mole", "density_g_cm3": 2.329, "thickness_mm": .001,
                   "components": [{"formula": "Si", "fraction": 1}]}
-        cases = [("citation", None), ("compare", {"energy_keV": 14, "csv": "name,basis,density_g_cm3,thickness_mm,composition\\ns,mole,2.2,.135,SiO2:1"}),
+        cases = [("citation", None), ("compare", {"energy_keV": 14, "csv": "name,basis,density_g_cm3,thickness_mm,composition\ns,mole,2.2,.135,SiO2:1"}),
                  ("total-scattering", {"layer": sample, "energy_keV": 20, "ions": {"Si": "Si4+"}})]
         for tool in ("optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
             cases.append(("scattering-tools", {"tool": tool, "layer": sample, "layers": [sample], "energy_keV": 8.048,

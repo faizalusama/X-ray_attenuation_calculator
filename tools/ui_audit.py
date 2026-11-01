@@ -145,7 +145,7 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                     views[f"{theme}_tool_{tool}"] = page.evaluate(AUDIT_SCRIPT)
                 page.locator("#tab-materials").click()
                 page.locator("#batch-run").evaluate("el => el.closest('details').open = true")
-                page.locator("#batch-csv").fill("name,basis,density_g_cm3,thickness_mm,composition\\ns,mole,2.2,.135,SiO2:1\\nbad,mass,2,1,Xx:1")
+                page.locator("#batch-csv").fill("name,basis,density_g_cm3,thickness_mm,composition\ns,mole,2.2,.135,SiO2:1\nbad,mass,2,1,Xx:1")
                 page.locator("#batch-run").click()
                 page.wait_for_function("document.querySelector('#batch-status').textContent.startsWith('1 of 2')")
                 views[f"{theme}_batch_results"] = page.evaluate(AUDIT_SCRIPT)
