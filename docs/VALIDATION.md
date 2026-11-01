@@ -237,3 +237,11 @@ Chantler optical constants use n=1-delta+i beta and exp(i kz z); positive beta a
 Si at 8.048 keV, 2.329 g/cm3 gives delta=7.5730e-6 and critical grazing angle about 0.223°.
 At normal incidence, the plotted intensity depth recovers lambda/(4 pi beta).
 Optical data are separate from Elam attenuation; no data sources are blended.
+
+## Multilayer reflectivity
+Parratt recursion uses vacuum / films / semi-infinite substrate, with grazing angles.
+The zero-film limit equals Fresnel; a zero-thickness interposed film gives the same result.
+Identical media give zero reflection. Névot–Croce factors reduce high-angle reflection.
+Nonphysical reflectivity is refused, never clipped into range.
+References: https://xraypy.github.io/XrayDB/python.html (optical constants and mirror conventions);
+https://www.reflectometry.org/learn/3_reflectometry_slab_models/roughness_and_microslicing.html.

@@ -33,3 +33,25 @@ def test_tools_route_matches_browser_and_refuses_unknown_tool():
     assert json.loads(text) == response.json()
     with pytest.raises(ValueError, match="Unknown scattering"):
         scattering_tools(request("missing"))
+
+def test_parratt_reduces_to_fresnel_and_zero_thickness_film():
+    from xray_workbench.scattering_tools import parratt
+
+    angles = np.linspace(0.01, 3, 200)
+    n = 1 - 7.57e-6 + 1j*1.75e-7
+    k0 = np.sin(np.radians(angles))
+    k1 = np.sqrt(n*n - np.cos(np.radians(angles))**2 + 0j)
+    fresnel = abs((k0-k1)/(k0+k1))**2
+    assert parratt([1,n], [0,0], [0], angles, 1.54) == pytest.approx(fresnel, abs=2e-11)
+    assert parratt([1,1-3e-6+1j*1e-8,n], [0,0,0], [0,0], angles, 1.54) == pytest.approx(fresnel, abs=2e-11)
+    assert np.all(parratt([1,1], [0,0], [0], angles, 1.54) == 0)
+    rough = parratt([1,n], [0,0], [3], angles, 1.54)
+    assert rough[-1] < fresnel[-1]
+
+
+def test_reflectivity_route_handles_stack_and_checks_thickness_count():
+    answer = scattering_tools(request("reflectivity", layers=[SI,SI], film_thickness_angstrom="100"))
+    assert answer["data"]["film_thickness_angstrom"] == [100]
+    assert max(answer["plots"][0]["traces"][0]["y"]) <= 1
+    with pytest.raises(ValueError, match="one film thickness"):
+        scattering_tools(request("reflectivity", layers=[SI], film_thickness_angstrom="100"))
