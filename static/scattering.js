@@ -66,6 +66,11 @@
     document.querySelector("#ts-fluorescence").innerHTML = r.fluorescence.length
       ? table("Edges the beam can excite", ["Element", "Edge", "Edge (keV)", "Strongest line", "Line (keV)"], r.fluorescence.map(f => [esc(f.element), esc(f.edge), number(f.edge_keV), esc(f.line), number(f.line_keV)]))
       : "<p>The beam excites no K or L3 line at or above 1 keV in this sample.</p>";
+    const n = r.neutron;
+    document.querySelector("#ts-neutron").innerHTML = '<h4>Neutron comparison</h4><p>' + esc(n.note) + '</p>' +
+      (n.available ? '<p>⟨b⟩ = ' + number(n.mean_b_fm) + ' + i ' + number(n.mean_b_imag_fm) + ' fm; incoherent = ' + number(n.incoherent_barn) + ' barn/atom.</p>' +
+        table("Neutron versus X-ray pair weights", ["Pair", "Neutron (Q independent)", "X-ray at Q = 0"],
+          n.pairs.map(p => [esc(p.pair), number(p.weight), number(r.curves.pairs.find(x => x.pair === p.pair)?.at_zero)])) : "");
     const notes = document.querySelector("#ts-warnings");
     notes.hidden = !r.warnings.length;
     notes.innerHTML = r.warnings.length ? `<strong>Check this</strong><ul>${r.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : "";

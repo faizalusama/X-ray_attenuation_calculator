@@ -248,3 +248,14 @@ def test_disc_integral_against_independent_chord_integrals(mu_r):
     assert result["absorption"][-1] == pytest.approx(backward, abs=2e-6)
     assert result["polarization"]["unpolarized"][45] == pytest.approx(0.5)
     assert result["polarization"]["in_plane"][45] == pytest.approx(0, abs=1e-30)
+
+def test_neutron_negative_weights_and_zero_mean_guard():
+    from xray_workbench.scattering import neutron_weights
+
+    water = total_scattering(request(layer([("H2O", 1)], 1)))["neutron"]
+    assert sum(p["weight"] for p in water["pairs"]) == pytest.approx(1, abs=1e-12)
+    assert next(p["weight"] for p in water["pairs"] if p["pair"] == "H-O") < 0
+    zero = neutron_weights(["H", "O"], np.array([5.803, 3.739]) / (5.803 + 3.739), 0.1)
+    assert zero["pairs"] == []
+    assert "near zero" in zero["note"]
+    assert not neutron_weights(["Po"], np.array([1]), 0.1)["available"]

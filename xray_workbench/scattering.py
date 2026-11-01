@@ -193,6 +193,33 @@ def capillary_absorption(mu_r: float) -> JsonObject:
             "note": "Uniform full-disc illumination, no walls; divide measured single scattering by this factor only if these assumptions apply."}
 
 
+def neutron_weights(symbols: list[str], fractions: np.ndarray, number_density: float) -> JsonObject:
+    """Natural-abundance, bound coherent lengths; complex b convention from Sears."""
+    data = _table("neutron_sears1992.json")
+    missing = [s for s in symbols if s not in data["values"]]
+    if missing:
+        return {"available": False, "pairs": [], "note": "Missing natural-abundance neutron data: " + ", ".join(missing)}
+    entries = [data["values"][s] for s in symbols]
+    b = np.array([complex(e["b_coherent_fm"], e["b_coherent_imaginary_fm"]) for e in entries])
+    mean = complex(np.dot(fractions, b))
+    scale = float(np.dot(fractions, abs(b)))
+    near_zero = abs(mean) < 1e-6 * max(scale, 1)
+    pairs = []
+    if not near_zero:
+        for i, first in enumerate(symbols):
+            for j in range(i, len(symbols)):
+                value = (1 if i == j else 2) * fractions[i] * fractions[j] * (b[i] * b[j].conjugate()).real / abs(mean) ** 2
+                pairs.append({"pair": f"{first}-{symbols[j]}", "weight": float(value)})
+    return {"available": True, "pairs": pairs, "mean_b_fm": mean.real, "mean_b_imag_fm": mean.imag,
+            "sld_real_inv_angstrom2": number_density * mean.real * 1e-5,
+            "sld_imag_inv_angstrom2": number_density * mean.imag * 1e-5,
+            "incoherent_barn": float(np.dot(fractions, [e["sigma_incoherent_barn"] for e in entries])),
+            "absorption_barn_2200_m_s": float(np.dot(fractions, [e["sigma_absorption_barn"] for e in entries])),
+            "source": data["source"],
+            "note": ("Normalized pair weights undefined: mean b is near zero." if near_zero else
+                     "Natural isotopes; Re(bi bj*) / |mean b|². Negative weights are physical; absorption is at 2200 m/s.")}
+
+
 def total_scattering(payload: Any) -> JsonObject:
     payload = _object(payload, "Total scattering request")
     energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
@@ -267,6 +294,7 @@ def total_scattering(payload: Any) -> JsonObject:
                         "mu_r": linear_mu * diameter / 20, "transmission": exp(-linear_mu * diameter / 10),
                         "plate_optimum_mm": 10 / linear_mu,
                         "shares": {channel: float(values[0]) / mass_mu for channel, values in channels.items()}},
+        "neutron": neutron_weights(symbols, fractions, number_density),
         "capillary": capillary_absorption(linear_mu * diameter / 20),
         "compton": {"energy_keV": compton, "shift_keV": energy - compton},
         "differential": differential,
