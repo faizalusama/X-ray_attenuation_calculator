@@ -46,7 +46,7 @@ CURVE_POINTS = 301
 LIMITS = ("Independent-atom form factors; optional ionic fits affect f0 and pair weights only.",
           "Pair weights use f0(Q) without f' or f''.",
           "Compton curves use the incoherent scattering-function approximation with Klein-Nishina recoil.",
-          "Absorption figures describe the beam path only: no multiple-scattering, polarization or container correction.")
+          "Capillary model assumes a uniformly illuminated disc; no container or multiple scattering.")
 
 
 def q_from_angle(two_theta_deg: float, wavelength: float) -> float:
@@ -162,6 +162,37 @@ def differential_scattering(symbols: list[str], fractions: np.ndarray, energy: f
             "note": "Neutral-atom Compton/coherent comparison, independent of ionic choices. Independent-atom form-factor approximation; compare integrals with Elam, never rescale to force agreement."}
 
 
+@lru_cache(maxsize=128)
+def capillary_absorption(mu_r: float) -> JsonObject:
+    """Area average of exp[-mu(l_in+l_out)] over a full, uniformly lit disc.
+    Capillary axis perpendicular to the scattering plane. No wall or multiple scattering.
+    Unit disc coordinates: incident direction +x; outgoing direction (cos a, sin a).
+    """
+    angles = np.linspace(0, 180, 91)
+    cosine = np.cos(np.radians(angles))
+    factors = {"unpolarized": ((1 + cosine ** 2) / 2).tolist(),
+               "in_plane": (cosine ** 2).tolist(), "perpendicular": np.ones_like(angles).tolist()}
+    if mu_r > 30:
+        return {"two_theta_deg": angles.tolist(), "absorption": None, "polarization": factors,
+                "note": "Disc integration withheld for muR > 30; optically thick surface sampling needs a dedicated method."}
+    y, wy = np.polynomial.legendre.leggauss(128)
+    u, wu = np.polynomial.legendre.leggauss(80)
+    half = np.sqrt(1 - y ** 2)
+    x = half[:, None] * u[None, :]
+    yy = np.broadcast_to(y[:, None], x.shape)
+    weight = wy[:, None] * wu[None, :] * half[:, None]
+    weight /= weight.sum()
+    incoming = x + half[:, None]
+    average = []
+    for angle in np.radians(angles):
+        projection = x * np.cos(angle) + yy * np.sin(angle)
+        transverse = x * np.sin(angle) - yy * np.cos(angle)
+        outgoing = -projection + np.sqrt(np.maximum(0, 1 - transverse ** 2))
+        average.append(float(np.sum(weight * np.exp(-mu_r * (incoming + outgoing)))))
+    return {"two_theta_deg": angles.tolist(), "absorption": average, "polarization": factors,
+            "note": "Uniform full-disc illumination, no walls; divide measured single scattering by this factor only if these assumptions apply."}
+
+
 def total_scattering(payload: Any) -> JsonObject:
     payload = _object(payload, "Total scattering request")
     energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
@@ -236,6 +267,7 @@ def total_scattering(payload: Any) -> JsonObject:
                         "mu_r": linear_mu * diameter / 20, "transmission": exp(-linear_mu * diameter / 10),
                         "plate_optimum_mm": 10 / linear_mu,
                         "shares": {channel: float(values[0]) / mass_mu for channel, values in channels.items()}},
+        "capillary": capillary_absorption(linear_mu * diameter / 20),
         "compton": {"energy_keV": compton, "shift_keV": energy - compton},
         "differential": differential,
         "fluorescence": excited,

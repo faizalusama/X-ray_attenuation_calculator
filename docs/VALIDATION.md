@@ -225,3 +225,9 @@ Elastic independent-atom f0 gives the Thomson coherent term. Solid-angle Gaussâ€
 integration at 20 keV for SiO2 differs from Elam by +0.01097% coherent and +0.39338%
 incoherent. The UI reports differences, without fitting or mixing data. Integration is
 unavailable if full angular coverage exceeds the tabulated f0 domain. Attenuation is unchanged.
+
+## Capillary absorption
+The disc area integral averages exp[-mu(l_in+l_out)] with unit-radius Gauss quadrature.
+Independent chord integrals at 0 and 180 degrees agree to 2e-6 absolute for muR=0,0.2,1,5.
+Polarization is the Thomson factor, separately reported for unpolarized and linear states.
+No inversion is supplied above muR=30, where fixed quadrature may miss the surface layer.

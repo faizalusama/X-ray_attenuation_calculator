@@ -108,6 +108,12 @@
       table("Integrated differential scattering versus Elam", ["Channel", "Integral (cm²/g)", "Elam (cm²/g)", "Difference"],
         r.differential.comparison.map(c => [esc(c.channel), number(c.integrated_cm2_g), number(c.elam_cm2_g), number(c.relative_difference * 100, 3) + "%"])) :
       "<p>Full-angle integration is unavailable at this energy: it would exceed the form-factor table range.</p>";
+    const cap = r.capillary, capLayout = layout("Capillary geometry and polarization", "Factor");
+    capLayout.xaxis.title.text = "2θ (°)";
+    const capCurves = Object.entries(cap.polarization).map(([name, y], i) => ({...line(name.replaceAll("_", " "), y, COLORS[i + 1], "dot"), x: cap.two_theta_deg}));
+    if (cap.absorption) capCurves.unshift({...line("Absorption factor", cap.absorption, COLORS[0]), x: cap.two_theta_deg});
+    window.Plotly.react("ts-plot-capillary", capCurves, capLayout, {responsive: true, displayModeBar: false});
+    document.querySelector("#ts-capillary-note").textContent = cap.note;
     const biggest = curves.pairs[0];
     document.querySelector("#ts-plot-summary").textContent = `${symbols.length} element${symbols.length === 1 ? "" : "s"}, ${curves.pairs.length} pair${curves.pairs.length === 1 ? "" : "s"}. The largest pair weight at Q = 0 is ${biggest.pair}, ${number(biggest.at_zero, 3)}, becoming ${number(biggest.at_q_max, 3)} at Q = ${number(q.at(-1), 3)} Å⁻¹.`;
   }

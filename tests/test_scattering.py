@@ -234,3 +234,17 @@ def test_ionic_electron_counts_and_neutral_attenuation():
         total_scattering(request(sample, ions={"Fe": "O2-"}))
     with pytest.raises(ValueError, match="selected layer"):
         total_scattering(request(sample, ions={"O": "O2-"}))
+
+@pytest.mark.parametrize("mu_r", [0, 0.2, 1, 5])
+def test_disc_integral_against_independent_chord_integrals(mu_r):
+    from scipy.integrate import quad
+
+    from xray_workbench.scattering import capillary_absorption
+
+    result = capillary_absorption(mu_r)
+    forward = quad(lambda y: 2 * np.sqrt(1 - y*y) * np.exp(-2 * mu_r * np.sqrt(1-y*y)) / pi, -1, 1, epsabs=1e-11)[0]
+    backward = 1 if mu_r == 0 else quad(lambda y: -np.expm1(-4*mu_r*np.sqrt(1-y*y)) / (2*mu_r*pi), -1, 1, epsabs=1e-11)[0]
+    assert result["absorption"][0] == pytest.approx(forward, abs=2e-6)
+    assert result["absorption"][-1] == pytest.approx(backward, abs=2e-6)
+    assert result["polarization"]["unpolarized"][45] == pytest.approx(0.5)
+    assert result["polarization"]["in_plane"][45] == pytest.approx(0, abs=1e-30)
