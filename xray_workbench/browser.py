@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import parse_qsl, unquote
 
 from . import MODEL, __version__, materials
+from .comparison import compare
 from .physics import presets
 from .results import run_calculation
 from .scattering import total_scattering
@@ -50,12 +51,14 @@ def handle(route: str, body: str | None = None, runtime: str = "") -> tuple[int,
         return 200, json.dumps({"presets": presets()})
     if route == "xray-sources":
         return 200, json.dumps({"sources": xray_sources()})
-    if route not in ("calculate", "total-scattering"):
+    if route not in ("calculate", "total-scattering", "compare"):
         return 404, json.dumps({"detail": "Not Found"})
     try:
         payload = json.loads(body or "", parse_constant=_invalid_constant)
         if not isinstance(payload, dict):
             raise ValueError("Configuration must be a JSON object.")
+        if route == "compare":
+            return 200, json.dumps(compare(payload), allow_nan=False)
         if route == "total-scattering":
             return 200, json.dumps(total_scattering(payload), allow_nan=False)
         result = run_calculation(payload)
