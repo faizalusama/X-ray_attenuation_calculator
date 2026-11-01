@@ -259,3 +259,12 @@ def test_neutron_negative_weights_and_zero_mean_guard():
     assert zero["pairs"] == []
     assert "near zero" in zero["note"]
     assert not neutron_weights(["Po"], np.array([1]), 0.1)["available"]
+
+def test_chantler_edge_scan_has_absorption_jump_and_explicit_selection():
+    result = total_scattering(request(layer([("Fe", 1)], 7.87), edge_id="Fe:K"))["edge_scan"]
+    assert result["edge_keV"] == pytest.approx(7.112)
+    assert min(result["f_prime"]) < -5
+    assert result["f_double_prime"][-1] > result["f_double_prime"][0] * 3
+    assert np.all(np.diff(result["energy_keV"]) > 0)
+    with pytest.raises(ValueError, match="absorption edge"):
+        total_scattering(request(edge_id="Fe:K"))

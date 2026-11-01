@@ -71,6 +71,10 @@
       (n.available ? '<p>⟨b⟩ = ' + number(n.mean_b_fm) + ' + i ' + number(n.mean_b_imag_fm) + ' fm; incoherent = ' + number(n.incoherent_barn) + ' barn/atom.</p>' +
         table("Neutron versus X-ray pair weights", ["Pair", "Neutron (Q independent)", "X-ray at Q = 0"],
           n.pairs.map(p => [esc(p.pair), number(p.weight), number(r.curves.pairs.find(x => x.pair === p.pair)?.at_zero)])) : "");
+    const edgeSelect = document.querySelector("#ts-edge");
+    edgeSelect.innerHTML = r.edge_options.map(e => '<option value="' + esc(e.id) + '">' + esc(e.symbol + " " + e.shell) + ' (' + number(e.energy_keV) + ' keV)</option>').join("");
+    edgeSelect.disabled = !r.edge_options.length;
+    if (r.edge_scan) edgeSelect.value = r.edge_scan.symbol + ":" + r.edge_scan.shell;
     const notes = document.querySelector("#ts-warnings");
     notes.hidden = !r.warnings.length;
     notes.innerHTML = r.warnings.length ? `<strong>Check this</strong><ul>${r.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : "";
@@ -113,6 +117,12 @@
       table("Integrated differential scattering versus Elam", ["Channel", "Integral (cm²/g)", "Elam (cm²/g)", "Difference"],
         r.differential.comparison.map(c => [esc(c.channel), number(c.integrated_cm2_g), number(c.elam_cm2_g), number(c.relative_difference * 100, 3) + "%"])) :
       "<p>Full-angle integration is unavailable at this energy: it would exceed the form-factor table range.</p>";
+    const edge = r.edge_scan, edgeLayout = layout("Chantler anomalous factors near edge", "electrons");
+    edgeLayout.xaxis.title.text = "Energy (keV)";
+    document.querySelector("#ts-plot-edge").hidden = !edge;
+    if (edge) window.Plotly.react("ts-plot-edge", [
+      {...line("f′", edge.f_prime, COLORS[0]), x: edge.energy_keV},
+      {...line("f″", edge.f_double_prime, COLORS[1]), x: edge.energy_keV}], edgeLayout, {responsive: true, displayModeBar: false});
     const cap = r.capillary, capLayout = layout("Capillary geometry and polarization", "Factor");
     capLayout.xaxis.title.text = "2θ (°)";
     const capCurves = Object.entries(cap.polarization).map(([name, y], i) => ({...line(name.replaceAll("_", " "), y, COLORS[i + 1], "dot"), x: cap.two_theta_deg}));
@@ -149,7 +159,8 @@
     select.value = String(index);
     const id = ++requestId;
     const ions = ionsByLayer.get(index) || {};
-    const body = {layer: layers[index], ions, energy_keV: energy, two_theta_max_deg: Number(document.querySelector("#ts-two-theta").value),
+    const edge_id = document.querySelector("#ts-edge").value || undefined;
+    const body = {layer: layers[index], ions, edge_id, energy_keV: energy, two_theta_max_deg: Number(document.querySelector("#ts-two-theta").value),
                   capillary_diameter_mm: Number(document.querySelector("#ts-capillary").value), target_q: Number(document.querySelector("#ts-target").value)};
     const status = document.querySelector("#ts-status");
     try {
@@ -181,6 +192,8 @@
   function install() {
     if (!document.querySelector("#view-scattering")) return;
     ["#ts-layer", "#ts-two-theta", "#ts-capillary", "#ts-target"].forEach(id => document.querySelector(id).addEventListener("input", schedule));
+    document.querySelector("#ts-edge").addEventListener("change", schedule);
+    document.querySelector("#ts-layer").addEventListener("change", () => { document.querySelector("#ts-edge").innerHTML = ""; });
     document.querySelector("#ts-ion-controls").addEventListener("change", event => {
       if (!event.target.dataset.ion) return;
       const index = Number(document.querySelector("#ts-layer").value);
@@ -188,7 +201,7 @@
       ionsByLayer.set(index, choices); schedule();
     });
     document.querySelector("#ts-export").addEventListener("click", exportCurves);
-    window.addEventListener("attenuation:update", () => { ionsByLayer.clear(); schedule(); });
+    window.addEventListener("attenuation:update", () => { ionsByLayer.clear(); document.querySelector("#ts-edge").innerHTML = ""; schedule(); });
   }
 
   if (typeof document !== "undefined") {

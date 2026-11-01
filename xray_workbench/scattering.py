@@ -220,6 +220,16 @@ def neutron_weights(symbols: list[str], fractions: np.ndarray, number_density: f
                      "Natural isotopes; Re(bi bj*) / |mean b|². Negative weights are physical; absorption is at 2200 m/s.")}
 
 
+@lru_cache(maxsize=128)
+def edge_scan(symbol: str, shell: str, edge_keV: float) -> JsonObject:
+    """Independent-atom Chantler factors, not chemical-state XANES or EXAFS."""
+    energies = np.unique(np.r_[np.linspace(max(1, edge_keV * 0.95), min(800, edge_keV * 1.05), 301),
+                               edge_keV * (1 - 1e-7), edge_keV, edge_keV * (1 + 1e-7)])
+    return {"symbol": symbol, "shell": shell, "edge_keV": edge_keV, "energy_keV": energies.tolist(),
+            "f_prime": np.asarray(xraydb.f1_chantler(symbol, energies * 1000)).tolist(),
+            "f_double_prime": np.asarray(xraydb.f2_chantler(symbol, energies * 1000)).tolist()}
+
+
 def total_scattering(payload: Any) -> JsonObject:
     payload = _object(payload, "Total scattering request")
     energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
@@ -271,6 +281,15 @@ def total_scattering(payload: Any) -> JsonObject:
                          "ion": selected[symbol], "ion_choices": choices[symbol],
                          "mass_fraction": float(mass_fractions[index]), "f0_at_zero": float(factors[symbol][0]),
                          "f_prime": f_prime, "f_double_prime": f_double_prime})
+    edges: list[JsonObject] = [{"id": f"{symbol}:{shell}", "symbol": symbol, "shell": shell, "energy_keV": edge}
+             for symbol in symbols for shell, edge in get_backend().edges(symbol)
+             if shell in ("K", "L3") and 1.01 < edge < 790 and int(xraydb.atomic_number(symbol)) <= 92]
+    chosen = payload.get("edge_id")
+    selected_edge = next((edge for edge in edges if edge["id"] == chosen), None) if chosen else (
+        min(edges, key=lambda edge: abs(edge["energy_keV"] - energy)) if edges else None)
+    if chosen and selected_edge is None:
+        raise ValueError("Choose an absorption edge of an element in this layer.")
+    anomalous = edge_scan(selected_edge["symbol"], selected_edge["shell"], selected_edge["energy_keV"]) if selected_edge else None
     differential = differential_scattering(symbols, fractions, energy, q)
     if differential["integrated"] is not None:
         differential["comparison"] = [
@@ -294,6 +313,7 @@ def total_scattering(payload: Any) -> JsonObject:
                         "mu_r": linear_mu * diameter / 20, "transmission": exp(-linear_mu * diameter / 10),
                         "plate_optimum_mm": 10 / linear_mu,
                         "shares": {channel: float(values[0]) / mass_mu for channel, values in channels.items()}},
+        "edge_options": edges, "edge_scan": anomalous,
         "neutron": neutron_weights(symbols, fractions, number_density),
         "capillary": capillary_absorption(linear_mu * diameter / 20),
         "compton": {"energy_keV": compton, "shift_keV": energy - compton},
