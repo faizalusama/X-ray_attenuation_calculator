@@ -88,6 +88,7 @@ jobs:
 
       - name: Syntax check
         run: |
+          node --check static/scattering-tools.js
           node --check static/comparison.js
           node --check static/scattering.js
           node --check static/app.js

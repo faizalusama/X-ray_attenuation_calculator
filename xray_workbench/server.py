@@ -21,6 +21,7 @@ from .comparison import compare
 from .physics import presets
 from .results import run_calculation
 from .scattering import total_scattering
+from .scattering_tools import scattering_tools
 from .sources import xray_sources
 
 
@@ -141,6 +142,11 @@ async def calculate_request(request: Request) -> JsonObject:
     return await _answer(request, run_calculation)
 
 
+@app.post("/api/scattering-tools")
+async def scattering_tools_request(request: Request) -> JsonObject:
+    return await _answer(request, scattering_tools)
+
+
 @app.post("/api/compare")
 async def compare_request(request: Request) -> JsonObject:
     return await _answer(request, compare)
@@ -180,7 +186,7 @@ async def download_artifact(request: Request) -> Response:
     allowed = {"attenuation-project.json", "attenuation-results.json", "attenuation-sweep.csv", "attenuation-dashboard.svg"}
     allowed.update(f"attenuation-{mode}.svg" for mode in ("transmission", "removed", "mass", "linear", "channels"))
     allowed.update({"attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv",
-                    "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv", "xray-workbench-citation.bib"})
+                    "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv", "xray-workbench-citation.bib", "scattering-tools.json", "scattering-tools.csv"})
     allowed.update(f"attenuation-plot-{mode}.csv" for mode in PLOT_DATA_MODES)
     if filename not in allowed:
         raise HTTPException(422, "Unsupported export filename.")

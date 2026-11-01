@@ -17,6 +17,7 @@ from .comparison import compare
 from .physics import presets
 from .results import run_calculation
 from .scattering import total_scattering
+from .scattering_tools import scattering_tools
 from .sources import xray_sources
 
 
@@ -54,12 +55,14 @@ def handle(route: str, body: str | None = None, runtime: str = "") -> tuple[int,
         return 200, json.dumps({"presets": presets()})
     if route == "xray-sources":
         return 200, json.dumps({"sources": xray_sources()})
-    if route not in ("calculate", "total-scattering", "compare"):
+    if route not in ("calculate", "total-scattering", "compare", "scattering-tools"):
         return 404, json.dumps({"detail": "Not Found"})
     try:
         payload = json.loads(body or "", parse_constant=_invalid_constant)
         if not isinstance(payload, dict):
             raise ValueError("Configuration must be a JSON object.")
+        if route == "scattering-tools":
+            return 200, json.dumps(scattering_tools(payload), allow_nan=False)
         if route == "compare":
             return 200, json.dumps(compare(payload), allow_nan=False)
         if route == "total-scattering":

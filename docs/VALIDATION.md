@@ -231,3 +231,9 @@ The disc area integral averages exp[-mu(l_in+l_out)] with unit-radius Gauss quad
 Independent chord integrals at 0 and 180 degrees agree to 2e-6 absolute for muR=0,0.2,1,5.
 Polarization is the Thomson factor, separately reported for unpolarized and linear states.
 No inversion is supplied above muR=30, where fixed quadrature may miss the surface layer.
+
+## Optical tools
+Chantler optical constants use n=1-delta+i beta and exp(i kz z); positive beta attenuates.
+Si at 8.048 keV, 2.329 g/cm3 gives delta=7.5730e-6 and critical grazing angle about 0.223°.
+At normal incidence, the plotted intensity depth recovers lambda/(4 pi beta).
+Optical data are separate from Elam attenuation; no data sources are blended.

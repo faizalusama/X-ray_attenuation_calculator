@@ -859,7 +859,7 @@
   function restoreUI(ui) {
     if (!ui || typeof ui !== "object") return;
     if (Object.hasOwn(displayUnits.LENGTH_UNITS, ui.lengthUnit)) state.lengthUnit = ui.lengthUnit;
-    if (["overview", "materials", "spectrum", "uncertainty", "scattering", "methods"].includes(ui.tab)) state.tab = ui.tab;
+    if (["overview", "materials", "spectrum", "uncertainty", "scattering", "tools", "methods"].includes(ui.tab)) state.tab = ui.tab;
     if (typeof ui.scopeOpen === "boolean") $("#model-scope").open = ui.scopeOpen;
     if (typeof ui.suggestionsOpen === "boolean") { $("#suggestions-section").hidden = !ui.suggestionsOpen; $("#ideas-button").setAttribute("aria-expanded", ui.suggestionsOpen); }
     dashboard.restore(ui);
