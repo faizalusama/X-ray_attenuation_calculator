@@ -22,6 +22,9 @@
     for (const [symbol, values] of Object.entries(curves.form_factors)) columns.push([`f0_${symbol}`, values]);
     columns.push(["mean_f_squared", curves.mean_f_squared], ["mean_of_f_squared", curves.mean_of_f_squared], ["laue_diffuse", curves.laue]);
     for (const pair of curves.pairs) columns.push([`weight_${pair.pair}`, pair.weights]);
+    if (result.differential) {
+      for (const key of ["S_mean", "incoherent_barn_sr_atom", "coherent_barn_sr_atom", "coherent_fraction"]) columns.push([key, result.differential[key]]);
+    }
     return {headers: columns.map(column => column[0]), rows: curves.q.map((_, i) => columns.map(column => column[1][i]))};
   }
 
@@ -88,6 +91,19 @@
     ], {...layout("Composition averages", "electrons²")}, {responsive: true, displayModeBar: false});
     window.Plotly.react("ts-plot-weights", curves.pairs.slice(0, MAX_PAIR_CURVES).map((p, i) => line(p.pair, p.weights, COLORS[i % COLORS.length])),
       layout(curves.pairs.length > MAX_PAIR_CURVES ? `Largest ${MAX_PAIR_CURVES} of ${curves.pairs.length} pair weights` : "Faber-Ziman pair weights", "w(Q)"), {responsive: true, displayModeBar: false});
+    const extra = document.querySelector("#ts-plot-compton");
+    window.Plotly.react(extra, [line("Coherent", r.differential.coherent_barn_sr_atom, COLORS[0]),
+      line("Compton", r.differential.incoherent_barn_sr_atom, COLORS[1])],
+      layout("Differential scattering (unpolarized)", "barn sr⁻¹ atom⁻¹"), {responsive: true, displayModeBar: false});
+    window.Plotly.react("ts-plot-incoherent", [line("⟨S(Q)⟩", r.differential.S_mean, COLORS[1]),
+      {...line("Coherent fraction", r.differential.coherent_fraction, COLORS[0]), yaxis: "y2"}],
+      {...layout("Incoherent function and coherent fraction", "⟨S(Q)⟩ (electrons)"),
+        yaxis2: {title: {text: "Coherent fraction"}, overlaying: "y", side: "right", range: [0, 1]},
+        margin: {l: 66, r: 70, t: 34, b: 52}}, {responsive: true, displayModeBar: false});
+    document.querySelector("#ts-cross-check").innerHTML = r.differential.comparison.length ?
+      table("Integrated differential scattering versus Elam", ["Channel", "Integral (cm²/g)", "Elam (cm²/g)", "Difference"],
+        r.differential.comparison.map(c => [esc(c.channel), number(c.integrated_cm2_g), number(c.elam_cm2_g), number(c.relative_difference * 100, 3) + "%"])) :
+      "<p>Full-angle integration is unavailable at this energy: it would exceed the form-factor table range.</p>";
     const biggest = curves.pairs[0];
     document.querySelector("#ts-plot-summary").textContent = `${symbols.length} element${symbols.length === 1 ? "" : "s"}, ${curves.pairs.length} pair${curves.pairs.length === 1 ? "" : "s"}. The largest pair weight at Q = 0 is ${biggest.pair}, ${number(biggest.at_zero, 3)}, becoming ${number(biggest.at_q_max, 3)} at Q = ${number(q.at(-1), 3)} Å⁻¹.`;
   }

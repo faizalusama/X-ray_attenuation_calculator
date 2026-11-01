@@ -12,7 +12,10 @@ both through XrayDB. Pair weights use f₀ alone, so they do not apply close to 
 
 from __future__ import annotations
 
+import json
+from functools import lru_cache
 from math import asin, cos, exp, pi, radians, sin
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -42,7 +45,7 @@ MIN_LINE_KEV = 1.0
 CURVE_POINTS = 301
 LIMITS = ("Independent-atom, neutral-atom form factors.",
           "Pair weights use f0(Q) without f' or f''.",
-          "Compton scattering is given as a cross-section share and an energy shift, not as a function of Q.",
+          "Compton curves use the incoherent scattering-function approximation with Klein-Nishina recoil.",
           "Absorption figures describe the beam path only: no multiple-scattering, polarization or container correction.")
 
 
@@ -116,6 +119,49 @@ def _source_table(elements: dict[str, float], density: float, two_theta: float, 
     return table
 
 
+@lru_cache(maxsize=2)
+def _table(name: str) -> JsonObject:
+    return json.loads((Path(__file__).parent / "scattering_data" / name).read_text(encoding="utf-8"))  # type: ignore[no-any-return]
+
+
+def differential_scattering(symbols: list[str], fractions: np.ndarray, energy: float,
+                            q: np.ndarray) -> JsonObject:
+    """Unpolarized independent-atom scattering, barns/sr/atom (r_e squared = 0.0794079 barn)."""
+    table = _table("incoherent_hubbell1975.json")
+    grid = np.asarray(table["grid_sin_theta_over_lambda"])
+    wavelength = HC_KEV_ANGSTROM / energy
+
+    def evaluate(qq: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        argument = qq / (4 * pi)
+        if np.any(argument > grid[-1]):
+            raise ValueError("Compton curve exceeds the tabulated sin(theta)/lambda range.")
+        cosine = 1 - 2 * (qq * wavelength / (4 * pi)) ** 2
+        recoil = 1 / (1 + energy / 510.99895 * (1 - cosine))
+        kn = 0.0794079 / 2 * recoil ** 2 * (recoil + 1 / recoil - (1 - cosine ** 2))
+        incoherent = sum(c * np.interp(argument, grid, table["values"][s])
+                         for s, c in zip(symbols, fractions, strict=True))
+        coherent = sum(c * np.asarray(xraydb.f0(s, argument)) ** 2
+                       for s, c in zip(symbols, fractions, strict=True))
+        return incoherent, kn * incoherent, 0.0794079 * (1 + cosine ** 2) / 2 * coherent
+
+    sf, inc, coh = evaluate(q)
+    # Integrate over solid angle using u=cos(2theta), Gauss-Legendre quadrature.
+    # Do not extrapolate f0 or S past their respective domains.
+    integral = None
+    if 1 / wavelength <= min(6.0, float(grid[-1])):
+        u, weights = np.polynomial.legendre.leggauss(512)
+        _, ii, cc = evaluate(4 * pi / wavelength * np.sqrt((1 - u) / 2))
+        mean_mass = sum(c * float(xraydb.atomic_mass(s)) for s, c in zip(symbols, fractions, strict=True))
+        factor = 2 * pi * AVOGADRO * 1e-24 / mean_mass
+        integral = {"incoherent_cm2_g": float(np.dot(weights, ii) * factor),
+                    "coherent_cm2_g": float(np.dot(weights, cc) * factor)}
+    return {"S_mean": sf.tolist(), "incoherent_barn_sr_atom": inc.tolist(),
+            "coherent_barn_sr_atom": coh.tolist(),
+            "coherent_fraction": np.divide(coh, coh + inc, out=np.zeros_like(coh), where=coh + inc > 0).tolist(),
+            "integrated": integral, "source": table["source"],
+            "note": "Independent-atom form-factor approximation; compare integrals with Elam, never rescale to force agreement."}
+
+
 def total_scattering(payload: Any) -> JsonObject:
     payload = _object(payload, "Total scattering request")
     energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
@@ -158,6 +204,15 @@ def total_scattering(payload: Any) -> JsonObject:
         elements.append({"symbol": symbol, "atomic_number": int(numbers[index]), "atomic_fraction": float(fractions[index]),
                          "mass_fraction": float(mass_fractions[index]), "f0_at_zero": float(factors[symbol][0]),
                          "f_prime": f_prime, "f_double_prime": f_double_prime})
+    differential = differential_scattering(symbols, fractions, energy, q)
+    if differential["integrated"] is not None:
+        differential["comparison"] = [
+            {"channel": kind, "integrated_cm2_g": differential["integrated"][f"{kind}_cm2_g"],
+             "elam_cm2_g": float(channels[kind][0]),
+             "relative_difference": differential["integrated"][f"{kind}_cm2_g"] / float(channels[kind][0]) - 1}
+            for kind in ("coherent", "incoherent")]
+    else:
+        differential["comparison"] = []
     smallest = float(fractions.min())
     return {
         "energy_keV": energy, "wavelength_angstrom": wavelength, "two_theta_max_deg": two_theta,
@@ -173,6 +228,7 @@ def total_scattering(payload: Any) -> JsonObject:
                         "plate_optimum_mm": 10 / linear_mu,
                         "shares": {channel: float(values[0]) / mass_mu for channel, values in channels.items()}},
         "compton": {"energy_keV": compton, "shift_keV": energy - compton},
+        "differential": differential,
         "fluorescence": excited,
         "sources": _source_table(layer.elements, layer.density, two_theta, diameter, target),
         "curves": {"q": q.tolist(), "form_factors": {s: values.tolist() for s, values in factors.items()},

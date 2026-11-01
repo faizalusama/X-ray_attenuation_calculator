@@ -218,3 +218,10 @@ Adds a browser version. The same `xray_workbench` package runs inside the browse
 **Materials library.** The library is available in both the local and browser versions, and `tests/test_web.py` holds their answers together. A test also compares the library overview with the full engine. Provenance is described in `docs/MATERIALS.md`. Stoichiometric entries use typical densities that have not been checked against a source. They are marked unverified in the interface and in the data.
 
 **Total scattering.** The new tab adds calculations without changing any existing one. Its checks and limits are listed in `docs/TOTAL_SCATTERING.md`. Up to Q = 25 Å⁻¹, form factors agree with the separate EPDL97 tabulation in xraylib within 0.5% to 4.8%, depending on the element, and up to Q = 50.7 Å⁻¹ within 3.5% to 11.4%. For Cu, Hf and Pb, f′ agrees within 6% and f″ within 4%. These are planning values, and no comparison with measured total-scattering data has been made.
+
+## Differential scattering (PR7)
+Hubbell incoherent S(Q) is combined with the unpolarized Klein–Nishina cross section.
+Elastic independent-atom f0 gives the Thomson coherent term. Solid-angle Gauss–Legendre
+integration at 20 keV for SiO2 differs from Elam by +0.01097% coherent and +0.39338%
+incoherent. The UI reports differences, without fitting or mixing data. Integration is
+unavailable if full angular coverage exceeds the tabulated f0 domain. Attenuation is unchanged.

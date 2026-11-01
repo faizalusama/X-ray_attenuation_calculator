@@ -206,3 +206,19 @@ def test_server_and_browser_give_the_same_refusal():
 def test_fluorescence_leaves_out_lines_below_one_kev():
     listed = total_scattering(request(layer([("SiO2", 1)]), energy=30))["fluorescence"]
     assert {(e["element"], e["edge"]) for e in listed} == {("Si", "K")}
+
+
+def test_differential_scattering_limits_and_integral():
+    r = total_scattering(request(energy=20))
+    d = r["differential"]
+    assert d["S_mean"][0] == 0
+    assert d["coherent_fraction"][0] == 1
+    assert all(v >= 0 for v in d["incoherent_barn_sr_atom"])
+    assert d["integrated"]["incoherent_cm2_g"] > 0
+    # Independent tabulated Elam comparison: report discrepancy rather than normalize it away.
+    for kind in ("coherent", "incoherent"):
+        tabulated = r["attenuation"]["mu_mass_cm2_g"] * r["attenuation"]["shares"][kind]
+        ratio = d["integrated"][f"{kind}_cm2_g"] / tabulated
+        # SiO2 at 20 keV: independent approximations agree within 0.5%; not a fitted normalization.
+        assert ratio == pytest.approx(1, abs=0.005)
+    assert total_scattering(request(energy=100))["differential"]["integrated"] is None
