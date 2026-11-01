@@ -245,3 +245,9 @@ Identical media give zero reflection. Névot–Croce factors reduce high-angle r
 Nonphysical reflectivity is refused, never clipped into range.
 References: https://xraypy.github.io/XrayDB/python.html (optical constants and mirror conventions);
 https://www.reflectometry.org/learn/3_reflectometry_slab_models/roughness_and_microslicing.html.
+
+## Powder peaks
+The diamond-Si demonstration at a=5.431 Å and Cu Kα1 (1.540593 Å) gives (111) at
+about 28.44 degrees. F(200) cancels to numerical roundoff; multiplicity of (111) is 8.
+Only explicit unit-cell positions are used, with isotropic B and neutral f0.
+The structure-factor convention follows https://dictionary.iucr.org/Structure_factor.

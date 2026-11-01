@@ -212,8 +212,106 @@ def converter(payload: JsonObject) -> JsonObject:
                    "Size is a coherent-domain estimate, not particle size. Strain, size distributions and profile-shape effects are excluded."])
 
 
+DIAMOND_SI_ATOMS = "Si,0,0,0,1,0\nSi,0,0.5,0.5,1,0\nSi,0.5,0,0.5,1,0\nSi,0.5,0.5,0,1,0\nSi,0.25,0.25,0.25,1,0\nSi,0.25,0.75,0.75,1,0\nSi,0.75,0.25,0.75,1,0\nSi,0.75,0.75,0.25,1,0"
+
+
+def crystal_atoms(text: Any) -> list[JsonObject]:
+    if not isinstance(text, str) or len(text) > 30000:
+        raise ValueError("Atom list must be text smaller than 30,000 characters.")
+    atoms: list[JsonObject] = []
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        values = [v.strip() for v in line.split(",")]
+        if len(values) != 6:
+            raise ValueError("Each atom row needs element,x,y,z,occupancy,B_angstrom2.")
+        symbol = values[0]
+        if not xraydb.f0_ions(symbol) or xraydb.atomic_symbol(xraydb.atomic_number(symbol)) != symbol:
+            raise ValueError("Atom list requires valid neutral element symbols.")
+        position = [_number(float(x), "Fractional coordinate", -100, 100) % 1 for x in values[1:4]]
+        atoms.append({"symbol": symbol, "position": position,
+                      "occupancy": _number(float(values[4]), "Occupancy", 0, 1),
+                      "B": _number(float(values[5]), "Isotropic B (Å²)", 0, 100)})
+        if len(atoms) > 200:
+            raise ValueError("At most 200 atoms per unit cell.")
+    if not atoms or not any(a["occupancy"] > 0 for a in atoms):
+        raise ValueError("Unit cell needs at least one occupied atom.")
+    return atoms
+
+
+def structure_factors(hkl: np.ndarray, s: np.ndarray, atoms: list[JsonObject]) -> np.ndarray:
+    amplitude = np.zeros(len(hkl), dtype=complex)
+    factors = {a["symbol"]: np.asarray(xraydb.f0(a["symbol"], s)) for a in atoms}
+    for atom in atoms:
+        amplitude += atom["occupancy"] * factors[atom["symbol"]] * np.exp(-atom["B"]*s*s) * np.exp(2j*pi*(hkl @ np.array(atom["position"])))
+    return amplitude
+
+
+def powder(payload: JsonObject) -> JsonObject:
+    energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
+    text = payload.get("lattice", "5.431,5.431,5.431,90,90,90")
+    if not isinstance(text, str) or len(text) > 300:
+        raise ValueError("Lattice must be a,b,c,alpha,beta,gamma.")
+    parts = [float(v) for v in text.split(",")]
+    if len(parts) != 6:
+        raise ValueError("Lattice must have six parameters a,b,c,alpha,beta,gamma.")
+    a,b,c = [_number(v, "Cell length (Å)", 0.5, 1000) for v in parts[:3]]
+    alpha,beta,gamma = [radians(_number(v, "Cell angle (°)", 1, 179)) for v in parts[3:]]
+    metric = np.array([[a*a, a*b*cos(gamma), a*c*cos(beta)],
+                       [a*b*cos(gamma), b*b, b*c*cos(alpha)],
+                       [a*c*cos(beta), b*c*cos(alpha), c*c]])
+    eigenvalues = np.linalg.eigvalsh(metric)
+    if eigenvalues[0] <= eigenvalues[-1]*1e-12:
+        raise ValueError("Lattice metric is degenerate or not positive definite.")
+    limit = _number(payload.get("hkl_max", 4), "Maximum absolute Miller index", 1, 8)
+    if not limit.is_integer():
+        raise ValueError("Maximum Miller index must be an integer.")
+    maximum = _number(payload.get("two_theta_max_deg", 120), "Maximum 2θ (°)", 1, 179)
+    atoms = crystal_atoms(payload.get("atoms", DIAMOND_SI_ATOMS))
+    indices = np.arange(-int(limit), int(limit)+1)
+    hkl = np.stack(np.meshgrid(indices, indices, indices, indexing="ij"), axis=-1).reshape(-1,3)
+    inverse_d_squared = np.einsum("ni,ij,nj->n", hkl, np.linalg.inv(metric), hkl)
+    wavelength = HC_KEV_ANGSTROM/energy
+    s = np.sqrt(np.maximum(inverse_d_squared, 0))/2
+    valid = (inverse_d_squared > 0) & (s <= min(6, sin(radians(maximum)/2)/wavelength))
+    hkl, s = hkl[valid], s[valid]
+    theta = np.arcsin(s*wavelength)
+    f_squared = abs(structure_factors(hkl, s, atoms))**2
+    lp = (1 + np.cos(2*theta)**2)/(2*np.sin(theta)**2*np.cos(theta))
+    groups: dict[float, JsonObject] = {}
+    for h, ss, tt, ff, factor in zip(hkl, s, theta, f_squared, lp, strict=True):
+        key = round(float(4*ss*ss), 12)
+        row = groups.setdefault(key, {"hkl": tuple(int(v) for v in h), "two_theta_deg": float(tt*360/pi),
+                                     "d_angstrom": float(1/(2*ss)), "multiplicity": 0, "intensity": 0.0})
+        row["hkl"] = max(row["hkl"], tuple(int(v) for v in h))
+        row["multiplicity"] += 1
+        row["intensity"] += float(ff*factor)
+    rows = sorted(groups.values(), key=lambda r: r["two_theta_deg"])
+    largest = max((r["intensity"] for r in rows), default=0)
+    peaks = []
+    for row in rows:
+        row["relative_intensity"] = row["intensity"]/largest*100 if largest > 0 else 0
+        if row["relative_intensity"] > 1e-8:
+            peaks.append(row)
+    x = np.array([r["two_theta_deg"] for r in peaks for _ in range(3)])
+    y = np.array([v for r in peaks for v in (0, r["relative_intensity"], 0)])
+    return result("powder", {"peaks": peaks, "lattice": parts, "atoms": atoms},
+                  [("Predicted peak groups", len(peaks), ""), ("Wavelength", wavelength, "Å"),
+                   ("Maximum absolute h, k, l", int(limit), "")],
+                  [plot("Kinematic powder peak positions", "2θ (°)", "Relative integrated intensity", x, {"Peaks": y})],
+                  ["Complete unit-cell atoms are required; no space-group symmetry expansion is performed.",
+                   "Neutral f₀, occupancy and exp(−B s²), with s=sinθ/λ. Intensities sum all enumerated hkl, including Friedel pairs.",
+                   "LP = (1+cos²2θ)/(2 sin²θ cosθ), unpolarized Bragg–Brentano powder geometry. No texture, absorption or peak broadening.",
+                   "Only indices within the stated bound are searched. Equal d groups use 1e-12 Å⁻² reciprocal-metric bins; table shows up to 500 groups.",
+                   "Default cell is an editable diamond-Si demonstration, independent of the selected attenuation layer."],
+                  [{"caption": "Predicted powder peaks", "headers": ["h k l", "2θ (°)", "d (Å)", "Multiplicity", "Relative intensity"],
+                    "rows": [[" ".join(map(str,r["hkl"])), r["two_theta_deg"], r["d_angstrom"], r["multiplicity"], r["relative_intensity"]] for r in peaks[:500]]}])
+
+
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "powder":
+        return powder(payload)
     if payload.get("tool") == "converter":
         return converter(payload)
     if payload.get("tool") == "contrast":

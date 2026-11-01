@@ -79,3 +79,25 @@ def test_converter_round_trip_source_change_and_scherrer_units():
     assert zero["scherrer_size_nm"] is None
     with pytest.raises(ValueError, match="Instrument FWHM"):
         scattering_tools(request("converter", fwhm_deg=0.1, instrument_fwhm_deg=0.2))
+
+def test_diamond_silicon_peak_and_systematic_absence():
+    from xray_workbench.scattering_tools import DIAMOND_SI_ATOMS, crystal_atoms, structure_factors
+
+    atoms = crystal_atoms(DIAMOND_SI_ATOMS)
+    hkl = np.array([[1,1,1], [2,0,0]])
+    s = np.sqrt(np.sum(hkl*hkl,axis=1)) / (2*5.431)
+    factors = structure_factors(hkl,s,atoms)
+    assert abs(factors[1])**2 < 1e-24
+    assert abs(factors[0])**2 > 100
+    answer = scattering_tools(request("powder", energy_keV=12.398419843320026/1.540593))
+    first = answer["data"]["peaks"][0]
+    assert first["two_theta_deg"] == pytest.approx(28.44, abs=0.02)
+    assert first["multiplicity"] == 8
+    assert all(abs(p["d_angstrom"]-5.431/2) > 1e-6 for p in answer["data"]["peaks"])
+
+
+def test_powder_rejects_degenerate_cell_and_malformed_atoms():
+    with pytest.raises(ValueError, match="positive definite"):
+        scattering_tools(request("powder", lattice="5,5,5,10,10,170"))
+    with pytest.raises(ValueError, match="Each atom row"):
+        scattering_tools(request("powder", atoms="Si,0,0,0"))
