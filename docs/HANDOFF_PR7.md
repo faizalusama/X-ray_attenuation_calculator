@@ -14,7 +14,7 @@ verification pass. The expanded UI audit checks populated tools and dialogs at
 1440, 768 and 375 px in light and dark themes. Real Pyodide exercises the 16
 attenuation configurations plus nine additional API cases.
 
-The attenuation digest remains exactly:
+Reproduce with python tools/native_digest.py. The attenuation digest remains exactly:
 4d50d8cd05b54d9c0251e633a5d803b6ced194e1ec3eb4c5134ee02fdb5372e4.
 
 The inherited parity rule for T < 1/e scales relative transmission differences by

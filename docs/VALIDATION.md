@@ -198,7 +198,7 @@ Adds a browser version. The same `xray_workbench` package runs inside the browse
 
 **Interface.** Checked in a Chromium-based browser at desktop and 375-pixel widths: all eleven plots render, a misspelled formula gives the same message as the local server, the formula warnings appear, and project, SVG, CSV and JSON exports reach the browser's download path with the expected content. No horizontal overflow or console errors appeared.
 
-**Not checked.** Firefox, Safari and real phones. The local JavaScript suites need Node.js, which this machine lacks; they run in CI. As before, this is a check of the numerical implementation, not experimental validation.
+**Not checked.** Firefox, Safari and real phones. That earlier check did not run the JavaScript suites locally; the PR7 completion checks below now include local Node and Playwright results. As before, this is a check of the numerical implementation, not experimental validation.
 
 **Other new checks.** `tests/test_web.py` holds the browser routes to the same answers as the local server and checks that the site runs the same `physics.py`. Results from the browser record their runtime in `provenance.runtime`.
 
@@ -279,3 +279,5 @@ at that scaled value or byte equality. The 1e-12 limit was not changed.
 New utilities are checked against analytic limits and reference examples, not
 measured specimens. No model tolerances were widened. No merge, tag, release,
 Pages enablement or new DOI occurred during this work.
+
+Reproduce the canonical native digest with python tools/native_digest.py. Optional --expect checks a digest in the same reference numerical environment; other maths-library builds can round differently.
