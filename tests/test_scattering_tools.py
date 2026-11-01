@@ -101,3 +101,25 @@ def test_powder_rejects_degenerate_cell_and_malformed_atoms():
         scattering_tools(request("powder", lattice="5,5,5,10,10,170"))
     with pytest.raises(ValueError, match="Each atom row"):
         scattering_tools(request("powder", atoms="Si,0,0,0"))
+
+def test_fourier_transform_matches_analytic_damped_sine():
+    q = np.linspace(0,40,8001)
+    # F(Q)=exp(-a Q) sin(b Q). S(0)=1+b by continuity.
+    a,b = 1,3
+    sq = 1 + np.exp(-a*q)*np.divide(np.sin(b*q),q,out=np.full_like(q,b),where=q>0)
+    answer = scattering_tools(request("pdf", q=q.tolist(), sq=sq.tolist(), r_max_angstrom=10, r_points=201))
+    r = np.array(answer["data"]["r_angstrom"])
+    expected = a/np.pi*(1/(a*a+(b-r)**2)-1/(a*a+(b+r)**2))
+    assert answer["data"]["g_inv_angstrom2"] == pytest.approx(expected, abs=1e-8)
+    lorch = scattering_tools(request("pdf", q=q.tolist(), sq=sq.tolist(), r_max_angstrom=10, r_points=201, window="lorch"))
+    assert max(lorch["data"]["g_inv_angstrom2"]) < max(expected)
+    assert np.isfinite(lorch["data"]["g_inv_angstrom2"]).all()
+
+
+def test_transform_accepts_csv_and_rejects_duplicate_or_aliased_grid():
+    flat = scattering_tools(request("pdf", sq_data="q,S\n0,1\n1,1\n2,1", r_max_angstrom=2))
+    assert all(v == 0 for v in flat["data"]["g_inv_angstrom2"])
+    with pytest.raises(ValueError, match="increase strictly"):
+        scattering_tools(request("pdf", q=[0,1,1], sq=[1,1,1]))
+    with pytest.raises(ValueError, match="sampling limit"):
+        scattering_tools(request("pdf", q=[0,1,2], sq=[1,1,1], r_max_angstrom=10))

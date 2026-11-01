@@ -50,6 +50,18 @@
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(run, 250); }
   function install() {
+    $("#st-sq-file").addEventListener("change", async event => {
+      const file = event.target.files[0]; if (!file) return;
+      try {
+        if (file.size > 800000) throw new Error("S(Q) CSV must be smaller than 800,000 bytes.");
+        $("#st-sq-data").value = await file.text(); invalidate(); schedule();
+      } catch (exception) { $("#st-status").textContent = exception.message; }
+      finally { event.target.value = ""; }
+    });
+    $("#st-demo-pdf").addEventListener("click", () => {
+      const rows = Array.from({length: 4001}, (_,i) => { const q = i/100; return q + "," + (1 + (q === 0 ? 3 : Math.exp(-q)*Math.sin(3*q)/q)); });
+      $("#st-sq-data").value = "q,S\n" + rows.join("\n"); invalidate(); schedule();
+    });
     $("#st-tool").addEventListener("change", schedule);
     $("#st-controls").addEventListener("input", () => { invalidate(); schedule(); });
     $("#st-run").addEventListener("click", run);

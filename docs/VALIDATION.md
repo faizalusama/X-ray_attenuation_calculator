@@ -251,3 +251,10 @@ The diamond-Si demonstration at a=5.431 Å and Cu Kα1 (1.540593 Å) gives (111)
 about 28.44 degrees. F(200) cancels to numerical roundoff; multiplicity of (111) is 8.
 Only explicit unit-cell positions are used, with isotropic B and neutral f0.
 The structure-factor convention follows https://dictionary.iucr.org/Structure_factor.
+
+## S(Q) to G(r)
+For F(Q)=exp(-aQ) sin(bQ), the infinite-range transform is
+a/pi [1/(a²+(b-r)²) - 1/(a²+(b+r)²)]. At a=1, b=3, Q=0..40 Å⁻¹,
+8001 samples reproduce that analytic result within 1e-8 Å⁻².
+The Lorch window has its continuous limit at Q=0. Flat S=1 gives G=0.
+No raw-intensity reduction, extrapolation or fitted baseline is performed.

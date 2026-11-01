@@ -6,6 +6,8 @@ The wave convention is exp(i kz z), n = 1 - delta + i beta.
 """
 from __future__ import annotations
 
+import csv
+import io
 from math import asin, cos, pi, radians, sin, sqrt
 from typing import Any
 
@@ -308,8 +310,71 @@ def powder(payload: JsonObject) -> JsonObject:
                     "rows": [[" ".join(map(str,r["hkl"])), r["two_theta_deg"], r["d_angstrom"], r["multiplicity"], r["relative_intensity"]] for r in peaks[:500]]}])
 
 
+def pdf_transform(payload: JsonObject) -> JsonObject:
+    """Finite-range sine transform of F(Q)=Q[S(Q)-1], with no data reduction."""
+    if "q" in payload:
+        q = np.asarray(payload["q"], dtype=float)
+        sq = np.asarray(payload.get("sq"), dtype=float)
+    else:
+        text = payload.get("sq_data", "")
+        if not isinstance(text, str) or len(text) > 800000:
+            raise ValueError("S(Q) data must be CSV text smaller than 800,000 characters.")
+        pairs = []
+        try:
+            for row in csv.reader(io.StringIO(text), strict=True):
+                if not row or row[0].lstrip().startswith("#"):
+                    continue
+                if [v.strip().lower() for v in row] == ["q", "s"]:
+                    continue
+                if len(row) != 2:
+                    raise ValueError("S(Q) CSV rows must contain exactly q,S.")
+                pairs.append([float(row[0]), float(row[1])])
+                if len(pairs) > 20000:
+                    raise ValueError("At most 20,000 S(Q) samples.")
+        except csv.Error as exc:
+            raise ValueError(f"Malformed S(Q) CSV: {exc}") from exc
+        array = np.asarray(pairs, dtype=float)
+        if array.ndim != 2 or array.shape[0] < 3:
+            raise ValueError("S(Q) needs at least three q,S samples.")
+        q, sq = array[:,0], array[:,1]
+    if q.ndim != 1 or sq.shape != q.shape or not 3 <= len(q) <= 20000:
+        raise ValueError("q and S must be equal-length arrays with 3–20,000 samples.")
+    if not np.all(np.isfinite(q)) or not np.all(np.isfinite(sq)) or np.any(q < 0) or q[-1] > 200:
+        raise ValueError("S(Q) data must be finite; Q must lie in 0–200 Å⁻¹.")
+    if np.any(np.diff(q) <= 0):
+        raise ValueError("Q must increase strictly; sort and resolve duplicates before transforming.")
+    r_max = _number(payload.get("r_max_angstrom", 20), "Maximum r (Å)", 0.01, 1000)
+    points = _number(payload.get("r_points", 501), "r grid points", 3, 4000)
+    if not points.is_integer() or points*len(q) > 20_000_000:
+        raise ValueError("Use integer r grid points and at most 20 million Q×r samples.")
+    nyquist = pi/float(np.max(np.diff(q)))
+    if r_max > nyquist:
+        raise ValueError(f"Maximum r exceeds the conservative sampling limit {nyquist:.6g} Å from the largest Q interval.")
+    window = payload.get("window", "none")
+    if window not in ("none", "lorch"):
+        raise ValueError("Window must be none or lorch.")
+    r = np.linspace(0, r_max, int(points))
+    f = q*(sq-1)
+    modified = f * (np.sinc(q/q[-1]) if window == "lorch" else 1)
+    g = np.empty_like(r)
+    for start in range(0, len(r), 64):
+        values = np.sin(r[start:start+64,None]*q[None,:]) * modified[None,:]
+        g[start:start+64] = 2/pi*np.trapezoid(values, q, axis=1)
+    return result("pdf", {"q": q.tolist(), "sq": sq.tolist(), "r_angstrom": r.tolist(), "g_inv_angstrom2": g.tolist(), "window": window},
+                  [("Qmin", float(q[0]), "Å⁻¹"), ("Qmax", float(q[-1]), "Å⁻¹"), ("Input samples", len(q), ""),
+                   ("Conservative sampling limit for r", nyquist, "Å")],
+                  [plot("Reduced pair distribution function", "r (Å)", "G(r) (Å⁻²)", r, {"G(r)": g}),
+                   plot("Transform integrand before sine kernel", "Q (Å⁻¹)", "Q[S(Q)−1] M(Q) (Å⁻¹)", q, {"F(Q) M(Q)": modified})],
+                  ["G(r) = (2/π) ∫ Q[S(Q)−1] M(Q) sin(Qr) dQ, integrated only over the supplied Q interval.",
+                   "Lorch M(Q)=sin(πQ/Qmax)/(πQ/Qmax), with its continuous limit at Q=0. No extrapolation or baseline fitting.",
+                   "Input must already be normalized S(Q), corrected for instrumental and sample effects. This tool does not reduce raw intensities.",
+                   "Finite-Q termination, Qmin omissions, noise and uneven Q sampling affect G(r). No uncertainty propagation is performed."])
+
+
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "pdf":
+        return pdf_transform(payload)
     if payload.get("tool") == "powder":
         return powder(payload)
     if payload.get("tool") == "converter":
