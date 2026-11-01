@@ -345,6 +345,7 @@
     renderSpectrum();
     renderUncertainty();
     renderSuggestions();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
   }
   function renderStack() {
     const layers = state.resultConfiguration?.layers || state.configuration.layers;
@@ -443,6 +444,7 @@
     $$('[role="tabpanel"]').forEach(panel => { panel.hidden = panel.id !== `view-${name}`; });
     if (name === "overview") renderChart();
     if (name === "spectrum") renderSpectrum();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
   }
   function download(contents, filename, type) {
     if (window.AttenuationWeb) { window.AttenuationWeb.download(contents, filename, type); return; }
@@ -715,6 +717,9 @@
     },
     layerCount: () => state.configuration.layers.length,
     energy: () => clone(state.configuration.energy),
+    layers: () => clone(state.resultConfiguration?.layers || []),
+    referenceEnergy: () => state.result?.reference.energy_keV,
+    download,
   });
   $$("[data-tab]").forEach(button=>button.addEventListener("click",()=>activateTab(button.dataset.tab)));
   $(".tabs").addEventListener("keydown",event=>{
@@ -764,7 +769,7 @@
   function restoreUI(ui) {
     if (!ui || typeof ui !== "object") return;
     if (Object.hasOwn(displayUnits.LENGTH_UNITS, ui.lengthUnit)) state.lengthUnit = ui.lengthUnit;
-    if (["overview", "materials", "spectrum", "uncertainty", "methods"].includes(ui.tab)) state.tab = ui.tab;
+    if (["overview", "materials", "spectrum", "uncertainty", "scattering", "methods"].includes(ui.tab)) state.tab = ui.tab;
     if (typeof ui.scopeOpen === "boolean") $("#model-scope").open = ui.scopeOpen;
     if (typeof ui.suggestionsOpen === "boolean") { $("#suggestions-section").hidden = !ui.suggestionsOpen; $("#ideas-button").setAttribute("aria-expanded", ui.suggestionsOpen); }
     dashboard.restore(ui);
@@ -793,6 +798,7 @@
     $('meta[name="color-scheme"]').content = theme;
     $("#theme-toggle").textContent = `Theme: ${themeChoice[0].toUpperCase()}${themeChoice.slice(1)}`;
     dashboard?.redraw();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
   }
   $("#theme-toggle").addEventListener("click", () => {
     themeChoice = THEMES[(THEMES.indexOf(themeChoice) + 1) % THEMES.length];

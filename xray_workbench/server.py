@@ -18,6 +18,7 @@ from . import MODEL, __version__, materials
 from ._types import JsonObject
 from .physics import presets
 from .results import run_calculation
+from .scattering import total_scattering
 from .sources import xray_sources
 
 
@@ -109,8 +110,7 @@ def material_detail(identifier: str, thickness_mm: float = 1.0) -> JsonObject:
         raise HTTPException(404, str(exc)) from exc
 
 
-@app.post("/api/calculate")
-async def calculate_request(request: Request) -> JsonObject:
+async def _answer(request: Request, respond: Callable[[Any], JsonObject]) -> JsonObject:
     if request.headers.get("content-type", "").split(";")[0].strip() != "application/json":
         raise HTTPException(415, "Send an application/json calculation configuration.")
     chunks = bytearray()
@@ -124,9 +124,20 @@ async def calculate_request(request: Request) -> JsonObject:
         payload = json.loads(chunks, parse_constant=invalid_constant)
         if not isinstance(payload, dict):
             raise ValueError("Configuration must be a JSON object.")
-        return await run_in_threadpool(run_calculation, payload)
+        return await run_in_threadpool(respond, payload)
     except (ValueError, TypeError, KeyError, OverflowError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/api/calculate")
+async def calculate_request(request: Request) -> JsonObject:
+    return await _answer(request, run_calculation)
+
+
+@app.post("/api/total-scattering")
+async def total_scattering_request(request: Request) -> JsonObject:
+    """Planning values for a total-scattering measurement of one layer."""
+    return await _answer(request, total_scattering)
 
 
 @app.get("/")

@@ -105,3 +105,16 @@ def test_dark_theme_is_generated_from_the_current_light_stylesheets():
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
     from build_dark_css import TARGET, generate
     assert TARGET.read_text(encoding="utf-8").replace("\r\n", "\n") == generate()
+
+
+def test_no_plot_offers_plotly_cloud_upload():
+    # Plotly's default toolbar includes "Share chart...", which uploads the chart.
+    # The page promises that nothing entered is uploaded, so every plot hides the toolbar.
+    import re
+    from pathlib import Path
+    static = Path(__file__).resolve().parents[1] / "static"
+    for name in ("materials.js", "scattering.js"):
+        options = re.findall(r"\{responsive: true[^}]*\}", (static / name).read_text(encoding="utf-8"))
+        assert options, name
+        assert all("displayModeBar: false" in option for option in options), name
+    assert "displayModeBar: false" in re.search(r"function plotOptions\(\).*", (static / "dashboard.js").read_text(encoding="utf-8")).group()

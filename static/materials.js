@@ -260,7 +260,7 @@
       xaxis: {type: "log", title: {text: "Photon energy (keV)"}, gridcolor: "#e3eaee", zeroline: false},
       yaxis: {type: "log", title: {text: "μ/ρ (cm²/g)"}, gridcolor: "#e3eaee", exponentformat: "power", zeroline: false},
       legend: {orientation: "h", y: 1.02, yanchor: "bottom", x: 0, font: {size: 12}}, paper_bgcolor: "#fff", plot_bgcolor: "#fff", hovermode: "x unified"};
-    if (window.Plotly) window.Plotly.react("ml-curve", traces, themed(layout), {responsive: true, displaylogo: false, modeBarButtonsToRemove: ["select2d", "lasso2d"]});
+    if (window.Plotly) window.Plotly.react("ml-curve", traces, themed(layout), {responsive: true, displayModeBar: false});
     const ref = main.reference;
     $("#ml-curve-summary").textContent = `At 60 keV: μ/ρ = ${fmt(ref.mu_mass_cm2_g)} cm²/g, μ = ${fmt(ref.mu_linear_cm_inv)} cm⁻¹, half-value layer ${fmt(ref.hvl_mm)} mm at ${fmt(d.density.value_g_cm3)} g/cm³` +
       (d.density.status !== "sourced" ? " (unverified density)." : ".") +
@@ -320,7 +320,7 @@
       yaxis: {type: "log", title: {text: `${axisTitle} at ${energy} keV`}, gridcolor: "#e3eaee", exponentformat: "power", zeroline: false},
       legend: {font: {size: 11}, bgcolor: "rgba(255,255,255,0.85)"}, paper_bgcolor: "#fff", plot_bgcolor: "#fff", hovermode: "closest"};
     if (!window.Plotly) { summary.textContent = "Plotting library unavailable."; return; }
-    await window.Plotly.react(plot, traces, themed(layout), {responsive: true, displaylogo: false});
+    await window.Plotly.react(plot, traces, themed(layout), {responsive: true, displayModeBar: false});
     plot.removeAllListeners?.("plotly_click");
     plot.on("plotly_click", event => { const id = event.points?.[0]?.customdata; if (id) select(id, true); });
     const shown = data.points.filter(p => visible.has(p.id));

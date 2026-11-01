@@ -71,6 +71,7 @@ The interface has automatic, light and dark themes, and removing a layer or comp
 
 - **Composition:** chemical formula parsing, automatic molecular masses, normalized wt% / mol% / at.% / vol% input, elemental mass breakdown, and illustrative materials presets.
 - **Materials library:** searchable compositions from NIST SRD 126 and PNNL-15870 Rev. 2, plus stoichiometric phases whose densities are typical values, clearly marked unverified. Compare curves, view a density-against-attenuation overview, and add any entry to the stack. See [docs/MATERIALS.md](docs/MATERIALS.md).
+- **Total scattering:** Qmax and r-grid step, number density, form factors, f′ and f″, Faber-Ziman pair weights, capillary μD, Compton shift, likely fluorescence, a source comparison, correlation-function definitions and references. It plans a measurement; it does not reduce data. See [docs/TOTAL_SCATTERING.md](docs/TOTAL_SCATTERING.md).
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
 - **Geometry:** multiple homogeneous planar layers, individual thicknesses or areal densities, and incidence angles measured from the surface normal.
 - **Energy:** X-ray anode lines, wavelength or energy input, 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.

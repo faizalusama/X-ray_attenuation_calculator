@@ -30,7 +30,7 @@ from urllib.request import urlopen
 ROOT = Path(__file__).resolve().parent.parent
 AUDIT_SCRIPT = (ROOT / "tools" / "ui_audit.js").read_text(encoding="utf-8")
 VIEWPORTS = {"desktop": (1440, 900), "tablet": (768, 1024), "phone": (375, 812)}
-ANALYSIS_VIEWS = ("materials", "spectrum", "uncertainty", "methods")
+ANALYSIS_VIEWS = ("materials", "spectrum", "uncertainty", "scattering", "methods")
 
 
 def _free_port() -> int:

@@ -2,7 +2,7 @@
 
 The application is a local Python FastAPI server, with static HTML/CSS/JS in `static/`.
 Scientific engine: `xray_workbench/physics.py`, exposing `calculate(payload: dict) -> dict` and `presets() -> list`.
-HTTP: GET `/api/presets` returns `{presets: [...]}`; GET `/api/xray-sources` returns `{sources: [{id, anode, line, name, energy_keV, wavelength_angstrom}]}`; POST `/api/calculate` accepts the request below and returns the result. Validation failures use HTTP 422 `{detail: string}`.
+HTTP: POST `/api/total-scattering` accepts `{layer, energy_keV, two_theta_max_deg, capillary_diameter_mm, target_q}` and returns planning values, described in `docs/TOTAL_SCATTERING.md`; GET `/api/materials`, `/api/materials/landscape` and `/api/materials/{id}` serve the materials library, described in `docs/MATERIALS.md`; GET `/api/presets` returns `{presets: [...]}`; GET `/api/xray-sources` returns `{sources: [{id, anode, line, name, energy_keV, wavelength_angstrom}]}`; POST `/api/calculate` accepts the request below and returns the result. Validation failures use HTTP 422 `{detail: string}`.
 
 ## Request
 ```json
