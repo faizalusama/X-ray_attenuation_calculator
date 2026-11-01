@@ -6,6 +6,13 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
   const clone = object => JSON.parse(JSON.stringify(object));
   const limits = Object.freeze({layers: 24, components: 40, spectrumBins: 10000, points: 4000});
+  const BASES = Object.freeze({
+    mass: {label: "wt% (mass)", column: "WT%", help: "Mass percent of the formulas entered."},
+    mole: {label: "mol%", column: "MOL%", help: "Mole percent of the formula units entered, so 20 mol% Na2O is not 20 at.% Na."},
+    atomic: {label: "at.% (elements)", column: "AT.%", help: "Atomic percent. Enter one element per row, such as Ca, Al, Si, O, N."},
+    volume: {label: "vol%", column: "VOL%", help: "Volume percent. Constituent densities are required."}
+  });
+  const EXPORT_BUTTONS = ["#export-csv", "#export-all-curves", "#export-json", "#export-svg", "#quick-export-svg", "#export-png", "#export-plot-data"];
   const colors = ["#218a74", "#7095b7", "#c29c62", "#9478ae", "#b57877", "#729285", "#869bc1", "#aea078"];
   const initial = {
     energy: {min_keV: 5, max_keV: 120, points: 500, spacing: "log", reference_keV: 30},
@@ -14,7 +21,7 @@
     spectrum: null,
     uncertainty: {enabled: false, samples: 1000, seed: 42}
   };
-  const state = {configuration: clone(initial), resultConfiguration: null, presets: [], openLayer: 0, result: null, revision: 0, activeRequest: 0, busy: false, tab: "overview", mode: "transmission", channelLayer: 0, hiddenSeries: new Set(), chart: null, stale: false};
+  const state = {configuration: clone(initial), resultConfiguration: null, presets: [], openLayer: 0, result: null, revision: 0, activeRequest: 0, busy: false, tab: "overview", sources: [], mode: "transmission", channelLayer: 0, hiddenSeries: new Set(), chart: null, stale: false};
   let toastTimer;
   let live, dashboard;
   state.lengthUnit = "mm";
@@ -22,6 +29,17 @@
   const displayUnits = typeof AttenuationDashboard !== "undefined" ? AttenuationDashboard : (typeof require === "function" ? require("./dashboard.js") : null);
   const displayLength = value => displayUnits.fromMM(value, state.lengthUnit);
   const canonicalLength = value => displayUnits.toMM(value, state.lengthUnit);
+  const LENGTH_ALIASES = Object.freeze({um: "µm", "μm": "µm"});
+  // Reads a thickness field: a bare number is in the display unit; "2 mm", "500 µm" or "0.2 cm" carry their own.
+  // Returns millimetres (the canonical unit), null when empty, NaN for an unknown unit or malformed number.
+  function parseLength(source, displayUnit = "mm") {
+    const text = String(source ?? "").trim();
+    if (!text) return null;
+    const match = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)\s*([^\s\d.+-]*)$/i.exec(text);
+    if (!match) return NaN;
+    const typed = match[2].toLowerCase(), unit = typed ? LENGTH_ALIASES[typed] || typed : displayUnit;
+    return Object.hasOwn(displayUnits.LENGTH_UNITS, unit) ? displayUnits.toMM(Number(match[1]), unit) : NaN;
+  }
   const STORAGE_KEY = "attenuation-lab-workspace-v1";
   function remember() {
     if (!dashboard) return;
@@ -88,11 +106,19 @@
   }
   function percent(value) { return value == null ? "—" : number(value * 100, 4); }
   function numeric(input) { return input.value === "" ? null : Number(input.value); }
-  function toast(message) {
+  function toast(message, action = null) {
     clearTimeout(toastTimer);
-    $("#toast").textContent = message;
-    $("#toast").hidden = false;
-    toastTimer = setTimeout(() => { $("#toast").hidden = true; }, 3300);
+    const box = $("#toast");
+    box.textContent = message;
+    if (action) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = action.label;
+      button.addEventListener("click", () => { box.hidden = true; clearTimeout(toastTimer); action.run(); });
+      box.append(" ", button);
+    }
+    box.hidden = false;
+    toastTimer = setTimeout(() => { box.hidden = true; }, action ? 8000 : 3300);
   }
   function error(message) {
     $("#notification").textContent = message;
@@ -114,7 +140,7 @@
   function markPending(message) {
     $("#live-update-banner").hidden = false;
     $("#live-update-banner").textContent = `${message}${state.result ? " Showing the previous calculation until the new inputs are valid and evaluated." : " Complete the inputs to see the live result."}`;
-    ["#export-csv", "#export-json", "#export-svg", "#quick-export-svg"].forEach(id => { $(id).disabled = true; });
+    EXPORT_BUTTONS.forEach(id => { $(id).disabled = true; });
     $("#results-workspace").classList.toggle("results-pending", !!state.result);
   }
   function syncSliders() {
@@ -124,6 +150,11 @@
       if (!Number.isFinite(value)) return;
       if (slider.dataset.sliderField === "thickness_mm") slider.max = Math.max(displayLength(10), Number(slider.max), value > Number(slider.max) ? value * 1.2 : Number(slider.max));
       slider.value = value;
+      const box = slider.closest(".slider-box");
+      const output = box?.querySelector("[data-slider-output]");
+      const maximum = box?.querySelector("[data-slider-maximum]");
+      if (output) output.textContent = slider.dataset.sliderField === "thickness_mm" ? `${number(value)} ${state.lengthUnit}` : `${number(value)}°`;
+      if (maximum) maximum.textContent = slider.dataset.sliderField === "thickness_mm" ? `${number(Number(slider.max))} ${state.lengthUnit}` : `${number(Number(slider.max))}°`;
     });
     const energy = state.configuration.energy;
     if (energy.min_keV > 0 && energy.max_keV > energy.min_keV) {
@@ -131,32 +162,50 @@
       $("#reference-slider").max = energy.max_keV;
     }
     if (Number.isFinite(energy.reference_keV)) $("#reference-slider").value = energy.reference_keV;
+    syncSource();
+  }
+  // The source list shows a line only while the reference energy still equals it exactly.
+  function syncSource() {
+    const reference = state.configuration.energy.reference_keV;
+    const match = state.sources.find(source => source.energy_keV === reference);
+    $("#xray-source").value = match ? match.id : "custom";
+    const wavelength = $("#energy-wavelength");
+    if (document.activeElement !== wavelength) wavelength.value = reference > 0 ? Number((displayUnits.HC_KEV_ANGSTROM / reference).toPrecision(7)) : "";
+  }
+  function setReference(value) {
+    state.configuration.energy.reference_keV = value;
+    $("#energy-reference").value = value;
+    dirty();
   }
   function geometrySlider(fieldName, value, index, label, maximum) {
-    return `<label class="slider-label"><span>${label}</span><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${fieldName === "angle_deg" ? -89.8 : 0}" max="${maximum}" value="${esc(value)}" step="any"></label>`;
+    const thickness = fieldName === "thickness_mm";
+    const minimum = thickness ? 0 : -89.8;
+    const unit = thickness ? state.lengthUnit : "°";
+    return `<label class="slider-box ${thickness ? "thickness-slider" : "angle-slider"}"><span class="slider-heading"><span>${label}</span><output data-slider-output>${number(value)} ${unit}</output></span><span class="slider-track-shell"><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${minimum}" max="${maximum}" value="${esc(value)}" step="any"></span><span class="slider-scale"><span>${number(minimum)} ${unit}</span><span data-slider-maximum>${number(maximum)} ${unit}</span></span></label>`;
   }
-  function field(label, name, value, index, extra = "", unit = "") {
-    return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="number" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
+  function field(label, name, value, index, extra = "", unit = "", type = "number") {
+    return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="${type}" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
   }
   function renderLayers() {
     const layers = state.configuration.layers;
     $("#layer-count").textContent = `${layers.length} LAYER${layers.length === 1 ? "" : "S"}`;
     $("#layer-list").innerHTML = layers.map((layer, index) => {
       const isOpen = state.openLayer === index;
-      const ideal = layer.density_mode === "ideal";
+      const ideal = layer.density_mode === "ideal", areal = layer.areal_density_mg_cm2 != null, basis = BASES[layer.basis];
       return `<article class="layer-card ${isOpen ? "open" : ""}">
         <div class="layer-header"><span class="layer-number">${String(index + 1).padStart(2, "0")}</span><button type="button" class="layer-toggle" data-action="toggle" data-index="${index}" aria-expanded="${isOpen}" aria-controls="layer-body-${index}"><span>${esc(layer.name)}</span><span class="chevron">⌄</span></button><div class="layer-tools"><button type="button" class="mini-button" data-action="up" data-index="${index}" title="Move layer up" aria-label="Move ${esc(layer.name)} up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" class="mini-button" data-action="down" data-index="${index}" title="Move layer down" aria-label="Move ${esc(layer.name)} down" ${index === layers.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="mini-button danger" data-action="remove" data-index="${index}" title="Remove layer" aria-label="Remove ${esc(layer.name)}" ${layers.length === 1 ? "disabled" : ""}>×</button></div></div>
         <div class="layer-body" id="layer-body-${index}" ${isOpen ? "" : "hidden"}>
           <label>Material name<input type="text" value="${esc(layer.name)}" data-layer="${index}" data-field="name" required maxlength="200"></label>
-          <div class="composition-heading"><span>Composition</span><select data-layer="${index}" data-field="basis" aria-label="Composition fraction basis"><option value="mass" ${layer.basis === "mass" ? "selected" : ""}>Mass parts</option><option value="mole" ${layer.basis === "mole" ? "selected" : ""}>Mole parts</option><option value="volume" ${layer.basis === "volume" ? "selected" : ""}>Volume parts</option></select></div>
-          <div class="composition-grid composition-labels"><span>FORMULA</span><span>PARTS</span><span>ρ · g/cm³</span><span></span></div>
+          <div class="composition-heading"><span>Composition</span><select data-layer="${index}" data-field="basis" aria-label="Composition fraction basis">${Object.entries(BASES).map(([value, item]) => `<option value="${value}" ${layer.basis === value ? "selected" : ""}>${item.label}</option>`).join("")}</select></div>
+          <div class="composition-grid composition-labels"><span>${layer.basis === "atomic" ? "ELEMENT" : "FORMULA"}</span><span>${basis.column}</span><span>ρ · g/cm³</span><span></span></div>
           ${layer.components.map((component, ci) => `<div class="composition-grid component-row"><input type="text" value="${esc(component.formula)}" data-layer="${index}" data-component="${ci}" data-component-field="formula" required aria-label="Component ${ci + 1} chemical formula" placeholder="SiO2"><input type="number" value="${esc(component.fraction)}" data-layer="${index}" data-component="${ci}" data-component-field="fraction" min="0" step="any" required aria-label="Component ${ci + 1} fraction parts"><input type="number" value="${esc(component.density_g_cm3 ?? "")}" data-layer="${index}" data-component="${ci}" data-component-field="density_g_cm3" min="0.000000000001" max="10000" step="any" ${ideal || layer.basis === "volume" ? "required" : ""} aria-label="Component ${ci + 1} density in grams per cubic centimetre" placeholder="${ideal || layer.basis === "volume" ? "req." : "opt."}"><button type="button" class="mini-button danger" data-action="remove-component" data-index="${index}" data-component="${ci}" aria-label="Remove component ${ci + 1}" ${layer.components.length === 1 ? "disabled" : ""}>×</button></div>`).join("")}
           <button type="button" class="add-component" data-action="add-component" data-index="${index}">+ Add component</button>
-          <div class="density-help">Relative parts are normalized automatically.${layer.basis === "volume" ? " Constituent densities are required." : " Chemical formula units define mole parts."}</div>
+          <div class="density-help">${basis.help} Values are normalized automatically, so 80, 15, 5 and 0.8, 0.15, 0.05 are the same.</div>
           <div class="field-grid"><label>Density model<select data-layer="${index}" data-field="density_mode"><option value="bulk" ${layer.density_mode === "bulk" ? "selected" : ""}>Measured bulk</option><option value="solid" ${layer.density_mode === "solid" ? "selected" : ""}>Solid + porosity</option><option value="ideal" ${ideal ? "selected" : ""}>Ideal mixture</option></select></label>${field(ideal ? "Density (computed)" : layer.density_mode === "solid" ? "Solid density · g/cm³" : "Bulk density · g/cm³", "density_g_cm3", ideal ? "" : layer.density_g_cm3, index, `${ideal ? 'placeholder="Computed automatically"' : ""} min="0.000000000001" max="10000" ${ideal ? "disabled" : "required"}`)}</div>
           ${layer.density_mode !== "bulk" ? `<div class="field-grid">${field("Porosity · fraction", "porosity", layer.porosity, index, 'min="0" max="0.999999" required')}<p class="density-help">${ideal ? "Additive constituent volume; measured densities are preferred." : "Effective density = solid density × (1 − porosity)."}</p></div>` : '<div class="density-help">Measured bulk density already accounts for pores.</div>'}
-          <div class="field-grid layer-bottom-fields">${field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `min="0" max="${displayLength(1e9)}" required`, state.lengthUnit)}${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}</div>
-          <div class="geometry-sliders">${geometrySlider("thickness_mm", displayLength(layer.thickness_mm), index, `Explore thickness · ${state.lengthUnit}`, displayLength(Math.max(10, layer.thickness_mm * 1.2)))}${geometrySlider("angle_deg", layer.angle_deg, index, "Explore angle", 89.8)}</div>
+          <div class="field-grid layer-bottom-fields"><label>Specify by<select data-layer="${index}" data-thickness-mode aria-label="Specify layer by thickness or areal density"><option value="length" ${areal ? "" : "selected"}>Thickness</option><option value="areal" ${areal ? "selected" : ""}>Areal density</option></select></label>${areal ? field("Areal density", "areal_density_mg_cm2", layer.areal_density_mg_cm2, index, 'min="0" max="1000000000" required', "mg/cm²") : field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `inputmode="decimal" autocomplete="off" spellcheck="false" required title="A number in ${state.lengthUnit}, or with its own unit: 2 mm, 500 µm, 0.2 cm"`, state.lengthUnit, "text")}</div>
+          <div class="field-grid">${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}${areal ? '<p class="density-help">Thickness follows from the density. Optical depth depends only on the areal density.</p>' : ""}</div>
+          <div class="geometry-sliders">${areal ? "" : geometrySlider("thickness_mm", displayLength(layer.thickness_mm), index, `Explore thickness · ${state.lengthUnit}`, displayLength(Math.max(10, layer.thickness_mm * 1.2)))}${geometrySlider("angle_deg", layer.angle_deg, index, "Explore angle", 89.8)}</div>
         </div></article>`;
     }).join("");
     renderUncertaintyInputs();
@@ -247,6 +296,8 @@
       if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : Array.isArray(result.detail) ? result.detail.map(item => item.msg || JSON.stringify(item)).join("; ") : "The calculation could not be completed.");
       if (requestId !== state.activeRequest) return;
       if (revision !== state.revision) return;
+      // A layer given by areal density gets its thickness from the engine, which knows the effective density.
+      config.layers.forEach((layer, index) => { if (layer.areal_density_mg_cm2 != null) layer.thickness_mm = result.layers[index].thickness_mm; });
       state.result = result;
       state.resultConfiguration = clone(config);
       state.savedConfiguration = clone(config);
@@ -280,9 +331,9 @@
     const result = state.result;
     const ref = result?.reference;
     const first = result?.layers?.[0];
-    const energyNote = result ? `At ${number(ref.energy_keV)} keV` : "Updating automatically";
+    const energyNote = result ? `At ${number(ref.energy_keV)} keV · ${number(displayUnits.HC_KEV_ANGSTROM / ref.energy_keV)} Å` : "Updating automatically";
     $("#metrics").innerHTML = metric("Reference transmission", ref ? percent(ref.transmission) : "—", "%", energyNote + (ref ? " · primary beam" : ""), "↗") + metric("Optical depth", ref ? number(ref.optical_depth) : "—", "", energyNote, "τ") + metric("Half-value layer", first ? number(displayLength(first.reference.hvl_mm)) : "—", state.lengthUnit, first ? `${first.name} · path length` : "First material · path length", "½") + metric("Attenuation length", first ? number(displayLength(first.reference.attenuation_length_mm)) : "—", state.lengthUnit, first ? `${first.name} · path length` : "First material · path length", "ℓ");
-    ["#export-csv", "#export-json", "#export-svg", "#quick-export-svg"].forEach(id => { $(id).disabled = !result || state.stale; });
+    EXPORT_BUTTONS.forEach(id => { $(id).disabled = !result || state.stale; });
     $("#warnings").hidden = !result?.warnings?.length;
     $("#warnings").innerHTML = result?.warnings?.length ? `<strong>Model notes</strong><ul>${result.warnings.map(warning => `<li>${esc(warning)}</li>`).join("")}</ul>` : "";
     $("#plot-context").textContent = result ? `${result.energy_keV.length.toLocaleString()} energies · ${state.resultConfiguration.energy.spacing === "log" ? "Logarithmic" : "Linear"} x-axis · ${result.edges?.length || 0} reported edges` : "Direct evaluation at every energy";
@@ -294,6 +345,7 @@
     renderSpectrum();
     renderUncertainty();
     renderSuggestions();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
   }
   function renderStack() {
     const layers = state.resultConfiguration?.layers || state.configuration.layers;
@@ -305,9 +357,35 @@
     return `<div class="detail-metric"><span>${label}</span><strong>${number(value)}<small>${unit}</small></strong></div>`;
   }
   function empty(message) { return `<div class="empty-state">${esc(message)}</div>`; }
+
+  function thicknessCurve(mu_cm_inv, maximum_mm, angle_deg = 0) {
+    if (![mu_cm_inv, maximum_mm, angle_deg].every(Number.isFinite) || mu_cm_inv < 0 || maximum_mm <= 0 || Math.abs(angle_deg) >= 89.9) throw new Error("Invalid thickness-plot range or angle.");
+    const thickness_mm = Array.from({length: 201}, (_, i) => maximum_mm * i / 200);
+    return {thickness_mm, transmission: thickness_mm.map(t => Math.exp(-mu_cm_inv * t / (10 * Math.cos(angle_deg * Math.PI / 180))))};
+  }
+  function renderThicknessPlot() {
+    const host = $("#materials-thickness");
+    host.hidden = !state.result;
+    if (!state.result || !window.Plotly || state.tab !== "materials") return;
+    try {
+      const max = Number($("#thickness-maximum").value);
+      const traces = state.result.layers.map((layer, i) => {
+        const curve = thicknessCurve(layer.reference.mu_linear_cm_inv, max, state.resultConfiguration.layers[i].angle_deg || 0);
+        return {type: "scatter", mode: "lines", name: layer.name, x: curve.thickness_mm.map(displayLength), y: curve.transmission.map(t => t * 100), line: {color: colors[i % colors.length], width: 2.5}};
+      });
+      const dark = document.documentElement.dataset.theme === "dark";
+      window.Plotly.react("thickness-plot", traces, {title: {text: "Transmission at " + number(state.result.reference.energy_keV) + " keV", font: {size: 16}},
+        xaxis: {title: {text: "Normal thickness (" + state.lengthUnit + ")"}}, yaxis: {title: {text: "Transmission (%)"}, range: [0, 100]},
+        margin: {l: 64, r: 20, t: 46, b: 58}, paper_bgcolor: dark ? "#18222c" : "#fff", plot_bgcolor: dark ? "#18222c" : "#fff",
+        font: {color: dark ? "#dbe5ee" : "#253647", size: 13}, legend: {orientation: "h"}, hovermode: "x unified"},
+        {responsive: true, displayModeBar: false});
+      $("#thickness-status").textContent = "Each material separately, using its configured angle from the normal and effective density.";
+    } catch (exception) { $("#thickness-status").textContent = exception.message; window.Plotly.purge("thickness-plot"); }
+  }
   function renderMaterials() {
+    renderThicknessPlot();
     if (!state.result) { $("#materials-results").innerHTML = empty(state.stale ? "Your configuration has changed. Calculate to refresh material properties." : "Calculate your system to inspect material properties."); return; }
-    $("#materials-results").innerHTML = state.result.layers.map((layer, index) => `<article class="panel material-result"><h3><span class="section-number">${String(index + 1).padStart(2, "0")}</span> ${esc(layer.name)}</h3><div class="material-meta"><span>Effective density <strong>${number(layer.density_g_cm3)} g/cm³</strong></span><span>Normal thickness <strong>${number(displayLength(layer.thickness_mm))} ${state.lengthUnit}</strong></span><span>Ray path <strong>${number(displayLength(layer.path_length_mm))} ${state.lengthUnit}</strong></span></div><div class="eyebrow subtle">REFERENCE · ${number(state.result.reference.energy_keV)} keV</div><div class="detail-metrics">${detailMetric("Mass attenuation", layer.reference.mu_mass_cm2_g, "cm²/g")}${detailMetric("Linear attenuation", layer.reference.mu_linear_cm_inv, "cm⁻¹")}${detailMetric("Layer transmission", layer.reference.transmission * 100, "%")}${detailMetric("Half-value layer", displayLength(layer.reference.hvl_mm), state.lengthUnit)}${detailMetric("Tenth-value layer", displayLength(layer.reference.tvl_mm), state.lengthUnit)}${detailMetric("Attenuation length", displayLength(layer.reference.attenuation_length_mm), state.lengthUnit)}</div><p class="help-text">Attenuation lengths are path lengths in this material, evaluated directly at the reference energy.</p><div class="eyebrow subtle">ELEMENTAL MASS FRACTIONS</div><div class="composition-breakdown">${Object.entries(layer.elemental_mass_fractions).sort((a,b) => b[1] - a[1]).map(([element, fraction]) => `<span class="element-chip"><strong>${esc(element)}</strong>${percent(fraction)}%</span>`).join("")}</div><div class="table-wrap"><table class="component-table"><thead><tr><th>Component formula</th><th>Normalized mass fraction</th><th>Molar mass · g/mol</th></tr></thead><tbody>${layer.components.map(component => `<tr><td>${esc(component.formula)}</td><td>${percent(component.mass_fraction)}%</td><td>${number(component.molar_mass_g_mol, 6)}</td></tr>`).join("")}</tbody></table></div></article>`).join("");
+    $("#materials-results").innerHTML = state.result.layers.map((layer, index) => `<article class="panel material-result"><h3><span class="section-number">${String(index + 1).padStart(2, "0")}</span> ${esc(layer.name)}</h3><div class="material-meta"><span>Effective density <strong>${number(layer.density_g_cm3)} g/cm³</strong></span><span>Normal thickness <strong>${number(displayLength(layer.thickness_mm))} ${state.lengthUnit}</strong></span><span>Ray path <strong>${number(displayLength(layer.path_length_mm))} ${state.lengthUnit}</strong></span><span>Areal density <strong>${number(layer.density_g_cm3 * layer.thickness_mm * 100)} mg/cm²</strong></span></div><div class="eyebrow subtle">REFERENCE · ${number(state.result.reference.energy_keV)} keV</div><div class="detail-metrics">${detailMetric("Mass attenuation", layer.reference.mu_mass_cm2_g, "cm²/g")}${detailMetric("Linear attenuation", layer.reference.mu_linear_cm_inv, "cm⁻¹")}${detailMetric("Layer transmission", layer.reference.transmission * 100, "%")}${detailMetric("Half-value layer", displayLength(layer.reference.hvl_mm), state.lengthUnit)}${detailMetric("Tenth-value layer", displayLength(layer.reference.tvl_mm), state.lengthUnit)}${detailMetric("Attenuation length", displayLength(layer.reference.attenuation_length_mm), state.lengthUnit)}</div><p class="help-text">Attenuation lengths are path lengths in this material, evaluated directly at the reference energy.</p><div class="eyebrow subtle">ELEMENTAL MASS FRACTIONS</div><div class="composition-breakdown">${Object.entries(layer.elemental_mass_fractions).sort((a,b) => b[1] - a[1]).map(([element, fraction]) => `<span class="element-chip"><strong>${esc(element)}</strong>${percent(fraction)}%</span>`).join("")}</div><div class="table-wrap"><table class="component-table"><thead><tr><th>Component formula</th><th>Normalized mass fraction</th><th>Molar mass · g/mol</th></tr></thead><tbody>${layer.components.map(component => `<tr><td>${esc(component.formula)}</td><td>${percent(component.mass_fraction)}%</td><td>${number(component.molar_mass_g_mol, 6)}</td></tr>`).join("")}</tbody></table></div></article>`).join("");
   }
   function renderSpectrum() {
     const spectrum = state.result?.spectrum;
@@ -392,8 +470,10 @@
     $$('[role="tabpanel"]').forEach(panel => { panel.hidden = panel.id !== `view-${name}`; });
     if (name === "overview") renderChart();
     if (name === "spectrum") renderSpectrum();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
   }
   function download(contents, filename, type) {
+    if (window.AttenuationWeb) { window.AttenuationWeb.download(contents, filename, type); return; }
     // Native HTTP attachments also work in embedded browsers that block blob URLs.
     let frame = $("#download-target");
     if (!frame) {frame=document.createElement("iframe");frame.id="download-target";frame.name="download-target";frame.hidden=true;frame.title="File export";document.body.appendChild(frame);}
@@ -424,6 +504,42 @@
     const rows = [headers.map(csvCell).join(","), ...result.energy_keV.map((_, index) => [...arrays.map(array => csvCell(array[index])), ...provenance].join(","))];
     download(rows.join("\r\n")+"\r\n","attenuation-sweep.csv","text/csv;charset=utf-8");
     toast("Energy sweep exported with full numeric precision and provenance.");
+  }
+  function csvText(headers, rows) {
+    return [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  }
+  const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+  // A clean table for plotting software, with a separate file saying what produced it.
+  async function exportAllCurves() {
+    if (!state.result || state.stale) return;
+    const result = state.result, table = displayUnits.allCurvesTable(result);
+    const settings = {
+      software: {name: "X-ray Attenuation Calculator for Multicomponent Materials", version: result.provenance.workbench_version, concept_doi: "10.5281/zenodo.17602370"},
+      note: "Narrow-beam primary transmission. Lengths are in mm. HVL, TVL and attenuation length are path lengths in each material.",
+      columns: table.columns,
+      layers: result.layers.map((layer, index) => ({layer: index + 1, name: layer.name, density_g_cm3: layer.density_g_cm3, normal_thickness_mm: layer.thickness_mm, path_length_mm: layer.path_length_mm, areal_density_mg_cm2: layer.density_g_cm3 * layer.thickness_mm * 100, components: layer.components, elemental_mass_fractions: layer.elemental_mass_fractions, at_reference_energy: layer.reference})),
+      reference: result.reference, edges: result.edges, warnings: result.warnings, configuration: state.resultConfiguration, provenance: result.provenance
+    };
+    download(csvText(table.headers, table.rows), "attenuation-all-curves.csv", "text/csv;charset=utf-8");
+    await pause(500);
+    download(JSON.stringify(settings, null, 2) + "\n", "attenuation-all-curves-settings.json", "application/json");
+    if (result.spectrum) {
+      await pause(500);
+      download(csvText(["energy_keV", "input_weight", "transmitted_weight"], result.spectrum.energy_keV.map((energy, i) => [energy, result.spectrum.input_weights[i], result.spectrum.transmitted_weights[i]])), "attenuation-spectrum.csv", "text/csv;charset=utf-8");
+    }
+    toast(`Exported ${table.headers.length} columns at ${table.rows.length} energies, with a settings file.`);
+  }
+  function exportPlotData() {
+    if (!state.result || state.stale || !dashboard) return;
+    const table = dashboard.plotData();
+    download(csvText(table.headers, table.rows), `attenuation-plot-${table.mode}.csv`, "text/csv;charset=utf-8");
+    toast("Plot data exported in the units shown.");
+  }
+  function saveImage(url, filename) {
+    const link = document.createElement("a");
+    link.href = url; link.download = filename;
+    document.body.appendChild(link); link.click(); link.remove();
+    toast("Plot exported as a high-resolution PNG.");
   }
   function exportedSVG(chartMarkup, chart, provenance, configuration, mode, hasInterval) {
     const lines = (value, limit = Math.max(22, Math.floor((chart.width - 95) / 6))) => String(value).match(new RegExp(`.{1,${limit}}(?:\\s|$)|.{1,${limit}}`, "g"))?.map(line => line.trim()) || [""];
@@ -495,7 +611,7 @@
     config.layers = c.layers.map((entry, index) => {
       const layer = object(entry, `Layer ${index + 1}`), name = text(layer.name, "Material name", `Material ${index + 1}`);
       const basis = optional(layer.basis, "mass"), mode = optional(layer.density_mode, "bulk");
-      if (!["mass", "mole", "volume"].includes(basis) || !["bulk", "solid", "ideal"].includes(mode)) throw new Error(`Layer ${index + 1} has an unsupported fraction basis or density model.`);
+      if (!["mass", "mole", "atomic", "volume"].includes(basis) || !["bulk", "solid", "ideal"].includes(mode)) throw new Error(`Layer ${index + 1} has an unsupported fraction basis or density model.`);
       if (!Array.isArray(layer.components) || !layer.components.length || layer.components.length > limits.components) throw new Error(`Layer ${index + 1} must have 1–${limits.components} components.`);
       const next = {name, basis, density_mode: mode, components: layer.components.map((component, ci) => {
         object(component, `Layer ${index + 1}, component ${ci + 1}`);
@@ -508,6 +624,7 @@
       if (!next.components.some(component => component.fraction > 0)) throw new Error(`Layer ${index + 1} needs at least one positive component fraction.`);
       next.density_g_cm3 = finite(mode === "ideal" ? optional(layer.density_g_cm3, 1) : layer.density_g_cm3, "Material density", 1e-12, 1e4);
       next.thickness_mm = finite(optional(layer.thickness_mm, 1), "Normal thickness", 0, 1e9);
+      if (layer.areal_density_mg_cm2 != null) next.areal_density_mg_cm2 = finite(layer.areal_density_mg_cm2, "Areal density", 0, 1e9);
       next.angle_deg = finite(optional(layer.angle_deg, 0), "Angle from normal", -89.9, 89.9);
       if (Math.abs(next.angle_deg) >= 89.9) throw new Error("Angle must lie strictly between −89.9° and 89.9°.");
       next.porosity = finite(optional(layer.porosity, 0), "Porosity", 0, 1);
@@ -526,8 +643,47 @@
     return config;
   }
 
+
+  const MAX_SHARE_BYTES = 262144, MAX_SHARE_FRAGMENT = 65536;
+  async function boundedBytes(stream) {
+    const reader = stream.getReader(), chunks = []; let size = 0;
+    try {
+      for (;;) {
+        const {value, done} = await reader.read(); if (done) break;
+        size += value.byteLength;
+        if (size > MAX_SHARE_BYTES) throw new Error("Shared project is too large. Use a project file.");
+        chunks.push(value);
+      }
+    } finally { await reader.cancel(); reader.releaseLock(); }
+    const output = new Uint8Array(size); let offset = 0;
+    for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+    return output;
+  }
+  async function encodeSharedProject(configuration, compress = true) {
+    let bytes = new TextEncoder().encode(JSON.stringify({schema_version: 1, configuration: cleanProject({schema_version: 1, configuration})}));
+    if (bytes.length > MAX_SHARE_BYTES) throw new Error("Project is too large for a link. Use a project file.");
+    const gzip = compress && typeof CompressionStream !== "undefined";
+    if (gzip) bytes = await boundedBytes(new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip")));
+    let binary = ""; for (const byte of bytes) binary += String.fromCharCode(byte);
+    const encoded = btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+    if (encoded.length > MAX_SHARE_FRAGMENT) throw new Error("Project is too large for a link. Use a project file.");
+    return "#p1" + (gzip ? "g" : "r") + "." + encoded;
+  }
+  async function decodeSharedProject(fragment) {
+    if (!fragment.startsWith("#p1")) return null;
+    if (fragment.length > MAX_SHARE_FRAGMENT + 6 || !/^#p1[gr]\.[A-Za-z0-9_-]+$/.test(fragment)) throw new Error("Invalid shared project link.");
+    const binary = atob(fragment.slice(5).replaceAll("-", "+").replaceAll("_", "/"));
+    let bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    if (fragment[3] === "g") {
+      if (typeof DecompressionStream === "undefined") throw new Error("This browser cannot open compressed links. Use a project file.");
+      bytes = await boundedBytes(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")));
+    }
+    if (bytes.length > MAX_SHARE_BYTES) throw new Error("Shared project is too large.");
+    return cleanProject(JSON.parse(new TextDecoder("utf-8", {fatal: true}).decode(bytes)));
+  }
+
   // Pure data helpers are also exercised directly by Node regression tests.
-  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, parseSpectrumText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
+  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, thicknessCurve, encodeSharedProject, decodeSharedProject, parseSpectrumText, parseLength, csvText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
   if (typeof document === "undefined") return;
 
   $("#config-form").noValidate=true;
@@ -552,7 +708,7 @@
       dirty();
     }else if(input.dataset.field){
       const layer=state.configuration.layers[Number(input.dataset.layer)];
-      layer[input.dataset.field]=input.dataset.field==="thickness_mm"?canonicalLength(numeric(input)):input.type==="number"?numeric(input):input.value;
+      layer[input.dataset.field]=input.dataset.field==="thickness_mm"?parseLength(input.value,state.lengthUnit):input.type==="number"?numeric(input):input.value;
       if(input.dataset.field==="name") {
         const toggle=$(`[data-action="toggle"][data-index="${input.dataset.layer}"]`);
         if(toggle) toggle.firstElementChild.textContent=input.value;
@@ -560,6 +716,7 @@
       }
       dirty();
     }else if(input.dataset.energy){state.configuration.energy[input.dataset.energy]=input.type==="number"?numeric(input):input.value;dirty();}
+    else if(input.id==="energy-wavelength"){if(numeric(input)>0)setReference(displayUnits.HC_KEV_ANGSTROM/numeric(input));}
     else if(input.id==="target-transmission"){state.configuration.target_transmission=numeric(input);dirty();}
     else if(["spectrum-label","spectrum-data","spectrum-weighting","spectrum-enabled","uncertainty-enabled","uncertainty-samples","uncertainty-seed"].includes(input.id)){dirty();}
   });
@@ -570,10 +727,30 @@
       if(layer.density_mode==="bulk") layer.porosity=0;
       renderLayers();
     } else if(input.dataset.field==="basis") renderLayers();
+    else if(input.dataset.thicknessMode!==undefined) {
+      const index=Number(input.dataset.layer),layer=state.configuration.layers[index];
+      if(input.value==="areal") layer.areal_density_mg_cm2=Number(((state.result?.layers[index]?.density_g_cm3??layer.density_g_cm3)*layer.thickness_mm*100).toPrecision(6));
+      else delete layer.areal_density_mg_cm2;
+      renderLayers();dirty();
+    }
+    else if(input.id==="xray-source"&&input.value!=="custom") {
+      const source=state.sources.find(item=>item.id===input.value),energy=state.configuration.energy;
+      setReference(source.energy_keV);
+      toast(`${source.name}: ${number(source.energy_keV)} keV, ${number(source.wavelength_angstrom)} Å.${source.energy_keV<energy.min_keV||source.energy_keV>energy.max_keV?" This lies outside the plotted energy range.":""}`);
+    }
+    else if(input.dataset.field==="thickness_mm") {
+      // Once committed, a typed unit is shown converted to the display unit, so the field never mixes units.
+      const value=state.configuration.layers[Number(input.dataset.layer)].thickness_mm;
+      if(Number.isFinite(value)&&/[^\d\s.eE+-]/.test(input.value)) input.value=displayLength(value);
+    }
   });
   $("#layer-list").addEventListener("click",event=>{
     const button=event.target.closest("[data-action]");if(!button)return;
     const index=Number(button.dataset.index),action=button.dataset.action,layers=state.configuration.layers;
+    if(action==="remove"||action==="remove-component"){
+      const before=clone(state.configuration),open=state.openLayer;
+      toast(action==="remove"?`Removed ${layers[index].name}.`:"Removed the component.",{label:"Undo",run(){state.configuration=before;state.openLayer=open;syncControls();dirty();}});
+    }
     if(action==="toggle"){state.openLayer=state.openLayer===index?-1:index;renderLayers();return;}
     if(action==="remove"&&layers.length>1){layers.splice(index,1);state.openLayer=Math.min(index,layers.length-1);}
     if(action==="up"&&index>0){[layers[index-1],layers[index]]=[layers[index],layers[index-1]];state.openLayer=index-1;}
@@ -590,6 +767,25 @@
     state.configuration.layers.push(layer);state.openLayer=state.configuration.layers.length-1;dirty();renderLayers();
     if(preset?.description)toast(preset.description);
   });
+  // Narrow public hook for optional modules such as the materials library. Layers
+  // enter through the same path as presets, so limits, live recalculation and
+  // browser memory all apply; nothing else about the application is exposed.
+  window.AttenuationWorkbench = Object.freeze({
+    addLayer(layer, message = "") {
+      if (state.configuration.layers.length >= limits.layers) { error(`This workspace supports up to ${limits.layers} layers.`); return false; }
+      const copy = clone(layer);
+      copy.density_uncertainty_pct ??= 0; copy.thickness_uncertainty_pct ??= 0;
+      state.configuration.layers.push(copy); state.openLayer = state.configuration.layers.length - 1;
+      dirty(); renderLayers();
+      if (message) toast(message);
+      return true;
+    },
+    layerCount: () => state.configuration.layers.length,
+    energy: () => clone(state.configuration.energy),
+    layers: () => clone(state.resultConfiguration?.layers || []),
+    referenceEnergy: () => state.result?.reference.energy_keV,
+    download,
+  });
   $$("[data-tab]").forEach(button=>button.addEventListener("click",()=>activateTab(button.dataset.tab)));
   $(".tabs").addEventListener("keydown",event=>{
     if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
@@ -603,11 +799,54 @@
     resizeTimer=setTimeout(()=>{if(state.tab==="overview")renderChart();if(state.tab==="spectrum")renderSpectrum();},100);
   });
   $("#export-csv").addEventListener("click",exportCSV);
+  $("#export-all-curves").addEventListener("click",exportAllCurves);
+  $("#export-plot-data").addEventListener("click",exportPlotData);
+  $("#export-png").addEventListener("click",async()=>{try{await dashboard.exportPNG();}catch(exception){error(`Could not export figure: ${exception.message}`);}});
   $("#export-svg").addEventListener("click",exportSVG);
   $("#quick-export-svg").addEventListener("click",exportSVG);
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
   $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
+  $("#cite-this").addEventListener("click", async () => {
+    try {
+      const response = await fetch("/api/citation");
+      if (!response.ok) throw new Error("Citation metadata unavailable.");
+      const c = await response.json();
+      $("#citation-bibtex").value = c.bibtex; $("#citation-note").textContent = c.note;
+      $("#citation-dialog").showModal();
+    } catch (exception) { error(exception.message); }
+  });
+  $("#close-citation").addEventListener("click", () => $("#citation-dialog").close());
+  $("#citation-dialog").addEventListener("close", () => $("#cite-this").focus());
+  $("#download-citation").addEventListener("click", () => download($("#citation-bibtex").value, "xray-workbench-citation.bib", "text/plain;charset=utf-8"));
+  $("#share-project").addEventListener("click", async () => {
+    try {
+      const fragment = await encodeSharedProject(payload());
+      $("#share-link").value = location.href.split("#")[0] + fragment;
+      $("#share-dialog").showModal(); $("#share-link").select();
+    } catch (exception) { error(exception.message); }
+  });
+  $("#close-share").addEventListener("click", () => $("#share-dialog").close());
+  $("#copy-share").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("#share-link").value); toast("Share link copied."); }
+    catch { $("#share-link").select(); toast("Select and copy the link with your keyboard."); }
+  });
+  $("#share-dialog").addEventListener("close", () => $("#share-project").focus());
   $("#load-project").addEventListener("click",()=>$("#project-file").click());
+  const fullscreenButton = $("#fullscreen-workspace");
+  if (!document.documentElement.requestFullscreen) fullscreenButton.hidden = true;
+  else {
+    fullscreenButton.addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+      } catch (exception) { error(`Full-screen mode is unavailable: ${exception.message}`); }
+    });
+    document.addEventListener("fullscreenchange", () => {
+      const active = !!document.fullscreenElement;
+      fullscreenButton.textContent = active ? "Exit full screen" : "Full screen";
+      fullscreenButton.setAttribute("aria-pressed", String(active));
+    });
+  }
   $("#project-file").addEventListener("change",async event=>{
     const file=event.target.files[0];if(!file)return;
     try{if(file.size>10*1024*1024)throw new Error("Project files must be smaller than 10 MB.");const documentValue=JSON.parse(await file.text());const config=cleanProject(documentValue);restoreUI(documentValue.ui);state.configuration=config;state.openLayer=0;syncControls();dirty();toast("Project loaded. Updating the live results.");}catch(exception){error(`Could not open project: ${exception.message}`);}finally{event.target.value="";}
@@ -620,7 +859,7 @@
   function restoreUI(ui) {
     if (!ui || typeof ui !== "object") return;
     if (Object.hasOwn(displayUnits.LENGTH_UNITS, ui.lengthUnit)) state.lengthUnit = ui.lengthUnit;
-    if (["overview", "materials", "spectrum", "uncertainty", "methods"].includes(ui.tab)) state.tab = ui.tab;
+    if (["overview", "materials", "spectrum", "uncertainty", "scattering", "tools", "methods"].includes(ui.tab)) state.tab = ui.tab;
     if (typeof ui.scopeOpen === "boolean") $("#model-scope").open = ui.scopeOpen;
     if (typeof ui.suggestionsOpen === "boolean") { $("#suggestions-section").hidden = !ui.suggestionsOpen; $("#ideas-button").setAttribute("aria-expanded", ui.suggestionsOpen); }
     dashboard.restore(ui);
@@ -639,24 +878,67 @@
     else if (["map", "tau", "design"].includes(action)) { activateTab("overview"); dashboard.selectQuantity(action); $("#plot-grid").scrollIntoView({behavior: "smooth", block: "start"}); }
     else { activateTab(action); $("#results-workspace").scrollIntoView({behavior: "smooth", block: "start"}); }
   });
+  const THEME_KEY = "attenuation-theme", THEMES = ["auto", "light", "dark"];
+  const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  let themeChoice = "auto";
+  try { if (THEMES.includes(localStorage.getItem(THEME_KEY))) themeChoice = localStorage.getItem(THEME_KEY); } catch { /* The automatic theme still works. */ }
+  function applyTheme() {
+    const theme = themeChoice === "auto" ? (darkQuery.matches ? "dark" : "light") : themeChoice;
+    document.documentElement.dataset.theme = theme;
+    $('meta[name="color-scheme"]').content = theme;
+    $("#theme-toggle").textContent = `Theme: ${themeChoice[0].toUpperCase()}${themeChoice.slice(1)}`;
+    dashboard?.redraw();
+    window.dispatchEvent(new CustomEvent("attenuation:update"));
+  }
+  $("#theme-toggle").addEventListener("click", () => {
+    themeChoice = THEMES[(THEMES.indexOf(themeChoice) + 1) % THEMES.length];
+    try { localStorage.setItem(THEME_KEY, themeChoice); } catch { /* Applies to this visit only. */ }
+    applyTheme();
+  });
+  darkQuery.addEventListener("change", () => { if (themeChoice === "auto") applyTheme(); });
+  applyTheme();
+  const GUIDE_KEY = "attenuation-guide-seen";
+  function showGuide(open) {
+    $("#first-run").hidden = !open;
+    if (!open) try { localStorage.setItem(GUIDE_KEY, "1"); } catch { /* Shown again next visit. */ }
+  }
+  $("#close-guide").addEventListener("click", () => showGuide(false));
+  $("#show-guide").addEventListener("click", () => { showGuide(true); $("#first-run").scrollIntoView({behavior: "smooth", block: "center"}); });
+  try { showGuide(!localStorage.getItem(GUIDE_KEY)); } catch { showGuide(true); }
   async function initialize() {
     dashboard = displayUnits.create(document, window.Plotly, {onError: error, onChange: remember,
+      onImage: saveImage,
       onExport: (svg, filename) => { download(svg, filename, "image/svg+xml"); toast("Figure exported with current view, units and calculation provenance."); },
       onReference: value => { if (value >= 1 && value <= 800) { state.configuration.energy.reference_keV = value; $("#energy-reference").value = value; dirty(); } }});
     let restored = false;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) { const saved = JSON.parse(raw); state.configuration = cleanProject(saved); state.savedConfiguration = clone(state.configuration); restoreUI(saved.ui); restored = true; }
-    } catch { /* Invalid or unavailable browser storage never blocks the workbench. */ }
+    } catch { /* Invalid or unavailable browser storage never blocks the calculator. */ }
+    let shareError = "";
+    try {
+      const shared = await decodeSharedProject(location.hash);
+      if (shared) { state.configuration = shared; state.savedConfiguration = clone(shared); restored = false; }
+    } catch (exception) { shareError = exception.message; }
     syncControls(); activateTab(state.tab); renderResults();
+    if (shareError) error("Could not open shared project: " + shareError);
     if (restored) toast("Restored saved controls and the last valid system from this browser.");
     try {
       const response=await fetch("/api/presets");if(!response.ok)throw new Error("Preset request failed");const data=await response.json();
       state.presets=Array.isArray(data.presets)?data.presets:[];
       $("#new-preset").innerHTML='<option value="custom">Custom material</option>'+state.presets.map(preset=>`<option value="${esc(preset.id)}">${esc(preset.name)}</option>`).join("");
     } catch { /* The default material is sufficient; calculate reports connection errors. */ }
+    try {
+      const response=await fetch("/api/xray-sources");if(!response.ok)throw new Error("Source request failed");
+      state.sources=(await response.json()).sources;
+      const anodes=[...new Set(state.sources.map(source=>source.anode))];
+      $("#xray-source").innerHTML='<option value="custom">Custom (synchrotron or other)</option>'+anodes.map(anode=>`<optgroup label="${esc(anode)} anode">${state.sources.filter(source=>source.anode===anode).map(source=>`<option value="${esc(source.id)}">${esc(source.name)} · ${source.energy_keV.toFixed(3)} keV · ${source.wavelength_angstrom.toFixed(4)} Å</option>`).join("")}</optgroup>`).join("");
+    } catch { /* Energy and wavelength can still be typed. */ }
+    syncSource();
     live.flush();
   }
+  $("#thickness-maximum").addEventListener("input", renderThicknessPlot);
+  window.addEventListener("attenuation:update", renderThicknessPlot);
   $("#model-scope").addEventListener("toggle", remember);
   function showIdeas(open) {
     $("#suggestions-section").hidden = !open;

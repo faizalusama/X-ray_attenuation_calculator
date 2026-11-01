@@ -1,0 +1,52 @@
+/* Total scattering tab. */
+.ts-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;align-items:end}
+.ts-controls input,.ts-controls select{width:100%}
+.ts-status{margin:10px 0 0;color:#42586a;font-size:14px}
+.ts-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+.ts-card{padding:14px 16px;background:#fff;border:1px solid #d9e3ea;border-radius:10px}
+.ts-card-label{color:#42586a;font-size:13px;font-weight:600}
+.ts-card-value{margin:4px 0;color:#203951;font-size:24px;font-weight:700}
+.ts-card-value span{color:#42586a;font-size:14px;font-weight:500}
+.ts-card-note{color:#42586a;font-size:13px;line-height:1.4}
+.ts-plots{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin:16px 0}
+.ts-plot{height:340px;min-width:0;background:#fff;border:1px solid #d9e3ea;border-radius:10px;overflow:hidden}
+.ts-section{margin:16px 0}
+.ts-section h3{margin:0 0 8px}
+.ts-section h4{margin:16px 0 6px;font-size:15px}
+.ts-section p,.ts-section li{font-size:14px;line-height:1.55}
+.ts-table-wrap{overflow-x:auto;margin:8px 0}
+.ts-table{width:100%;border-collapse:collapse;font-size:14px}
+.ts-table caption{padding:0 0 6px;color:#203951;font-weight:700;text-align:left}
+.ts-table th,.ts-table td{padding:6px 10px;border-bottom:1px solid #d9e3ea;text-align:right;white-space:nowrap}
+.ts-table thead th{color:#42586a;font-weight:600}
+.ts-table th:first-child{text-align:left}
+.ts-formula{white-space:normal;font-family:Cambria,"Times New Roman",serif;font-size:15px}
+.ts-table td.ts-formula,.ts-table td.ts-text{text-align:left;white-space:normal}
+.ts-copy code{display:inline-block;padding:3px 8px;background:#eef3f6;border-radius:6px;color:#203951;font-size:14px;overflow-wrap:anywhere}
+.ts-warnings{margin:12px 0;padding:12px 16px;background:#fff4dd;border:1px solid #e5cf9d;border-radius:10px;color:#5b4310;font-size:14px}
+.ts-warnings ul{margin:6px 0 0;padding-left:20px}
+.ts-refs{padding-left:20px}
+.ts-refs li{margin-bottom:6px}
+[data-ts-result][hidden]{display:none}
+.ts-section sub{font-size:12px}
+@media (max-width:720px){.results-topline .tabs{flex:1 1 100%;min-width:0}}
+
+.utility-dialog{width:min(700px,94vw);max-height:90vh;overflow:auto;padding:24px;border:1px solid #becdd9;border-radius:12px;background:#fff;color:#203951}
+.utility-dialog::backdrop{background:rgba(17,31,47,.55)}
+.utility-dialog textarea{width:100%;box-sizing:border-box;overflow-wrap:anywhere;font-size:14px}
+.utility-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+@media(max-width:440px){.ts-plots{grid-template-columns:minmax(0,1fr)}}
+
+.ts-section label,.ts-controls label,.utility-dialog label{font-size:14px;color:#42586a}
+.ts-section textarea{width:100%;box-sizing:border-box;font-size:14px}
+.ts-section summary{font-size:15px;min-height:24px;cursor:pointer}
+[data-st-tool][hidden]{display:none}
+
+.panel.ts-section{padding:20px}
+.ts-controls>p{grid-column:1/-1;margin:8px 0;line-height:1.5}
+.ts-controls label{min-width:0}
+.ts-controls label:has(textarea){grid-column:1/-1}
+.ts-controls textarea{min-height:140px}
+.ts-controls button{min-width:0;max-width:100%;white-space:normal;min-height:36px;align-self:end}
+.results-topline{flex-wrap:wrap}
+.results-topline .tabs{flex:1 1 100%;min-width:0}

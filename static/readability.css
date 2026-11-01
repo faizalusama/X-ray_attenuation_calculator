@@ -1,0 +1,63 @@
+/* Shared accessibility primitives — loaded last, on purpose.
+
+   Every rule here answers a measured WCAG 2.2 AA failure from an in-browser
+   audit (26 Oct 2026): 53 text elements below 4.5:1 contrast, 51 below 12 px,
+   and 71 controls smaller than the 24×24 px target minimum (§2.5.8).
+   Replacement colours were chosen by computation, not by eye; each clears
+   4.5:1 on white, #f8fafc, #f4f5f5, #eef4f6 and #fff7e6:
+
+     --rd-muted   #56697a   ≥ 5.11:1    secondary text
+     --rd-strong  #4f6371   ≥ 5.63:1    small secondary text
+     --rd-unit    #5b6b74   ≥ 4.98:1    unit suffixes in inputs
+     --rd-teal    #0b6b6f   ≥ 5.65:1    accent text
+     --rd-amber   #7a5512   ≥ 6.03:1    model notes and warnings
+
+   Component text colours, text sizes and target dimensions now live beside
+   the component rules in styles.css and dashboard.css. This file owns only
+   the shared tokens, keyboard navigation, checkbox/radio semantics, numeric
+   alignment, reduced-motion and forced-colour support. */
+
+:root {
+  --rd-muted: #56697a;
+  --rd-strong: #4f6371;
+  --rd-unit: #5b6b74;
+  --rd-teal: #0b6b6f;
+  --rd-amber: #7a5512;
+  --rd-focus: #087f8c;
+  --rd-min-text: 12px;
+  --rd-target: 28px;
+}
+
+/* --- Skip link: keyboard users reach the workbench without tabbing the header. */
+.skip-link {
+  position: fixed; left: 12px; top: -64px; z-index: 1000;
+  padding: 10px 16px; border-radius: 8px;
+  background: #203951; color: #fff; font-weight: 600; font-size: 14px;
+  text-decoration: none; transition: top .15s;
+}
+.skip-link:focus { top: 12px; }
+
+/* --- One consistent, clearly visible focus ring for every interactive element. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role=tab]):focus-visible {
+  outline: 3px solid var(--rd-focus);
+  outline-offset: 2px;
+}
+
+label:has(> input[type=checkbox]), label:has(> input[type=radio]) {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--rd-target); padding: 0 4px; cursor: pointer;
+}
+input[type=checkbox], input[type=radio] { width: 16px; height: 16px; accent-color: var(--rd-focus); }
+
+/* --- Comfortable reading: numbers line up in tables and metrics. */
+.metric-value, .detail-metric strong, td, input[type=number] { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link { transition: none; }
+}
+
+/* Forced-colours (Windows High Contrast): keep focus and controls visible. */
+@media (forced-colors: active) {
+  :where(a, button, input, select, textarea, summary, [role=tab]):focus-visible { outline: 3px solid Highlight; }
+  .mini-button { border: 1px solid ButtonText; }
+}

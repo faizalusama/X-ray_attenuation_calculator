@@ -1,4 +1,4 @@
-# Validation record — versions 1.0.0 and 1.0.1
+# Validation record — versions 1.0.0 to 1.1.0
 
 Numbering note: this project was developed as `0.2.0` and renumbered to `1.0.0`
 for its first stable release. Entries below written before the renumber refer to
@@ -179,3 +179,105 @@ Agreement this close suggests the Elam and NIST tabulations share underlying the
 - The software had several names, including "Attenuation Lab" in the interface. It now has one title, and `tests/test_citation.py` keeps the README, interface and citation files in agreement. The Python module `xray_workbench`, the `xray-workbench` command and the result key `workbench_version` are unchanged, so existing scripts and saved projects keep working.
 
 `legacy/` is unchanged.
+
+## Version 1.1.0 — 31 October 2026
+
+Adds a browser version. The same `xray_workbench` package runs inside the browser through Pyodide 314.0.7; nothing is reimplemented. `physics.py`, `results.py` and the backends are unchanged from 1.0.1. New files are `xray_workbench/browser.py`, `web/`, `tools/build_web.py` and `tools/web_parity.py`.
+
+**Native numbers unchanged.** For the 16 configurations described under 1.0.1, the serialized native results are byte-identical across `v1.0.0`, `v1.0.1` and this version (the same SHA-256, `4d50d8cd05b54d9c…`).
+
+**Browser against native.** The same 16 configurations were run in the browser and compared with the native engine on Windows (Python 3.14.6, NumPy 2.5.3). The browser used Python 3.14.2 and NumPy 2.4.6.
+
+- Of 247,930 numbers, 242,569 are identical and 5,361 differ. The browser version is therefore **not** byte-identical to the native engine.
+- The largest relative difference is 5.7 × 10⁻¹⁴, on a transmission of 7.9 × 10⁻⁹⁴. Differences of this size are consistent with different maths libraries and NumPy builds rounding the last bits differently.
+- The documented reference values are identical: spectral transmission 0.7802626916899833 and thickness multiplier 11.417978438587083. So is the 14 keV transmission of each glass of arXiv:2608.15675, to every digit.
+
+`tools/web_parity.py` repeats this comparison in CI, on Linux, and fails above 10⁻¹² relative. That limit was set after the measurement above, at about 20 times its maximum.
+
+**Loading.** A first visit transfers about 30 MB. With the page visible on one desktop computer, five loads took between 7.5 and 17.5 s, including 13.3 s with an empty cache. Two other loads took about 60 s: one with the page in a hidden pane, and one under phone-size emulation. That second stall was in the library-loading step and did not recur when repeated, and its cause was not established. The page reports its progress and says so if loading takes more than 30 s. A calculation then took 0.05–0.3 s.
+
+**Interface.** Checked in a Chromium-based browser at desktop and 375-pixel widths: all eleven plots render, a misspelled formula gives the same message as the local server, the formula warnings appear, and project, SVG, CSV and JSON exports reach the browser's download path with the expected content. No horizontal overflow or console errors appeared.
+
+**Not checked.** Firefox, Safari and real phones. That earlier check did not run the JavaScript suites locally; the PR7 completion checks below now include local Node and Playwright results. As before, this is a check of the numerical implementation, not experimental validation.
+
+**Other new checks.** `tests/test_web.py` holds the browser routes to the same answers as the local server and checks that the site runs the same `physics.py`. Results from the browser record their runtime in `provenance.runtime`.
+
+**Continuous integration.** On the GitHub runner, the same comparison finds 154 differences, the largest 1.43 × 10⁻¹⁴ relative, with the engine loading in 9.4 s.
+
+**Additions to the input and export interface.** Atomic percent, areal density, X-ray sources, CSV and PNG exports, dark mode and undo were added on this version without changing how any existing input is calculated. The native SHA-256 above was recomputed after these changes.
+
+- Atomic percent is treated as mole fractions of single elements. A test checks that it gives the same coefficients as the mole calculation, and mass fractions matching ones worked out from atomic masses.
+- Areal density sets thickness to areal density / effective density. Tests check that optical depth does not depend on density, that 27 mg/cm² of Al at 2.7 g/cm³ is 0.1 mm, and that optical depth equals (μ/ρ) × areal density from the Elam data.
+- X-ray line energies come from the X-ray Data Booklet (LBNL), Table 1-2. Tests check them against wavelengths typed independently (for example Cu Kα1 1.5406 Å, Mo Kα1 0.7093 Å) and, within 0.2%, against the Elam tables. A source sets one reference energy. It does not model a tube spectrum.
+- `tools/ui_audit.py` now also audits every analysis tab in the dark theme at three widths. Plot colours inside Plotly figures are chosen by hand for the dark theme and are not all covered by the computed-style contrast check.
+
+**Change to the browser comparison.** `tools/web_parity.py` originally compared every number by its relative difference, with a limit of 10⁻¹². On 1 November 2026, the same commit passed on one CI runner and failed on another: the largest difference was 1.71 × 10⁻¹², on a transmission of 4.4 × 10⁻²³⁷ at τ = 544, which is a difference of about 3 × 10⁻¹⁵ in τ. Because T = exp(−τ), rounding in a large τ is magnified in T. Transmissions below 1/e are now judged by the relative difference in τ. This loosens the check only for transmissions below 1/e; the limit itself and all other numbers are unchanged.
+
+**Self-hosted runtime.** While testing these changes on 1 November 2026, the jsDelivr CDN served the SciPy wheel at about 30 KB/s and sometimes refused it with HTTP 403, while other files arrived normally, and a page load failed. This may also explain the unexplained 60 s load above, though that was not established. The site now serves its own copies from the official Pyodide 314.0.7 release, pinned by SHA-256, with each wheel checked against Pyodide's lock file, so a visit no longer contacts any third party.
+
+**Materials library.** The library is available in both the local and browser versions, and `tests/test_web.py` holds their answers together. A test also compares the library overview with the full engine. Provenance is described in `docs/MATERIALS.md`. Stoichiometric entries use typical densities that have not been checked against a source. They are marked unverified in the interface and in the data.
+
+**Total scattering.** The new tab adds calculations without changing any existing one. Its checks and limits are listed in `docs/TOTAL_SCATTERING.md`. Up to Q = 25 Å⁻¹, form factors agree with the separate EPDL97 tabulation in xraylib within 0.5% to 4.8%, depending on the element, and up to Q = 50.7 Å⁻¹ within 3.5% to 11.4%. For Cu, Hf and Pb, f′ agrees within 6% and f″ within 4%. These are planning values, and no comparison with measured total-scattering data has been made.
+
+## Differential scattering (PR7)
+Hubbell incoherent S(Q) is combined with the unpolarized Klein–Nishina cross section.
+Elastic independent-atom f0 gives the Thomson coherent term. Solid-angle Gauss–Legendre
+integration at 20 keV for SiO2 differs from Elam by +0.01097% coherent and +0.39338%
+incoherent. The UI reports differences, without fitting or mixing data. Integration is
+unavailable if full angular coverage exceeds the tabulated f0 domain. Attenuation is unchanged.
+
+## Capillary absorption
+The disc area integral averages exp[-mu(l_in+l_out)] with unit-radius Gauss quadrature.
+Independent chord integrals at 0 and 180 degrees agree to 2e-6 absolute for muR=0,0.2,1,5.
+Polarization is the Thomson factor, separately reported for unpolarized and linear states.
+No inversion is supplied above muR=30, where fixed quadrature may miss the surface layer.
+
+## Optical tools
+Chantler optical constants use n=1-delta+i beta and exp(i kz z); positive beta attenuates.
+Si at 8.048 keV, 2.329 g/cm3 gives delta=7.5730e-6 and critical grazing angle about 0.223°.
+At normal incidence, the plotted intensity depth recovers lambda/(4 pi beta).
+Optical data are separate from Elam attenuation; no data sources are blended.
+
+## Multilayer reflectivity
+Parratt recursion uses vacuum / films / semi-infinite substrate, with grazing angles.
+The zero-film limit equals Fresnel; a zero-thickness interposed film gives the same result.
+Identical media give zero reflection. Névot–Croce factors reduce high-angle reflection.
+Nonphysical reflectivity is refused, never clipped into range.
+References: https://xraypy.github.io/XrayDB/python.html (optical constants and mirror conventions);
+https://www.reflectometry.org/learn/3_reflectometry_slab_models/roughness_and_microslicing.html.
+
+## Powder peaks
+The diamond-Si demonstration at a=5.431 Å and Cu Kα1 (1.540593 Å) gives (111) at
+about 28.44 degrees. F(200) cancels to numerical roundoff; multiplicity of (111) is 8.
+Only explicit unit-cell positions are used, with isotropic B and neutral f0.
+The structure-factor convention follows https://dictionary.iucr.org/Structure_factor.
+
+## S(Q) to G(r)
+For F(Q)=exp(-aQ) sin(bQ), the infinite-range transform is
+a/pi [1/(a²+(b-r)²) - 1/(a²+(b+r)²)]. At a=1, b=3, Q=0..40 Å⁻¹,
+8001 samples reproduce that analytic result within 1e-8 Å⁻².
+The Lorch window has its continuous limit at Q=0. Flat S=1 gives G=0.
+No raw-intensity reduction, extrapolation or fitted baseline is performed.
+
+## PR7 completion checks — 1 November 2026, unpublished
+
+826 Python tests and 58 Node tests pass locally; ruff, strict mypy and manifest
+verification pass. The expanded UI audit includes all populated tools, batch
+results and share/citation dialogs at 1440, 768 and 375 px in both themes.
+No automated violations or page errors were found. This is not a complete
+accessibility certification. Safari, Firefox and real devices remain untested.
+
+The original attenuation digest was recomputed, unchanged:
+4d50d8cd05b54d9c0251e633a5d803b6ced194e1ec3eb4c5134ee02fdb5372e4.
+Real Pyodide compared 247,930 numbers: 242,569 identical, 5,361 different;
+nine additional API smoke cases also succeeded. The maximum comparison metric
+was 5.46e-16 in this Windows run. The inherited rule below T=1/e divides relative
+transmission difference by max(1,-ln T), approximating relative optical-depth
+error for small differences. It does not claim raw relative transmission error
+at that scaled value or byte equality. The 1e-12 limit was not changed.
+
+New utilities are checked against analytic limits and reference examples, not
+measured specimens. No model tolerances were widened. No merge, tag, release,
+Pages enablement or new DOI occurred during this work.
+
+Reproduce the canonical native digest with python tools/native_digest.py. Optional --expect checks a digest in the same reference numerical environment; other maths-library builds can round differently.

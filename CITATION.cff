@@ -1,11 +1,11 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below. Please also cite the underlying Elam atomic data; see THIRD_PARTY_NOTICES.md."
 title: "X-ray Attenuation Calculator for Multicomponent Materials"
-version: "1.0.1"
+version: "1.1.0"
 type: software
 license: MIT
-# Version 1.0.1 gives the same calculated numbers as 1.0.0, the first stable
-# release. Both supersede the 0.1.x calculator, whose original citation (version
+# Version 1.1.0 adds a browser version and gives the same calculated numbers as
+# 1.0.0, the first stable release. These supersede the 0.1.x calculator, whose original citation (version
 # DOI 10.5281/zenodo.17602371) is preserved in legacy/CITATION.cff; that script
 # double-weighted mass fractions.
 # The DOI below is the Zenodo *concept* DOI: it covers every version and
@@ -31,8 +31,10 @@ authors:
     orcid: "https://orcid.org/0000-0003-0077-691X"
     affiliation: Aalborg University
 repository-code: "https://github.com/faizalusama/X-ray_attenuation_calculator"
+url: "https://faizalusama.github.io/X-ray_attenuation_calculator/"
 abstract: >-
-  A local graphical and programmable calculator for narrow-beam X-ray
+  A graphical and programmable calculator, used in a web browser or installed
+  locally, for narrow-beam X-ray
   attenuation in multicomponent materials and planar multilayers: glasses,
   ceramics, composites and filters. It computes energy-dependent mass and
   linear attenuation, transmission, interaction channels, half- and

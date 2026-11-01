@@ -117,3 +117,76 @@ test('standalone SVG has visible title, legend, units, sources and exact embedde
   assert.match(output,/cm²\/g/);assert.match(output,/>Source: XrayDB/);assert.match(output,/Configuration SHA-256/);
   assert.match(output,/zero values omitted/);assert.match(output,/<metadata>/);assert.match(output,/&quot;reference_keV&quot;:30/);
 });
+
+const {parseLength} = require('../static/app.js');
+test('plain numbers use the selected display unit exactly as before',()=>{
+  assert.equal(parseLength('2', 'mm'), 2);
+  assert.equal(parseLength('500', 'µm'), 500 * 1e-3);
+  assert.equal(parseLength('0.2', 'cm'), 0.2 * 10);
+  assert.equal(parseLength(' 1.5e-1 ', 'mm'), 0.15);
+  assert.equal(parseLength('.5', 'm'), 500);
+});
+
+test('a typed unit overrides the display unit and converts to millimetres',()=>{
+  assert.equal(parseLength('2 mm', 'µm'), 2);
+  assert.equal(parseLength('500 µm', 'mm'), 500 * 1e-3);
+  assert.equal(parseLength('0.2 cm', 'mm'), 0.2 * 10);
+  assert.equal(parseLength('0.2cm', 'mm'), 0.2 * 10);
+  assert.equal(parseLength('50 nm', 'mm'), 50 * 1e-6);
+  assert.equal(parseLength('1 m', 'mm'), 1000);
+  assert.equal(parseLength('3 MM', 'µm'), 3);
+});
+
+test('micro sign, Greek mu and ASCII "um" all mean micrometres',()=>{
+  for (const text of ['500 µm', '500 μm', '500 um', '500 UM']) assert.equal(parseLength(text, 'mm'), 500 * 1e-3, text);
+});
+
+test('empty input is missing, not zero',()=>{
+  assert.equal(parseLength('', 'mm'), null);
+  assert.equal(parseLength('   ', 'mm'), null);
+  assert.equal(parseLength(null, 'mm'), null);
+});
+
+test('unknown units and malformed numbers are rejected rather than guessed',()=>{
+  for (const text of ['2 in', '2 inches', '2 mmm', 'mm', '2..5', '2,5', '2 5 mm', '1/2 mm', 'abc', '2 m m', 'Infinity']) assert.ok(Number.isNaN(parseLength(text, 'mm')), text);
+});
+
+const {csvText} = require('../static/app.js');
+test('basis atomic and areal density survive a project round trip',()=>{
+  const p=project();
+  p.configuration.layers[0].basis='atomic';
+  p.configuration.layers[0].components=[{formula:'Si',fraction:1},{formula:'O',fraction:2}];
+  p.configuration.layers[0].areal_density_mg_cm2=25;
+  const clean=cleanProject(p).layers[0];
+  assert.equal(clean.basis,'atomic');
+  assert.equal(clean.areal_density_mg_cm2,25);
+  p.configuration.layers[0].areal_density_mg_cm2=-1;
+  assert.throws(()=>cleanProject(p),/Areal density/);
+});
+test('CSV text keeps full precision and quotes headings with commas',()=>{
+  assert.equal(csvText(['a','b, c'],[[0.1234567890123456,null]]),'a,"b, c"\r\n0.1234567890123456,\r\n');
+});
+
+test('share links round trip validated configuration, plain and gzip',async()=>{
+  const {encodeSharedProject,decodeSharedProject}=require('../static/app.js');
+  for (const compressed of [false,true]) {
+    const fragment=await encodeSharedProject(initial,compressed);
+    assert.deepEqual(await decodeSharedProject(fragment),cleanProject(project()));
+  }
+  assert.equal(await decodeSharedProject("#unrelated"),null);
+  await assert.rejects(()=>decodeSharedProject("#p1g.!"),/Invalid shared/);
+  const bad="#p1r."+Buffer.from(JSON.stringify({schema_version:99})).toString("base64url");
+  await assert.rejects(()=>decodeSharedProject(bad),/supported project/);
+  const {gzipSync}=require('node:zlib');
+  const bomb="#p1g."+gzipSync(" ".repeat(300000)).toString("base64url");
+  await assert.rejects(()=>decodeSharedProject(bomb),/too large/);
+});
+
+test('thickness curves obey attenuation length and oblique path length',()=>{
+  const {thicknessCurve}=require('../static/app.js');
+  const curve=thicknessCurve(10,2);
+  assert.equal(curve.transmission[0],1);
+  assert.ok(Math.abs(curve.transmission[100]-1/Math.E)<1e-14);
+  assert.ok(Math.abs(thicknessCurve(10,1,60).transmission.at(-1)-Math.exp(-2))<1e-14);
+  assert.throws(()=>thicknessCurve(1,0),/Invalid thickness/);
+});

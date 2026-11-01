@@ -20,7 +20,9 @@
     design: {label: "Target thickness", title: "Stack thickness required for the target", length: true, log: true},
     map: {label: "Thickness map", title: "Transmission across energy and thickness", unit: "× current thickness"}
   });
-  const PALETTE = ["#087f8c", "#6366c9", "#dc8042", "#c34e76", "#319577", "#6686ad", "#9370af", "#987133"];
+  // High-contrast scientific colours remain distinct on screens and paper.
+  const HC_KEV_ANGSTROM = 12.398419843320026;  // keV·Å, exact from the SI values of h, c and e.
+  const PALETTE = ["#007C91", "#6556C6", "#D36B32", "#C13F72", "#198F71", "#3F78B5", "#8B5FB0", "#9A721F"];
   const FONT = '"Aptos", "Segoe UI", Arial, sans-serif';
   const MAX_PLOTS = Object.keys(QUANTITIES).length;
   const safe = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
@@ -33,6 +35,10 @@
     if (!range) return undefined;
     const converted = range.map(v => fromLog === toLog ? v : toLog ? Math.log10(v) : 10 ** v);
     return converted.every(Number.isFinite) && converted[1] > converted[0] ? converted : undefined;
+  }
+  function plotHeight(width, viewportHeight = 900) {
+    const available = Number.isFinite(viewportHeight) ? viewportHeight * .72 : 648;
+    return Math.round(Math.max(430, Math.min(720, Number(width) * .66, available)));
   }
   function fromMM(value, unit = "mm") { return value == null ? null : value / LENGTH_UNITS[unit]; }
   function toMM(value, unit = "mm") { return value == null ? null : value * LENGTH_UNITS[unit]; }
@@ -64,6 +70,115 @@
     const scales = Array.from({length: steps}, (_, i) => i * maxScale / (steps - 1));
     return {x: result.energy_keV, y: scales, z: scales.map(s => result.optical_depth.map(t => 100 * Math.exp(-t * s)))};
   }
+  // Exactly what a plot shows, for other plotting software: full precision, units in the headings.
+  function plotTable(result, configuration, p, lengthUnit = "mm", maxScale = 3) {
+    if (p.primary === "map") {
+      const map = thicknessMap(result, maxScale);
+      return {headers: ["thickness_scale \\ energy_keV (values: transmission %)", ...map.x], rows: map.y.map((scale, i) => [scale, ...map.z[i]])};
+    }
+    const columns = mode => valuesFor(result, configuration, mode, p.layer, lengthUnit).map(series => ({header: `${QUANTITIES[mode].label} (${QUANTITIES[mode].length ? lengthUnit : QUANTITIES[mode].unit}) - ${series.name}`, values: series.values}));
+    const all = [...columns(p.primary), ...(p.secondary !== "none" ? columns(p.secondary) : [])];
+    return {headers: ["energy_keV", ...all.map(column => column.header)], rows: result.energy_keV.map((energy, i) => [energy, ...all.map(column => column.values[i])])};
+  }
+  // Every energy-dependent quantity in one table with stable names, independent of the display units.
+  function allCurvesTable(result) {
+    const columns = [];
+    const add = (name, unit, description, values) => columns.push({name, unit, description, values});
+    add("energy_keV", "keV", "Photon energy", result.energy_keV);
+    add("wavelength_angstrom", "angstrom", "Wavelength, hc/E", result.energy_keV.map(energy => HC_KEV_ANGSTROM / energy));
+    add("transmission", "fraction", "Primary transmission of the whole stack", result.transmission);
+    add("removed_fraction", "fraction", "Fraction removed from the primary beam, 1 - T (not absorbed energy or dose)", result.removed_fraction);
+    add("optical_depth", "dimensionless", "Optical depth of the whole stack", result.optical_depth);
+    if (result.uncertainty) {
+      add("transmission_p025", "fraction", "2.5th percentile of stack transmission", result.uncertainty.transmission_p025);
+      add("transmission_p975", "fraction", "97.5th percentile of stack transmission", result.uncertainty.transmission_p975);
+    }
+    result.layers.forEach((layer, index) => {
+      const name = `layer_${index + 1}`, of = `of layer ${index + 1} (${layer.name})`;
+      const tau = layer.mu_linear_cm_inv.map(mu => mu * layer.path_length_mm / 10);  // mm to cm
+      const length = factor => layer.mu_linear_cm_inv.map(mu => mu > 0 ? 10 * factor / mu : null);  // cm to mm
+      add(`${name}_transmission`, "fraction", `Primary transmission ${of}`, tau.map(value => Math.exp(-value)));
+      add(`${name}_optical_depth`, "dimensionless", `Optical depth ${of}`, tau);
+      add(`${name}_mu_mass_cm2_g`, "cm2/g", `Mass attenuation coefficient ${of}`, layer.mu_mass_cm2_g);
+      add(`${name}_mu_linear_cm_inv`, "1/cm", `Linear attenuation coefficient ${of}`, layer.mu_linear_cm_inv);
+      add(`${name}_photoelectric_cm2_g`, "cm2/g", `Photoelectric part ${of}`, layer.photoelectric_cm2_g);
+      add(`${name}_coherent_cm2_g`, "cm2/g", `Coherent (Rayleigh) part ${of}`, layer.coherent_cm2_g);
+      add(`${name}_incoherent_cm2_g`, "cm2/g", `Incoherent (Compton) part ${of}`, layer.incoherent_cm2_g);
+      add(`${name}_hvl_mm`, "mm", `Half-value path length ${of}`, length(Math.LN2));
+      add(`${name}_tvl_mm`, "mm", `Tenth-value path length ${of}`, length(Math.LN10));
+      add(`${name}_attenuation_length_mm`, "mm", `1/e attenuation path length ${of}`, length(1));
+    });
+    const total = result.layers.reduce((sum, layer) => sum + layer.thickness_mm, 0), target = result.reference.target_transmission;
+    add("target_total_thickness_mm", "mm", `Total normal thickness for ${target} transmission, all layers scaled together`, result.optical_depth.map(tau => tau > 0 && total > 0 ? total * -Math.log(target) / tau : null));
+    return {columns: columns.map(({name, unit, description}) => ({name, unit, description})), headers: columns.map(column => column.name),
+      rows: result.energy_keV.map((_, i) => columns.map(column => column.values[i]))};
+  }
+  function readableNumber(value) {
+    if (!Number.isFinite(value)) return "Unavailable";
+    if (value === 0) return "0";
+    return Math.abs(value) < .001 || Math.abs(value) >= 1e6 ? value.toExponential(5) : Number(value.toPrecision(6)).toString();
+  }
+  // Text alternatives use direct API reference values, never interpolated curves.
+  // Channel values are only supplied on the sweep, so label their sample energy.
+  function plotReadout(result, configuration, p, unit = "mm", maxScale = 3) {
+    const ref = result.reference, energy = ref.energy_keV, rows = [], notes = [];
+    const fmt = readableNumber, range = result.energy_keV;
+    const axes = [[p.primary, "y", p.logY], ...(p.secondary && p.secondary !== "none" && p.primary !== "map" ? [[p.secondary, "y2", p.logY2]] : [])];
+    const add = (mode, axis, id, name, value, atEnergy = energy, note = "") => {
+      const visible = p.visibility?.[`${axis}-${mode}-${id}`];
+      if (visible === false || visible === "legendonly") return;
+      const q = QUANTITIES[mode];
+      rows.push({axis: axis === "y2" ? "Right" : "Left", quantity: q.label, name, value,
+        unit: q.length ? unit : q.unit, energy: atEnergy, note});
+    };
+    for (const [mode, axis, log] of axes) {
+      const layerRows = (key, convert = v => v) => result.layers.forEach((l, i) => add(mode, axis, `${mode}-${i}`, l.name, convert(l.reference[key])));
+      switch (mode) {
+        case "transmission":
+          add(mode, axis, "stack", "Whole stack", 100 * ref.transmission);
+          if (p.layers !== false && result.layers.length > 1) result.layers.forEach((l, i) => add(mode, axis, `layer-${i}`, l.name, 100 * l.reference.transmission));
+          if (result.uncertainty?.reference) {
+            const u = result.uncertainty.reference;
+            notes.push(`95% measurement-uncertainty interval at the reference: ${fmt(u.p025 * 100)}–${fmt(u.p975 * 100)}%.`);
+          }
+          break;
+        case "removed": add(mode, axis, "removed", "Whole stack", 100 * ref.removed_fraction); notes.push("Removal includes absorption and scattering out of the primary beam; it is not absorbed energy or dose."); break;
+        case "mass": layerRows("mu_mass_cm2_g"); break;
+        case "linear": layerRows("mu_linear_cm_inv"); break;
+        case "hvl": layerRows("hvl_mm", v => fromMM(v, unit)); break;
+        case "tvl": layerRows("tvl_mm", v => fromMM(v, unit)); break;
+        case "length": layerRows("attenuation_length_mm", v => fromMM(v, unit)); break;
+        case "tau":
+          add(mode, axis, "tau", "Whole stack", ref.optical_depth);
+          // API path length is mm; linear attenuation is cm⁻¹. Convert once.
+          if (p.layers !== false) result.layers.forEach((l, i) => add(mode, axis, `tau-${i}`, l.name, l.reference.mu_linear_cm_inv * (l.path_length_mm / 10)));
+          break;
+        case "design": {
+          const total = configuration.layers.reduce((sum, l) => sum + l.thickness_mm, 0);
+          add(mode, axis, "design", `${fmt(ref.target_transmission * 100)}% target`, Number.isFinite(ref.target_thickness_scale) ? fromMM(total * ref.target_thickness_scale, unit) : null);
+          notes.push("Total normal thickness with all layers scaled proportionally; an unavailable value means no finite scaling solution.");
+          break;
+        }
+        case "channels": {
+          const layer = result.layers[p.layer] || result.layers[0];
+          const nearest = range.reduce((best, e, i) => Math.abs(e - energy) < Math.abs(range[best] - energy) ? i : best, 0);
+          notes.push(`${layer.name}: total mass attenuation at the reference is ${fmt(layer.reference.mu_mass_cm2_g)} cm²/g. Channel values use the evaluated sample at ${fmt(range[nearest])} keV; no interpolation.`);
+          for (const [key, label] of [["photoelectric", "Photoelectric"], ["coherent", "Coherent"], ["incoherent", "Incoherent"]]) add(mode, axis, key, `${layer.name} · ${label}`, layer[`${key}_cm2_g`][nearest], range[nearest]);
+          break;
+        }
+        case "map":
+          for (const scale of [...new Set([0, Math.min(1, maxScale), maxScale])]) rows.push({axis: "Map", quantity: "Transmission", name: `${fmt(scale)}× thickness`, value: 100 * Math.exp(-ref.optical_depth * scale), unit: "%", energy, note: ""});
+          notes.push(`Transmission over 0–${fmt(maxScale)}× current thickness. All layers scale together with fixed composition, density and angle.`);
+          break;
+      }
+      if (log) for (const row of rows.filter(r => r.axis === (axis === "y2" ? "Right" : "Left"))) if (row.value === 0) row.note = "Zero is omitted on the logarithmic axis.";
+    }
+    const first = p.primary === "map" ? rows[1] : rows[0];
+    const headline = first ? `${first.quantity}: ${fmt(first.value)} ${first.unit} (${first.name}${first.energy !== energy ? `; sampled at ${fmt(first.energy)} keV` : ""}).` : "All series are hidden; use the plot legend to show them.";
+    const outside = energy < range[0] || energy > range.at(-1) ? " Reference energy is outside the plotted sweep; reference values are evaluated directly." : "";
+    return {text: `Reference ${fmt(energy)} keV. ${headline}${rows.length > 1 ? ` ${rows.length} values in the table.` : ""}${outside}`,
+      rows, notes, caption: `Values for ${QUANTITIES[p.primary].label} at reference ${fmt(energy)} keV${axes.some(([mode]) => mode === "channels") ? " (channel sample energies are listed separately)" : ""}`};
+  }
   function traceData(result, configuration, mode, layerIndex, lengthUnit, axis = "y", log = false, showLayers = true) {
     const unit = QUANTITIES[mode].length ? lengthUnit : QUANTITIES[mode].unit;
     const traces = valuesFor(result, configuration, mode, layerIndex, lengthUnit)
@@ -72,8 +187,9 @@
         y: series.values.map(v => Number.isFinite(v) && (!log || v > 0) ? v : null),
         name: safe(`${series.name}${axis === "y2" ? " · right" : ""}`), uid: `${axis}-${mode}-${series.id}`,
         legendgroup: `${axis}-${mode}-${series.id}`, yaxis: axis,
-        line: {color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, width: series.dash ? 1.7 : 2.6, dash: axis === "y2" ? "dot" : series.dash ? "dash" : "solid", shape: "linear", simplify: false},
-        connectgaps: false, hovertemplate: `%{y:.6g} ${safe(unit)}<extra>%{fullData.name}</extra>`}));
+        line: {color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, width: series.dash ? 2 : 3, dash: axis === "y2" ? "dot" : series.dash ? "dash" : "solid", shape: "linear", simplify: false},
+        marker: {size: 7, color: axis === "y2" ? PALETTE[(index + 1) % PALETTE.length] : series.color, line: {color: "#fff", width: 1}},
+        connectgaps: false, hovertemplate: `<b>%{fullData.name}</b><br>Energy&nbsp; %{x:.6g} keV<br>${safe(QUANTITIES[mode].label)}&nbsp; %{y:.6g} ${safe(unit)}<extra></extra>`}));
     if (mode === "transmission" && result.uncertainty) {
       const group = `${axis}-transmission-stack`, convert = values => values.map(v => log && v <= 0 ? null : v * 100);
       traces.unshift({type: "scatter", x: result.energy_keV, y: convert(result.uncertainty.transmission_p025), yaxis: axis,
@@ -152,10 +268,10 @@
     }
     function axis(mode, log, side, p) {
       const color = side === "right" ? "#6954af" : "#38526a";
-      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 6, color}, standoff: 14},
+      return {title: {text: p.bold ? `<b>${safe(axisTitle(mode, unit))}</b>` : axisTitle(mode, unit), font: {size: p.font + 5, color}, standoff: 17},
         type: log ? "log" : "linear", tickfont: {size: p.font, color}, tickformat: log ? "" : "~g", nticks: 5,
-        ticks: "outside", ticklen: 5, tickcolor: "#91a4b5", linecolor: "#b8c8d4", showline: true,
-        showgrid: p.grid && side !== "right", gridcolor: "#e8eef3", zeroline: false, automargin: true,
+        ticks: "outside", ticklen: 7, tickwidth: 1.4, tickcolor: "#8297aa", linecolor: "#9eb0bf", linewidth: 1.25, showline: true,
+        showgrid: p.grid && side !== "right", gridcolor: "#dce6ee", gridwidth: 1, zeroline: false, automargin: true,
         exponentformat: "power", showexponent: "all", fixedrange: settings.gesture === "locked",
         rangemode: "tozero", ...(!log && QUANTITIES[mode].percent ? {range: [0, 100], autorange: false} : {autorange: true})};
     }
@@ -163,9 +279,9 @@
       const isMap = p.primary === "map", secondary = !isMap && p.secondary !== "none";
       let traces;
       if (isMap) traces = [{type: "heatmap", ...thicknessMap(result, settings.maxScale), zmin: 0, zmax: 100, zsmooth: false,
-        colorscale: [[0,"#172947"],[.2,"#215879"],[.45,"#188c99"],[.7,"#6ac8b2"],[1,"#f2edb6"]],
-        colorbar: {title: {text: "T · %", side: "top"}, thickness: 12, outlinewidth: 0, ticksuffix: "%", tickfont: {size: p.font}},
-        hovertemplate: "Energy: %{x:.6g} keV<br>Thickness scale: %{y:.4g}×<br>Transmission: %{z:.6g}%<extra></extra>"}];
+        colorscale: [[0,"#17233f"],[.16,"#30356f"],[.34,"#285a8e"],[.52,"#168b9a"],[.7,"#4fbaa0"],[.86,"#b5d58a"],[1,"#f5e9a6"]],
+        colorbar: {title: {text: "<b>Transmission · %</b>", side: "top", font: {size: p.font}}, thickness: 16, len: .88, outlinewidth: 1, outlinecolor: "#ced9e2", bgcolor: "rgba(255,255,255,.88)", ticksuffix: "%", tickfont: {size: p.font}},
+        hovertemplate: "<b>Thickness map</b><br>Energy&nbsp; %{x:.6g} keV<br>Thickness scale&nbsp; %{y:.4g}×<br>Transmission&nbsp; %{z:.6g}%<extra></extra>"}];
       else traces = [...traceData(result, configuration, p.primary, p.layer, unit, "y", p.logY, p.layers),
         ...(secondary ? traceData(result, configuration, p.secondary, p.layer, unit, "y2", p.logY2, p.layers) : [])];
       const shape = (energy, color, dash, width = 1) => ({type: "line", xref: "x", yref: "paper", x0: energy, x1: energy, y0: 0, y1: 1, layer: isMap ? "above" : "below", line: {color, dash, width}});
@@ -190,16 +306,16 @@
       }
       const layout = {height: exporting ? 760 : settings.layout === "grid" ? 500 : 560,
         margin: {l: 78, r: secondary || isMap ? 85 : 20, t: 42, b: 65},
-        paper_bgcolor: "#ffffff", plot_bgcolor: "#ffffff", font: {family: FONT, size: p.font, color: "#314b61"},
-        hovermode: isMap ? "closest" : "x unified", hoverlabel: {bgcolor: "#fff", bordercolor: "#c5d6e2", font: {family: FONT, size: p.font, color: "#243d56"}},
+        paper_bgcolor: "#ffffff", plot_bgcolor: "#f8fbfd", font: {family: FONT, size: p.font, color: "#263f55"},
+        hovermode: isMap ? "closest" : "x unified", hoverdistance: 70, spikedistance: 70, hoverlabel: {bgcolor: "rgba(255,255,255,.97)", bordercolor: "#93aabd", align: "left", namelength: -1, font: {family: FONT, size: p.font, color: "#1f3448"}},
         dragmode: settings.gesture === "locked" ? false : settings.gesture,
         uirevision: `${p.id}-${p.primary}-${p.secondary}-${unit}-${settings.revision}`,
-        legend: {orientation: "h", x: 0, y: 1.02, xanchor: "left", yanchor: "bottom", font: {size: p.font - 1}, groupclick: "togglegroup"},
-        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 6}, standoff: 12}, type: p.logX ? "log" : "linear",
+        legend: {orientation: "h", x: 0, y: 1.035, xanchor: "left", yanchor: "bottom", font: {size: Math.max(12, p.font - 1), color: "#314c63"}, bgcolor: "rgba(247,250,253,.92)", bordercolor: "#d9e3eb", borderwidth: 1, itemsizing: "constant", itemclick: "toggle", itemdoubleclick: "toggleothers", groupclick: "togglegroup"},
+        xaxis: {title: {text: p.bold ? "<b>Photon energy · keV</b>" : "Photon energy · keV", font: {size: p.font + 5, color: "#304b61"}, standoff: 15}, type: p.logX ? "log" : "linear",
           range: p.logX ? [Math.log10(min), Math.log10(max)] : [min, max], autorange: false,
-          ticks: "outside", ticklen: 5, tickfont: {size: p.font}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
-          linecolor: "#b8c8d4", tickcolor: "#91a4b5", showline: true, showgrid: p.grid, gridcolor: "#e2e9f0", zeroline: false,
-          automargin: true, fixedrange: settings.gesture === "locked", showspikes: true, spikemode: "across", spikesnap: "cursor", spikecolor: "#92a7b8", spikethickness: 1, hoverformat: ".6g"},
+          ticks: "outside", ticklen: 7, tickwidth: 1.4, tickfont: {size: p.font, color: "#385268"}, tickformat: "~g", nticks: settings.layout === "grid" ? 5 : 8, ...(p.logX ? {dtick: "D2"} : {}),
+          linecolor: "#9eb0bf", linewidth: 1.25, tickcolor: "#8297aa", showline: true, showgrid: p.grid, gridcolor: "#dce6ee", gridwidth: 1, zeroline: false,
+          automargin: true, fixedrange: settings.gesture === "locked", showspikes: true, spikemode: "across", spikesnap: "cursor", spikecolor: "#687f93", spikedash: "dot", spikethickness: 1.25, hoverformat: ".6g"},
         yaxis: axis(p.primary, !isMap && p.logY, "left", p), shapes, annotations,
         ...(secondary ? {yaxis2: {...axis(p.secondary, p.logY2, "right", p), overlaying: "y", side: "right", tickmode: "auto"}} : {})};
       for (const [name, range] of Object.entries(p.ranges)) if (layout[name]) Object.assign(layout[name], {range, autorange: false});
@@ -223,12 +339,34 @@
         layout.annotations.push({xref: "paper", yref: "paper", x: 0, y: -.32, xanchor: "left", yanchor: "top", align: "left", showarrow: false,
           text: `Narrow-beam Beer–Lambert · ${safe(result.provenance.backend?.name || result.provenance.engine)} ${safe(result.provenance.backend?.dataset_version || result.provenance.xraydb_version)} · ${safe(result.provenance.timestamp_utc)}<br>Configuration and figure settings are embedded in SVG metadata.`, font: {size: 12, color: "#607286"}});
       }
+      if (!exporting && document.documentElement?.dataset.theme === "dark") darken(layout, traces, isMap);
       return {data: traces, layout};
+    }
+    // Screen only: exported figures stay light, for papers and slides.
+    function darken(layout, traces, isMap) {
+      const ink = "#dbe5ee", muted = "#a9bac8", line = "#4a5d6e", panel = "#18222c";
+      Object.assign(layout, {paper_bgcolor: panel, plot_bgcolor: "#141c24"});
+      layout.font.color = ink;
+      Object.assign(layout.legend, {bgcolor: "rgba(24,34,44,.92)", bordercolor: line});
+      layout.legend.font.color = ink;
+      Object.assign(layout.hoverlabel, {bgcolor: "rgba(24,34,44,.97)", bordercolor: muted});
+      layout.hoverlabel.font.color = ink;
+      for (const name of ["xaxis", "yaxis", "yaxis2"]) {
+        const a = layout[name]; if (!a) continue;
+        const color = name === "yaxis2" ? "#c3b4f2" : muted;
+        a.title.font.color = color; a.tickfont.color = color;
+        Object.assign(a, {linecolor: line, tickcolor: line, gridcolor: "#2c3b49"});
+        if (a.spikecolor) a.spikecolor = muted;
+      }
+      layout.annotations.forEach(note => { note.font = {...note.font, color: muted}; if (note.bgcolor) note.bgcolor = panel; });
+      layout.shapes.forEach(shape => { if (shape.line.dash === "dash") shape.line.color = muted; });
+      if (isMap) Object.assign(traces[0].colorbar, {bgcolor: "rgba(24,34,44,.88)", outlinecolor: line, tickfont: {...traces[0].colorbar.tickfont, color: ink}});
+      if (isMap) traces[0].colorbar.title.font.color = ink;
     }
     function plotOptions() { return {responsive: true, displayModeBar: false, displaylogo: false, scrollZoom: settings.wheel && settings.gesture !== "locked", doubleClick: settings.gesture === "locked" ? false : "reset", showTips: false}; }
     function bindPlot(graph, original) {
       const current = () => settings.panels.find(p => p.id === original.id);
-      graph.on("plotly_restyle", () => { const p = current(); if (!p) return; p.visibility = Object.fromEntries(graph.data.filter(t => t.uid && t.visible != null).map(t => [t.uid, t.visible])); callbacks.onChange?.(); });
+      graph.on("plotly_restyle", () => { const p = current(); if (!p) return; p.visibility = Object.fromEntries(graph.data.filter(t => t.uid && t.visible != null).map(t => [t.uid, t.visible])); updateReadout(graph.closest(".plot-card"), p); callbacks.onChange?.(); });
       graph.on("plotly_relayout", async changes => {
         if (syncing) return;
         const p = current(); if (!p) return;
@@ -261,6 +399,15 @@
         if (settings.clickReference && settings.gesture !== "locked" && event.points?.length) callbacks.onReference(event.points[0].x);
       });
     }
+    function updateReadout(card, p) {
+      const readout = plotReadout(result, configuration, p, unit, settings.maxScale);
+      const body = card.querySelector(".plot-reference-body"), hadFocus = body.contains(document.activeElement);
+      const scrollLeft = body.querySelector(".table-wrap")?.scrollLeft || 0;
+      card.querySelector(".plot-summary").textContent = readout.text;
+      body.innerHTML = `<div class="table-wrap" tabindex="0" role="region" aria-label="Reference values for ${safe(QUANTITIES[p.primary].label)}"><table class="component-table"><caption>${safe(readout.caption)}</caption><thead><tr><th scope="col">Series / quantity</th><th scope="col">Energy · keV</th><th scope="col">Value</th><th scope="col">Unit</th></tr></thead><tbody>${readout.rows.map(r => `<tr><th scope="row">${safe(r.name)}<br>${safe(r.quantity)} · ${safe(r.axis)}${r.note ? `<br>${safe(r.note)}` : ""}</th><td>${safe(readableNumber(r.energy))}</td><td>${safe(readableNumber(r.value))}</td><td>${safe(r.unit)}</td></tr>`).join("")}</tbody></table></div>${readout.notes.map(note => `<p>${safe(note)}</p>`).join("")}`;
+      const table = body.querySelector(".table-wrap"); table.scrollLeft = scrollLeft;
+      if (hadFocus) table.focus({preventScroll: true});
+    }
     async function draw() {
       controls();
       if (!result || $("#view-overview").hidden) return;
@@ -273,7 +420,7 @@
         let card = $(`[data-plot-card="${p.id}"]`);
         if (!card) {
           card = document.createElement("article"); card.className = "plot-card"; card.dataset.plotCard = p.id;
-          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="card-controls"></div><div class="scientific-plot" id="plot-${p.id}" role="img"></div><p class="plot-note"></p>`;
+          card.innerHTML = `<header><button type="button" data-select-card="${p.id}"></button><span class="axis-badge"></span></header><div class="card-controls"></div><div class="scientific-plot" id="plot-${p.id}" role="img" aria-describedby="plot-summary-${p.id}"></div><p class="plot-summary" id="plot-summary-${p.id}"></p><details class="plot-reference-details"><summary>Reference values &amp; text description</summary><div class="plot-reference-body"></div></details><p class="plot-note"></p>`;
           grid.appendChild(card);
         }
         card.classList.toggle("selected", index === settings.active);
@@ -289,7 +436,9 @@
         // Re-measure when switching between rows, grid and the input sidebar.
         // Plotly.react otherwise keeps a previous wide plot inside a narrow card.
         f.layout.width = Math.max(240, Math.floor(node.getBoundingClientRect().width));
+        f.layout.height = plotHeight(f.layout.width, globalThis.innerHeight);
         node.setAttribute("aria-label", `${QUANTITIES[p.primary].title}${p.secondary !== "none" ? ` with ${QUANTITIES[p.secondary].label} on the right axis` : ""}`);
+        updateReadout(card, p);
         await Plotly.react(node, f.data, f.layout, plotOptions());
         if (fresh) bindPlot(node, p);
       }
@@ -301,10 +450,18 @@
       rendering = rendering.then(async () => { if (!queued) return; queued = false; await draw(); }).catch(e => callbacks.onError(`Plot: ${e.message}`));
       return rendering;
     }
+    // The export figure, matching the displayed zoom, hidden series and both independent axis scales.
+    function shownFigure(p) {
+      const f = figure(p, true), graph = $(`#plot-${p.id}`);
+      const visibility = new Map((graph?.data || []).map(t => [t.uid, t.visible]));
+      f.data.forEach(t => { if (visibility.has(t.uid)) t.visible = visibility.get(t.uid); });
+      for (const name of ["xaxis", "yaxis", "yaxis2"]) if (f.layout[name] && graph?._fullLayout?.[name]) Object.assign(f.layout[name], {range: [...graph._fullLayout[name].range], autorange: false});
+      return f;
+    }
     function reset(all = false) { (all ? settings.panels : [chosen()]).forEach(p => p.ranges = {}); settings.revision++; return render(); }
     $(".chart-panel").addEventListener("click", event => {
       const b = event.target.closest("button"); if (!b || b.disabled) return;
-      if (b.id === "export-svg" || b.id === "quick-export-svg" || b.dataset.selectCard || b.dataset.cardReset || b.dataset.cardCustomize) return;
+      if (["export-svg", "quick-export-svg", "export-png", "export-plot-data"].includes(b.id) || b.dataset.selectCard || b.dataset.cardReset || b.dataset.cardCustomize) return;
       const p = chosen();
       if (b.dataset.selectPlot !== undefined) settings.active = Number(b.dataset.selectPlot);
       if (b.dataset.quantity) { p.primary = b.dataset.quantity; p.logY = !!QUANTITIES[p.primary].log; if (p.secondary === p.primary || p.primary === "map") p.secondary = "none"; p.ranges = {}; settings.revision++; }
@@ -368,15 +525,24 @@
         if (changedUnit) { settings.panels.forEach(p => { delete p.ranges.yaxis; delete p.ranges.yaxis2; }); settings.revision++; }
         return render();
       },
+      redraw() { return render(); },
+      plotData() { const p = chosen(); return result ? {mode: p.primary, ...plotTable(result, configuration, p, unit, settings.maxScale)} : null; },
+      async exportPNG() {
+        await rendering;
+        if (!result) return;
+        const p = copy(chosen()), f = shownFigure(p);
+        const host = document.createElement("div"); host.className = "export-stage"; document.body.appendChild(host);
+        try {
+          await Plotly.newPlot(host, f.data, f.layout, {staticPlot: true, displayModeBar: false});
+          // 1400 × 760 at scale 3 is 4200 × 2280 pixels, about 300 dpi at journal page width.
+          callbacks.onImage(await Plotly.toImage(host, {format: "png", width: 1400, height: 760, scale: 3}), `attenuation-plot-${p.primary}.png`);
+        } finally { Plotly.purge(host); host.remove(); }
+      },
       async exportSVG() {
         await rendering;
         if (!result) return;
-        const p = copy(chosen()), snapshot = copy({configuration, provenance: result.provenance, settings, unit}), graph = $(`#plot-${p.id}`);
-        const f = figure(p, true);
-        // Match the displayed zoom, hidden series and both independent axis scales.
-        const visibility = new Map((graph?.data || []).map(t => [t.uid, t.visible]));
-        f.data.forEach(t => { if (visibility.has(t.uid)) t.visible = visibility.get(t.uid); });
-        for (const name of ["xaxis", "yaxis", "yaxis2"]) if (f.layout[name] && graph?._fullLayout?.[name]) Object.assign(f.layout[name], {range: [...graph._fullLayout[name].range], autorange: false});
+        const p = copy(chosen()), snapshot = copy({configuration, provenance: result.provenance, settings, unit});
+        const f = shownFigure(p);
         const host = document.createElement("div"); host.className = "export-stage"; document.body.appendChild(host);
         try {
           await Plotly.newPlot(host, f.data, f.layout, {staticPlot: true, displayModeBar: false});
@@ -407,5 +573,5 @@
       preferences() { return {lengthUnit: unit, dashboard: copy(settings)}; }
     };
   }
-  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, fromMM, toMM, valuesFor, thicknessMap, traceData, cleanPreferences, create};
+  return {LENGTH_UNITS, QUANTITIES, MAX_PLOTS, allPanels, energyRange, plotHeight, fromMM, toMM, valuesFor, thicknessMap, plotTable, allCurvesTable, HC_KEV_ANGSTROM, traceData, readableNumber, plotReadout, cleanPreferences, create};
 });

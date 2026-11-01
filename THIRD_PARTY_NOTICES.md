@@ -15,6 +15,17 @@ Plotly.js is vendored rather than loaded from a CDN so that the workbench runs
 with no network access after installation. Replacing it with a different
 version means replacing the accompanying licence text as well.
 
+## Browser version
+
+The site at https://faizalusama.github.io/X-ray_attenuation_calculator/ serves an unmodified XrayDB wheel and unmodified copies of the components below, taken from the official Pyodide release and checked against its published SHA-256 when the site is built. They are not stored in this repository. As with any website, GitHub Pages receives ordinary request information such as your IP address; the values you enter stay in your browser.
+
+| Component | Licence |
+|---|---|
+| Pyodide | MPL-2.0 |
+| NumPy, SciPy, SQLAlchemy *(Pyodide builds)* | As listed below |
+| typing_extensions | PSF-2.0 |
+| platformdirs | MIT |
+
 ## Runtime dependencies
 
 Installed from PyPI; not redistributed in this repository.
