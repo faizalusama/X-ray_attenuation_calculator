@@ -617,8 +617,47 @@
     return config;
   }
 
+
+  const MAX_SHARE_BYTES = 262144, MAX_SHARE_FRAGMENT = 65536;
+  async function boundedBytes(stream) {
+    const reader = stream.getReader(), chunks = []; let size = 0;
+    try {
+      for (;;) {
+        const {value, done} = await reader.read(); if (done) break;
+        size += value.byteLength;
+        if (size > MAX_SHARE_BYTES) throw new Error("Shared project is too large. Use a project file.");
+        chunks.push(value);
+      }
+    } finally { await reader.cancel(); reader.releaseLock(); }
+    const output = new Uint8Array(size); let offset = 0;
+    for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+    return output;
+  }
+  async function encodeSharedProject(configuration, compress = true) {
+    let bytes = new TextEncoder().encode(JSON.stringify({schema_version: 1, configuration: cleanProject({schema_version: 1, configuration})}));
+    if (bytes.length > MAX_SHARE_BYTES) throw new Error("Project is too large for a link. Use a project file.");
+    const gzip = compress && typeof CompressionStream !== "undefined";
+    if (gzip) bytes = await boundedBytes(new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip")));
+    let binary = ""; for (const byte of bytes) binary += String.fromCharCode(byte);
+    const encoded = btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+    if (encoded.length > MAX_SHARE_FRAGMENT) throw new Error("Project is too large for a link. Use a project file.");
+    return "#p1" + (gzip ? "g" : "r") + "." + encoded;
+  }
+  async function decodeSharedProject(fragment) {
+    if (!fragment.startsWith("#p1")) return null;
+    if (fragment.length > MAX_SHARE_FRAGMENT + 6 || !/^#p1[gr]\.[A-Za-z0-9_-]+$/.test(fragment)) throw new Error("Invalid shared project link.");
+    const binary = atob(fragment.slice(5).replaceAll("-", "+").replaceAll("_", "/"));
+    let bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    if (fragment[3] === "g") {
+      if (typeof DecompressionStream === "undefined") throw new Error("This browser cannot open compressed links. Use a project file.");
+      bytes = await boundedBytes(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")));
+    }
+    if (bytes.length > MAX_SHARE_BYTES) throw new Error("Shared project is too large.");
+    return cleanProject(JSON.parse(new TextDecoder("utf-8", {fatal: true}).decode(bytes)));
+  }
+
   // Pure data helpers are also exercised directly by Node regression tests.
-  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, parseSpectrumText, parseLength, csvText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
+  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, encodeSharedProject, decodeSharedProject, parseSpectrumText, parseLength, csvText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
   if (typeof document === "undefined") return;
 
   $("#config-form").noValidate=true;
@@ -741,6 +780,19 @@
   $("#quick-export-svg").addEventListener("click",exportSVG);
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
   $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
+  $("#share-project").addEventListener("click", async () => {
+    try {
+      const fragment = await encodeSharedProject(payload());
+      $("#share-link").value = location.href.split("#")[0] + fragment;
+      $("#share-dialog").showModal(); $("#share-link").select();
+    } catch (exception) { error(exception.message); }
+  });
+  $("#close-share").addEventListener("click", () => $("#share-dialog").close());
+  $("#copy-share").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("#share-link").value); toast("Share link copied."); }
+    catch { $("#share-link").select(); toast("Select and copy the link with your keyboard."); }
+  });
+  $("#share-dialog").addEventListener("close", () => $("#share-project").focus());
   $("#load-project").addEventListener("click",()=>$("#project-file").click());
   const fullscreenButton = $("#fullscreen-workspace");
   if (!document.documentElement.requestFullscreen) fullscreenButton.hidden = true;
@@ -825,7 +877,13 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) { const saved = JSON.parse(raw); state.configuration = cleanProject(saved); state.savedConfiguration = clone(state.configuration); restoreUI(saved.ui); restored = true; }
     } catch { /* Invalid or unavailable browser storage never blocks the calculator. */ }
+    let shareError = "";
+    try {
+      const shared = await decodeSharedProject(location.hash);
+      if (shared) { state.configuration = shared; state.savedConfiguration = clone(shared); restored = false; }
+    } catch (exception) { shareError = exception.message; }
     syncControls(); activateTab(state.tab); renderResults();
+    if (shareError) error("Could not open shared project: " + shareError);
     if (restored) toast("Restored saved controls and the last valid system from this browser.");
     try {
       const response=await fetch("/api/presets");if(!response.ok)throw new Error("Preset request failed");const data=await response.json();

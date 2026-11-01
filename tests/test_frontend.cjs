@@ -166,3 +166,18 @@ test('basis atomic and areal density survive a project round trip',()=>{
 test('CSV text keeps full precision and quotes headings with commas',()=>{
   assert.equal(csvText(['a','b, c'],[[0.1234567890123456,null]]),'a,"b, c"\r\n0.1234567890123456,\r\n');
 });
+
+test('share links round trip validated configuration, plain and gzip',async()=>{
+  const {encodeSharedProject,decodeSharedProject}=require('../static/app.js');
+  for (const compressed of [false,true]) {
+    const fragment=await encodeSharedProject(initial,compressed);
+    assert.deepEqual(await decodeSharedProject(fragment),cleanProject(project()));
+  }
+  assert.equal(await decodeSharedProject("#unrelated"),null);
+  await assert.rejects(()=>decodeSharedProject("#p1g.!"),/Invalid shared/);
+  const bad="#p1r."+Buffer.from(JSON.stringify({schema_version:99})).toString("base64url");
+  await assert.rejects(()=>decodeSharedProject(bad),/supported project/);
+  const {gzipSync}=require('node:zlib');
+  const bomb="#p1g."+gzipSync(" ".repeat(300000)).toString("base64url");
+  await assert.rejects(()=>decodeSharedProject(bomb),/too large/);
+});

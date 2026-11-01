@@ -10,11 +10,11 @@
   <link rel="stylesheet" href="/static/styles.css?v=00b956987638"><link rel="stylesheet" href="/static/dashboard.css?v=d956debc62de">
   <link rel="stylesheet" href="/static/readability.css?v=476f00facefc">
   <link rel="stylesheet" href="/static/materials.css?v=144b751c9cc5">
-  <link rel="stylesheet" href="/static/scattering.css?v=e67437ed0d2e">
-  <link rel="stylesheet" href="/static/dark.css?v=77221f68333d">
+  <link rel="stylesheet" href="/static/scattering.css?v=a5eb5d31e141">
+  <link rel="stylesheet" href="/static/dark.css?v=960c5df2b884">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
   <script src="/static/dashboard.js?v=ec4e6c5ca100" defer></script>
-  <script src="/static/app.js?v=9c90d8a51ac1" defer></script>
+  <script src="/static/app.js?v=91130aa47d64" defer></script>
   <script src="/static/scattering.js?v=3399a7f922fa" defer></script>
   <script src="/static/materials.js?v=02430942a411" defer></script>
 </head>
@@ -24,7 +24,7 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand-name">X-ray Attenuation&nbsp;<span>Calculator</span><span class="brand-divider"></span><span class="topbar-subtitle">Materials research workspace</span></div>
-      <div class="topbar-right"><span class="local-badge"><i></i> Local workspace</span><button class="button quiet small" id="theme-toggle" title="Switch between automatic, light and dark themes">Theme: Auto</button><button class="button quiet small" id="fullscreen-workspace" aria-pressed="false">Full screen</button><button class="button quiet small" id="load-project">Open project</button><button class="button outline small" id="save-project">Save project <span aria-hidden="true">↗</span></button></div>
+      <div class="topbar-right"><span class="local-badge"><i></i> Local workspace</span><button class="button quiet small" id="theme-toggle" title="Switch between automatic, light and dark themes">Theme: Auto</button><button class="button quiet small" id="fullscreen-workspace" aria-pressed="false">Full screen</button><button class="button quiet small" id="share-project" aria-haspopup="dialog">Share link</button><button class="button quiet small" id="load-project">Open project</button><button class="button outline small" id="save-project">Save project <span aria-hidden="true">↗</span></button></div>
     </header>
     <main id="main">
       <section class="page-heading">
@@ -151,6 +151,7 @@
       <footer class="page-footer"><span>X-RAY ATTENUATION CALCULATOR <span class="footer-dot">·</span> For multicomponent materials</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span> <button type="button" id="show-guide" class="link-button">Show guide</button></span></footer>
     </main>
   </div>
+  <dialog id="share-dialog" class="utility-dialog" aria-labelledby="share-title"><h2 id="share-title">Share this configuration</h2><p>The configuration is stored in the URL fragment and opened locally by the recipient.</p><label>Project link<textarea id="share-link" rows="4" readonly></textarea></label><div class="utility-actions"><button id="copy-share" class="button outline">Copy link</button><button id="close-share" class="button outline">Close</button></div></dialog>
   <input type="file" id="project-file" accept="application/json,.json" hidden>
   <input type="file" id="spectrum-file" accept="text/csv,.csv,.txt" hidden>
   <button type="button" id="ideas-button" class="ideas-trigger" aria-expanded="false" aria-controls="suggestions-section" title="Suggestions for this system"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M8.5 14.5a6 6 0 1 1 7 0c-1 .7-1.5 1.6-1.5 3.5h-4c0-1.9-.5-2.8-1.5-3.5Z"/><path d="M12 1V0M4 4 2 2M20 4l2-2"/></svg><span>Ideas</span></button>
