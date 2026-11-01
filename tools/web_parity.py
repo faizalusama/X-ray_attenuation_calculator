@@ -59,6 +59,16 @@ def configurations() -> dict[str, dict[str, Any]]:
     return configs
 
 
+def _difference(browser: float, native: float, path: str) -> float:
+    largest = max(abs(browser), abs(native))
+    if largest < UNDERFLOW:
+        return 0.0
+    # T = exp(-τ), so tiny rounding in a large τ is a large relative difference in T: at
+    # T = 4e-237, one part in 1e15 of τ reads as 1.7e-12. Judge these by τ, which is what is computed.
+    scale = max(1.0, -log(largest)) if "transmi" in path else 1.0
+    return abs(browser - native) / largest / scale
+
+
 def differences(browser: Any, native: Any, path: str = "") -> Iterator[tuple[str, float | None]]:
     """Yield ``(path, relative difference)`` per unequal number, ``None`` for a structural mismatch."""
     if isinstance(browser, dict) and isinstance(native, dict):
@@ -75,8 +85,7 @@ def differences(browser: Any, native: Any, path: str = "") -> Iterator[tuple[str
             yield from differences(left, right, f"{path}[{index}]")
     elif isinstance(browser, int | float) and isinstance(native, int | float):
         if browser != native:
-            largest = max(abs(browser), abs(native))
-            yield path, 0.0 if largest < UNDERFLOW else abs(browser - native) / largest
+            yield path, _difference(browser, native, path)
     elif browser != native:
         yield path, None
 

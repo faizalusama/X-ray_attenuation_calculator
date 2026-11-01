@@ -95,7 +95,7 @@ def test_form_factors_start_at_the_atomic_number():
 
 # Limits set just above the differences measured on 1 November 2026, for Q up to 25 and up to 50.7 1/Å.
 @pytest.mark.parametrize("symbol,low_q,high_q", [("O", 0.01, 0.06), ("Si", 0.01, 0.04), ("Fe", 0.02, 0.07), ("Hf", 0.04, 0.11), ("Pb", 0.05, 0.12)])
-def test_form_factors_agree_with_hubbell_tables_in_xraylib(symbol, low_q, high_q):
+def test_form_factors_agree_with_epdl97_in_xraylib(symbol, low_q, high_q):
     # xraylib's attenuation data are Elam's, but its form factors are an independent tabulation.
     xraylib = pytest.importorskip("xraylib")
     curves = total_scattering(request(layer([(symbol, 1)]), energy=100, two_theta_max_deg=60))["curves"]

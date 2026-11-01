@@ -3,6 +3,7 @@
 import json
 import re
 import zipfile
+from math import log
 from pathlib import Path
 
 import pytest
@@ -100,6 +101,15 @@ def test_comparison_reports_every_kind_of_difference():
     assert list(differences("x", "y")) == [("", None)]
     assert list(differences({"provenance": {"timestamp_utc": "now"}}, {"provenance": {"timestamp_utc": "then"}})) == []
     assert list(differences(1e-300, 2e-300)) == [("", 0.0)], "underflowing values are not meaningful"
+
+
+def test_transmission_differences_are_judged_by_optical_depth():
+    tau = 544.0
+    native = 1e-236
+    browser = native * (1 + 1.7e-12)
+    assert next(differences({"transmission": browser}, {"transmission": native}))[1] == pytest.approx(1.7e-12 / -log(native), rel=1e-3)
+    assert next(differences({"transmission": 0.5}, {"transmission": 0.51}))[1] == pytest.approx(0.01 / 0.51, rel=1e-9), "no change above T = 1/e"
+    assert next(differences({"optical_depth": tau * (1 + 1.7e-12)}, {"optical_depth": tau}))[1] == pytest.approx(1.7e-12, rel=1e-3), "other numbers unchanged"
 
 
 def test_comparison_covers_the_measured_glasses():

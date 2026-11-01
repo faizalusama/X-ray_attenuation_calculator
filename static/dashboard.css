@@ -166,3 +166,4 @@ input:not([type=checkbox]):not([type=range]),select,textarea{border-color:#c9d6e
 .toast button{margin-left:10px;padding:3px 10px;border:1px solid #fff;border-radius:6px;background:transparent;color:#fff;font:inherit;font-weight:700;cursor:pointer;pointer-events:auto}
 .link-button{min-height:24px;padding:0;border:0;background:none;color:#0b6b6f;font:inherit;text-decoration:underline;cursor:pointer}
 @media (max-width:720px){.first-run{flex-direction:column;gap:12px}}
+@media(max-width:600px){.export-bar,.export-bar>div{flex-wrap:wrap;min-width:0}.topbar-right{flex-wrap:wrap}}

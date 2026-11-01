@@ -37,8 +37,8 @@ The **Total scattering** tab gives the numbers needed to plan and interpret an X
 
 - Number densities of silica, water, silicon and copper, and silica's pair weights at Q = 0.
 - Cu Kα1 and Mo Kα1 Qmax at backscattering, the Compton formula, and the flat-plate optimum by direct numerical maximization.
-- Form factors against the separate Hubbell tabulation in xraylib. Up to Q = 25 Å⁻¹ the largest differences are 0.75% (O), 0.48% (Si), 1.8% (Fe), 3.6% (Hf) and 4.8% (Pb). Up to Q = 50.7 Å⁻¹ they are 5.0%, 3.5%, 6.1%, 9.9% and 11.4%. The test is skipped when xraylib is not installed.
-- f′ and f″ against xraylib for Cu, Hf and Pb: f′ within 0.7%, 4.5% and 5.9%, and f″ within 3.6%, 2.1% and 1.3%. xraylib's f″ has the opposite sign convention. A small f′ can differ more in relative terms: Zr at 60 keV differs by 15%, which is 0.02 electrons.
+- Form factors against the separate EPDL97 tabulation in xraylib. Up to Q = 25 Å⁻¹ the largest differences are 0.75% (O), 0.48% (Si), 1.8% (Fe), 3.6% (Hf) and 4.8% (Pb). Up to Q = 50.7 Å⁻¹ they are 5.0%, 3.5%, 6.1%, 9.9% and 11.4%. The test is skipped when xraylib is not installed.
+- f′ and f″ against xraylib's EPDL97 values for Cu, Hf and Pb: f′ within 0.7%, 4.5% and 5.9%, and f″ within 3.6%, 2.1% and 1.3%. xraylib's f″ has the opposite sign convention. A small f′ can differ more in relative terms: Zr at 60 keV differs by 15%, which is 0.02 electrons.
 - Attenuation against the calculator's own result, and the local server against the browser version.
 
 Every reference in the tab was resolved against Crossref or OpenAlex on 1 November 2026. Authors' reduction programs may use different form-factor tables, so small differences from their output are expected.
