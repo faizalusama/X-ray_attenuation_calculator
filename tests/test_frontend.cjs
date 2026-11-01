@@ -181,3 +181,12 @@ test('share links round trip validated configuration, plain and gzip',async()=>{
   const bomb="#p1g."+gzipSync(" ".repeat(300000)).toString("base64url");
   await assert.rejects(()=>decodeSharedProject(bomb),/too large/);
 });
+
+test('thickness curves obey attenuation length and oblique path length',()=>{
+  const {thicknessCurve}=require('../static/app.js');
+  const curve=thicknessCurve(10,2);
+  assert.equal(curve.transmission[0],1);
+  assert.ok(Math.abs(curve.transmission[100]-1/Math.E)<1e-14);
+  assert.ok(Math.abs(thicknessCurve(10,1,60).transmission.at(-1)-Math.exp(-2))<1e-14);
+  assert.throws(()=>thicknessCurve(1,0),/Invalid thickness/);
+});

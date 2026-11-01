@@ -357,7 +357,33 @@
     return `<div class="detail-metric"><span>${label}</span><strong>${number(value)}<small>${unit}</small></strong></div>`;
   }
   function empty(message) { return `<div class="empty-state">${esc(message)}</div>`; }
+
+  function thicknessCurve(mu_cm_inv, maximum_mm, angle_deg = 0) {
+    if (![mu_cm_inv, maximum_mm, angle_deg].every(Number.isFinite) || mu_cm_inv < 0 || maximum_mm <= 0 || Math.abs(angle_deg) >= 89.9) throw new Error("Invalid thickness-plot range or angle.");
+    const thickness_mm = Array.from({length: 201}, (_, i) => maximum_mm * i / 200);
+    return {thickness_mm, transmission: thickness_mm.map(t => Math.exp(-mu_cm_inv * t / (10 * Math.cos(angle_deg * Math.PI / 180))))};
+  }
+  function renderThicknessPlot() {
+    const host = $("#materials-thickness");
+    host.hidden = !state.result;
+    if (!state.result || !window.Plotly || state.tab !== "materials") return;
+    try {
+      const max = Number($("#thickness-maximum").value);
+      const traces = state.result.layers.map((layer, i) => {
+        const curve = thicknessCurve(layer.reference.mu_linear_cm_inv, max, state.resultConfiguration.layers[i].angle_deg || 0);
+        return {type: "scatter", mode: "lines", name: layer.name, x: curve.thickness_mm.map(displayLength), y: curve.transmission.map(t => t * 100), line: {color: colors[i % colors.length], width: 2.5}};
+      });
+      const dark = document.documentElement.dataset.theme === "dark";
+      window.Plotly.react("thickness-plot", traces, {title: {text: "Transmission at " + number(state.result.reference.energy_keV) + " keV", font: {size: 16}},
+        xaxis: {title: {text: "Normal thickness (" + state.lengthUnit + ")"}}, yaxis: {title: {text: "Transmission (%)"}, range: [0, 100]},
+        margin: {l: 64, r: 20, t: 46, b: 58}, paper_bgcolor: dark ? "#18222c" : "#fff", plot_bgcolor: dark ? "#18222c" : "#fff",
+        font: {color: dark ? "#dbe5ee" : "#253647", size: 13}, legend: {orientation: "h"}, hovermode: "x unified"},
+        {responsive: true, displayModeBar: false});
+      $("#thickness-status").textContent = "Each material separately, using its configured angle from the normal and effective density.";
+    } catch (exception) { $("#thickness-status").textContent = exception.message; window.Plotly.purge("thickness-plot"); }
+  }
   function renderMaterials() {
+    renderThicknessPlot();
     if (!state.result) { $("#materials-results").innerHTML = empty(state.stale ? "Your configuration has changed. Calculate to refresh material properties." : "Calculate your system to inspect material properties."); return; }
     $("#materials-results").innerHTML = state.result.layers.map((layer, index) => `<article class="panel material-result"><h3><span class="section-number">${String(index + 1).padStart(2, "0")}</span> ${esc(layer.name)}</h3><div class="material-meta"><span>Effective density <strong>${number(layer.density_g_cm3)} g/cm³</strong></span><span>Normal thickness <strong>${number(displayLength(layer.thickness_mm))} ${state.lengthUnit}</strong></span><span>Ray path <strong>${number(displayLength(layer.path_length_mm))} ${state.lengthUnit}</strong></span><span>Areal density <strong>${number(layer.density_g_cm3 * layer.thickness_mm * 100)} mg/cm²</strong></span></div><div class="eyebrow subtle">REFERENCE · ${number(state.result.reference.energy_keV)} keV</div><div class="detail-metrics">${detailMetric("Mass attenuation", layer.reference.mu_mass_cm2_g, "cm²/g")}${detailMetric("Linear attenuation", layer.reference.mu_linear_cm_inv, "cm⁻¹")}${detailMetric("Layer transmission", layer.reference.transmission * 100, "%")}${detailMetric("Half-value layer", displayLength(layer.reference.hvl_mm), state.lengthUnit)}${detailMetric("Tenth-value layer", displayLength(layer.reference.tvl_mm), state.lengthUnit)}${detailMetric("Attenuation length", displayLength(layer.reference.attenuation_length_mm), state.lengthUnit)}</div><p class="help-text">Attenuation lengths are path lengths in this material, evaluated directly at the reference energy.</p><div class="eyebrow subtle">ELEMENTAL MASS FRACTIONS</div><div class="composition-breakdown">${Object.entries(layer.elemental_mass_fractions).sort((a,b) => b[1] - a[1]).map(([element, fraction]) => `<span class="element-chip"><strong>${esc(element)}</strong>${percent(fraction)}%</span>`).join("")}</div><div class="table-wrap"><table class="component-table"><thead><tr><th>Component formula</th><th>Normalized mass fraction</th><th>Molar mass · g/mol</th></tr></thead><tbody>${layer.components.map(component => `<tr><td>${esc(component.formula)}</td><td>${percent(component.mass_fraction)}%</td><td>${number(component.molar_mass_g_mol, 6)}</td></tr>`).join("")}</tbody></table></div></article>`).join("");
   }
@@ -657,7 +683,7 @@
   }
 
   // Pure data helpers are also exercised directly by Node regression tests.
-  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, encodeSharedProject, decodeSharedProject, parseSpectrumText, parseLength, csvText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
+  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, thicknessCurve, encodeSharedProject, decodeSharedProject, parseSpectrumText, parseLength, csvText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
   if (typeof document === "undefined") return;
 
   $("#config-form").noValidate=true;
@@ -899,6 +925,8 @@
     syncSource();
     live.flush();
   }
+  $("#thickness-maximum").addEventListener("input", renderThicknessPlot);
+  window.addEventListener("attenuation:update", renderThicknessPlot);
   $("#model-scope").addEventListener("toggle", remember);
   function showIdeas(open) {
     $("#suggestions-section").hidden = !open;
