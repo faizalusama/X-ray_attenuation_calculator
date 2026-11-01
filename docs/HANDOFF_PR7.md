@@ -2,14 +2,29 @@
 
 **Do not merge, tag, release or enable GitHub Pages without the owner's explicit go-ahead.** Read `AGENTS.md` first.
 
-## Done in the last commit, not yet confirmed by CI
-Fixes for three CI failures: `.pyodide-cache` excluded from the manifest; transmissions below 1/e judged by τ in `tools/web_parity.py` (disclose this to the owner; see `docs/VALIDATION.md`); export buttons wrap on phones.
+## Completed on 1 November 2026 (Codex)
 
-Data tables generated in `xray_workbench/scattering_data/` but not yet used: incoherent S (Hubbell 1975, via xraylib) and neutron lengths (Sears 1992, via NIST).
+The failing test was a missing math.log import; the scattering-table generator
+also had two obsolete lint suppressions. These were fixed first in 58cbbab,
+with green CI before feature work. All 15 items below were then implemented
+in order, with a separate commit after each feature.
 
-xraylib's elastic form factors and f' are EPDL97, not Hubbell. Only its S function is Hubbell.
+826 Python tests and 58 Node tests pass locally; ruff, strict mypy and manifest
+verification pass. The expanded UI audit checks populated tools and dialogs at
+1440, 768 and 375 px in light and dark themes. Real Pyodide exercises the 16
+attenuation configurations plus nine additional API cases.
 
-## To build (owner approved; keep unpublished)
+The attenuation digest remains exactly:
+4d50d8cd05b54d9c0251e633a5d803b6ced194e1ec3eb4c5134ee02fdb5372e4.
+
+The inherited parity rule for T < 1/e scales relative transmission differences by
+max(1,-ln T). Its 1e-12 limit was not changed; see docs/VALIDATION.md. This is an
+optical-depth-scaled comparison, not byte equality of browser results.
+
+Both generated data tables are now used. xraylib elastic form factors and f' are
+EPDL97, not Hubbell; only its incoherent scattering function is from Hubbell.
+
+## Implemented features (approved development; keep unpublished)
 Total scattering tab:
 1. Compton vs Q: <S(Q)> with Klein-Nishina recoil, and coherent fraction. Check by integrating dσ/dΩ against Elam coherent and incoherent μ/ρ.
 2. Ionic form factors: per-element choice from `xraydb.f0_ions`; f0(0) should be about Z - charge.
@@ -37,8 +52,25 @@ New "Scattering tools" tab, proposed by Claude:
 - Plots use `displayModeBar: false`, because Plotly's toolbar can upload charts.
 - After CSS or HTML edits, run `tools/build_dark_css.py`, then `tools/stamp_assets.py`, then `tools/manifest.py write`.
 - The native digest must stay `4d50d8cd05b54d9c…`. Do not invent data or citations; verify DOIs. Commit as `faizalusama`.
-- Check phone width on every tab. Node and Playwright may be absent locally, so read the CI logs.
+- Node and Playwright are now installed locally. Check CI as well as local results.
 - Site build needs the Pyodide release (340 MB, downloaded automatically).
+
+## Review and limits
+
+New routes: /api/compare, /api/citation and /api/scattering-tools in both runtimes.
+See docs/SCATTERING_TOOLS.md and docs/TOTAL_SCATTERING.md for formats and formulas.
+No experimental validation or fitting is claimed. Disc integration is withheld
+above muR=30. Powder symmetry is not expanded: supply the complete unit cell.
+The Fourier tool accepts normalized S(Q), not raw intensities.
+
+Preview from this worktree with python launch.py. For an isolated browser build:
+python tools/build_web.py --output _site/review
+python tools/web_parity.py --site _site/review
+Serve _site/review locally to inspect the browser distribution.
+
+Publishing gates remain closed. Before an approved release, review/remove the
+unreleased markers in README and citation.py, supply the actual release date,
+and adjust the citation-status test. Never invent a version DOI.
 
 ## After the owner approves publishing
 Enable Pages before merging, merge, check the live site, release v1.1.0, record the DOI, update `date-released`. Then regenerate Fig. S2 footer, `.ris`/`.enw` and the citation paragraph in `paper-2608.15675-corrections`.

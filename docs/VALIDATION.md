@@ -258,3 +258,24 @@ a/pi [1/(a²+(b-r)²) - 1/(a²+(b+r)²)]. At a=1, b=3, Q=0..40 Å⁻¹,
 8001 samples reproduce that analytic result within 1e-8 Å⁻².
 The Lorch window has its continuous limit at Q=0. Flat S=1 gives G=0.
 No raw-intensity reduction, extrapolation or fitted baseline is performed.
+
+## PR7 completion checks — 1 November 2026, unpublished
+
+826 Python tests and 58 Node tests pass locally; ruff, strict mypy and manifest
+verification pass. The expanded UI audit includes all populated tools, batch
+results and share/citation dialogs at 1440, 768 and 375 px in both themes.
+No automated violations or page errors were found. This is not a complete
+accessibility certification. Safari, Firefox and real devices remain untested.
+
+The original attenuation digest was recomputed, unchanged:
+4d50d8cd05b54d9c0251e633a5d803b6ced194e1ec3eb4c5134ee02fdb5372e4.
+Real Pyodide compared 247,930 numbers: 242,569 identical, 5,361 different;
+nine additional API smoke cases also succeeded. The maximum comparison metric
+was 5.46e-16 in this Windows run. The inherited rule below T=1/e divides relative
+transmission difference by max(1,-ln T), approximating relative optical-depth
+error for small differences. It does not claim raw relative transmission error
+at that scaled value or byte equality. The 1e-12 limit was not changed.
+
+New utilities are checked against analytic limits and reference examples, not
+measured specimens. No model tolerances were widened. No merge, tag, release,
+Pages enablement or new DOI occurred during this work.

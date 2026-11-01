@@ -11,7 +11,7 @@ The **Total scattering** tab gives the numbers needed to plan and interpret an X
 | Peak width from Qmax | FWHM of the peak a finite Qmax imposes: 3.791/Qmax without a window, 5.437/Qmax with a Lorch window. Both are computed from the integral in `tests/test_scattering.py`. |
 | Number density ρ₀ | ρ N_A Σ(wᵢ/Aᵢ), in atoms/Å³ |
 | G(r) slope at low r | −4πρ₀ |
-| f₀(Q) | Waasmaier & Kirfel (1995), neutral atoms, through XrayDB. The fits are valid for sinθ/λ from 0 to 6 Å⁻¹, so curves stop at Q = 75.4 Å⁻¹. |
+| f₀(Q) | Waasmaier & Kirfel (1995), neutral or selected ionic fits, through XrayDB. The fits are valid for sinθ/λ from 0 to 6 Å⁻¹, so curves stop at Q = 75.4 Å⁻¹. |
 | f′, f″ | Chantler (2000), through XrayDB, at the current energy. Not available above uranium. |
 | ⟨f⟩², ⟨f²⟩, Laue term | Atomic-fraction averages of f₀(Q) |
 | Pair weights | wᵢⱼ(Q) = (2 − δᵢⱼ) cᵢcⱼfᵢfⱼ/⟨f⟩², using f₀ alone. They sum to 1 at every Q. |
@@ -25,11 +25,11 @@ The **Total scattering** tab gives the numbers needed to plan and interpret an X
 
 - It does not model the sample's structure or calculate S(Q) or G(r) from measured data.
 - Pair weights ignore f′ and f″, so they do not apply near an absorption edge. The tab warns when the beam is within 2% of a K or L3 edge. The 2% is a display threshold, not a physical limit.
-- Form factors are for independent, neutral atoms, without oxidation state or bonding.
-- Compton scattering is not given as a function of Q. XrayDB has no such table, and adding one would mean importing and checking another dataset.
-- μD and transmission describe the beam path only. They are not an absorption correction, and multiple scattering, polarization and container scattering are not included.
+- Ionic choices affect f0 and pair weights only. They neither enforce charge neutrality nor model bonding. The Compton/coherent cross-check retains neutral-atom data.
+- Compton curves use the checked Hubbell incoherent scattering function and Klein–Nishina recoil. This atomic incoherent function differs from structural S(Q). Binding profiles and detector response are excluded.
+- Direct transmission is the central beam path. The additional disc integral assumes full uniform illumination, an axis perpendicular to the scattering plane and no wall. muR>30 is withheld. Thomson polarization factors are separate: (1+cos²2θ)/2 unpolarized, cos²2θ in-plane linear, and 1 perpendicular linear. Multiple scattering remains excluded.
 - A source row is one energy, not a tube spectrum. The 60, 80 and 100 keV rows are examples, not particular beamlines.
-- It covers X-rays only. Neutron scattering lengths are not included.
+- Natural-isotope neutron weights use Sears/NIST bound lengths. Negative weights are physical. Normalized weights are undefined near zero mean length. Thermal absorption values are not an energy-dependent neutron transport model.
 
 ## How it was checked
 
@@ -42,3 +42,16 @@ The **Total scattering** tab gives the numbers needed to plan and interpret an X
 - Attenuation against the calculator's own result, and the local server against the browser version.
 
 Every reference in the tab was resolved against Crossref or OpenAlex on 1 November 2026. Authors' reduction programs may use different form-factor tables, so small differences from their output are expected.
+
+## Added checks
+
+The SiO2 differential integrals at 20 keV differ from Elam by +0.01097% coherent
+and +0.39338% incoherent, reported without forced normalization. Full-angle
+integration is unavailable beyond the f0 fit domain. Neutron weights sum to one
+when defined; H–O has a negative weight. Fe2+ gives f0(0) about 24 electrons,
+without changing attenuation. Chantler edge scans do not resolve chemical XANES.
+
+Bundled sources: Hubbell (1975), doi:10.1063/1.555523, incoherent functions via
+xraylib; Sears (1992), doi:10.1080/10448639208218770, via
+https://www.ncnr.nist.gov/resources/n-lengths/list.html.
+The separate tools are described in [SCATTERING_TOOLS.md](SCATTERING_TOOLS.md).

@@ -4,13 +4,15 @@
 [![CI](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. **[Use it in your browser](https://faizalusama.github.io/X-ray_attenuation_calculator/)** with nothing to install, or run it locally as described below. Version 1.1.0 adds the browser version and gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
+> **Unreleased development candidate.** PR7 remains a draft. Version 1.1.0 and its new tools have not been published or assigned a new version DOI. The public site may show an older version. Preview this branch locally.
+
+A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. Run this candidate locally as described below. The intended browser distribution runs the same engine without installation. Version 1.1.0 adds the browser version and gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
 
 > **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
 
 ## Use it in your browser
 
-Open **https://faizalusama.github.io/X-ray_attenuation_calculator/**. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, all of it from this site. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
+After publishing approval, the browser distribution is intended for **https://faizalusama.github.io/X-ray_attenuation_calculator/**. For this branch, run locally or build and serve the site directory for review. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, all of it from this site. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
 
 Results match the local version to within floating-point rounding; see the [validation record](docs/VALIDATION.md). Each exported result records the runtime in its provenance.
 
@@ -71,6 +73,8 @@ The interface has automatic, light and dark themes, and removing a layer or comp
 
 - **Composition:** chemical formula parsing, automatic molecular masses, normalized wt% / mol% / at.% / vol% input, elemental mass breakdown, and illustrative materials presets.
 - **Materials library:** searchable compositions from NIST SRD 126 and PNNL-15870 Rev. 2, plus stoichiometric phases whose densities are typical values, clearly marked unverified. Compare curves, view a density-against-attenuation overview, and add any entry to the stack. See [docs/MATERIALS.md](docs/MATERIALS.md).
+- **Scattering tools:** optical constants, penetration depth, Parratt reflectivity, X-ray/neutron SLD contrast, Porod invariant, diffraction conversion, Scherrer size, powder peaks and S(Q) → G(r). See [docs/SCATTERING_TOOLS.md](docs/SCATTERING_TOOLS.md).
+- **Sharing and comparison:** URL-fragment project links, transmission versus thickness, per-row batch CSV comparison and BibTeX export.
 - **Total scattering:** Qmax and r-grid step, number density, form factors, f′ and f″, Faber-Ziman pair weights, capillary μD, Compton shift, likely fluorescence, a source comparison, correlation-function definitions and references. It plans a measurement; it does not reduce data. See [docs/TOTAL_SCATTERING.md](docs/TOTAL_SCATTERING.md).
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
 - **Geometry:** multiple homogeneous planar layers, individual thicknesses or areal densities, and incidence angles measured from the surface normal.
@@ -82,7 +86,7 @@ The interface has automatic, light and dark themes, and removing a layer or comp
 
 ## Scientific scope
 
-This is a **narrow-beam Beer–Lambert calculation** using XrayDB's Elam atomic data. Removed primary photons include scattering; **1 − T is not absorbed energy or dose**. The model does not propagate fluorescent or scattered photons, simulate broad-beam buildup, model diffraction / XANES / EXAFS, or predict detector response. Layer order does not change primary transmission in this model.
+The attenuation engine is a **narrow-beam Beer–Lambert calculation** using XrayDB's Elam atomic data. Removed primary photons include scattering; **1 − T is not absorbed energy or dose**. The attenuation model does not propagate fluorescent or scattered photons, simulate broad-beam buildup, model diffraction / XANES / EXAFS, or predict detector response. Layer order does not change primary transmission in this model.
 
 The allowed 1–800 keV interval avoids the backend's out-of-range clamping. XrayDB describes cross-sections as typically most reliable around 0.25–250 keV; energies above 250 keV produce a warning. A denser grid is not a guarantee of physical accuracy. Measured composition, density, thickness, geometry, and application-specific validation remain essential, especially around absorption edges.
 
@@ -165,7 +169,9 @@ Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* 
 
 Cite the exact version you used, so that your numbers can be traced to the code that produced them. Each version has its own DOI, listed on the [Zenodo page](https://doi.org/10.5281/zenodo.17602370). The concept DOI 10.5281/zenodo.17602370 covers all versions and always resolves to the newest.
 
-> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.17602370
+> Development-candidate citation only; cite the published version actually used.
+>
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.1.0) [Unreleased software candidate]. Concept DOI: https://doi.org/10.5281/zenodo.17602370
 
 Please also cite the atomic data behind every reported number:
 
