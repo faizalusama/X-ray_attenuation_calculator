@@ -27,7 +27,7 @@ def without_timestamp(result):
     return result
 
 
-@pytest.mark.parametrize("route", ["health", "presets", "xray-sources", "materials", "materials?q=alumina",
+@pytest.mark.parametrize("route", ["health", "presets", "citation", "xray-sources", "materials", "materials?q=alumina",
                                    "materials?category=glass&verified_density=true", "materials/landscape?energy_keV=40",
                                    "materials/stoich-alumina-corundum?thickness_mm=2"])
 def test_read_routes_match_the_local_server(route):

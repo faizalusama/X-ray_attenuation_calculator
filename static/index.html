@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="/static/dark.css?v=960c5df2b884">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
   <script src="/static/dashboard.js?v=ec4e6c5ca100" defer></script>
-  <script src="/static/app.js?v=0633272f16fe" defer></script>
+  <script src="/static/app.js?v=77e61fd2ed42" defer></script>
   <script src="/static/comparison.js?v=170fb7575536" defer></script>
   <script src="/static/scattering.js?v=3399a7f922fa" defer></script>
   <script src="/static/materials.js?v=02430942a411" defer></script>
@@ -149,9 +149,10 @@
         </section>
       </div>
       <section id="suggestions-section" class="suggestions-strip expanded" hidden aria-label="Suggestions for this system"><div class="suggestions-heading"><span class="eyebrow">RESEARCH ASSIST</span><h2>Suggestions for your system</h2><span id="suggestions-context">Based on the latest valid calculation</span><button type="button" id="close-suggestions" aria-label="Close suggestions">Close ×</button></div><div id="smart-suggestions" class="suggestions-grid"></div></section>
-      <footer class="page-footer"><span>X-RAY ATTENUATION CALCULATOR <span class="footer-dot">·</span> For multicomponent materials</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span> <button type="button" id="show-guide" class="link-button">Show guide</button></span></footer>
+      <footer class="page-footer"><span>X-RAY ATTENUATION CALCULATOR <span class="footer-dot">·</span> For multicomponent materials</span><span>Local computation. Reproducible results. <span id="remember-status">Settings saved on this browser.</span> <button type="button" id="show-guide" class="link-button">Show guide</button> <button type="button" id="cite-this" class="link-button" aria-haspopup="dialog">Cite this</button></span></footer>
     </main>
   </div>
+  <dialog id="citation-dialog" class="utility-dialog" aria-labelledby="citation-title"><h2 id="citation-title">Cite this software</h2><p id="citation-note"></p><p>Also cite the underlying Elam atomic data listed in Methods. A version DOI identifies the exact software used; the concept DOI groups all versions.</p><label>BibTeX<textarea id="citation-bibtex" rows="12" readonly></textarea></label><div class="utility-actions"><button id="download-citation" class="button outline">Download BibTeX</button><button id="close-citation" class="button outline">Close</button></div></dialog>
   <dialog id="share-dialog" class="utility-dialog" aria-labelledby="share-title"><h2 id="share-title">Share this configuration</h2><p>The configuration is stored in the URL fragment and opened locally by the recipient.</p><label>Project link<textarea id="share-link" rows="4" readonly></textarea></label><div class="utility-actions"><button id="copy-share" class="button outline">Copy link</button><button id="close-share" class="button outline">Close</button></div></dialog>
   <input type="file" id="project-file" accept="application/json,.json" hidden>
   <input type="file" id="spectrum-file" accept="text/csv,.csv,.txt" hidden>

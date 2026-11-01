@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import parse_qsl, unquote
 
 from . import MODEL, __version__, materials
+from .citation import citation
 from .comparison import compare
 from .physics import presets
 from .results import run_calculation
@@ -47,6 +48,8 @@ def handle(route: str, body: str | None = None, runtime: str = "") -> tuple[int,
         return _materials(route, dict(parse_qsl(query)))
     if route == "health":
         return 200, json.dumps({"status": "ok", "version": __version__, "model": MODEL})
+    if route == "citation":
+        return 200, json.dumps(citation())
     if route == "presets":
         return 200, json.dumps({"presets": presets()})
     if route == "xray-sources":

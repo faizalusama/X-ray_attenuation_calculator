@@ -16,6 +16,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import MODEL, __version__, materials
 from ._types import JsonObject
+from .citation import citation
 from .comparison import compare
 from .physics import presets
 from .results import run_calculation
@@ -74,6 +75,11 @@ async def security_headers(request: Request, call_next: Callable[[Request], Awai
 @app.get("/api/health")
 def health() -> JsonObject:
     return {"status": "ok", "version": __version__, "model": MODEL}
+
+
+@app.get("/api/citation")
+def get_citation() -> JsonObject:
+    return citation()
 
 
 @app.get("/api/presets")
@@ -174,7 +180,7 @@ async def download_artifact(request: Request) -> Response:
     allowed = {"attenuation-project.json", "attenuation-results.json", "attenuation-sweep.csv", "attenuation-dashboard.svg"}
     allowed.update(f"attenuation-{mode}.svg" for mode in ("transmission", "removed", "mass", "linear", "channels"))
     allowed.update({"attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv",
-                    "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv"})
+                    "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv", "xray-workbench-citation.bib"})
     allowed.update(f"attenuation-plot-{mode}.csv" for mode in PLOT_DATA_MODES)
     if filename not in allowed:
         raise HTTPException(422, "Unsupported export filename.")

@@ -806,6 +806,18 @@
   $("#quick-export-svg").addEventListener("click",exportSVG);
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
   $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
+  $("#cite-this").addEventListener("click", async () => {
+    try {
+      const response = await fetch("/api/citation");
+      if (!response.ok) throw new Error("Citation metadata unavailable.");
+      const c = await response.json();
+      $("#citation-bibtex").value = c.bibtex; $("#citation-note").textContent = c.note;
+      $("#citation-dialog").showModal();
+    } catch (exception) { error(exception.message); }
+  });
+  $("#close-citation").addEventListener("click", () => $("#citation-dialog").close());
+  $("#citation-dialog").addEventListener("close", () => $("#cite-this").focus());
+  $("#download-citation").addEventListener("click", () => download($("#citation-bibtex").value, "xray-workbench-citation.bib", "text/plain;charset=utf-8"));
   $("#share-project").addEventListener("click", async () => {
     try {
       const fragment = await encodeSharedProject(payload());
