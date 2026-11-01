@@ -2,11 +2,11 @@
 (function () {
   const $ = s => document.querySelector(s);
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const number = value => value == null ? "undefined" : typeof value === "number" ? value.toLocaleString("en-US", {maximumSignificantDigits: 6, useGrouping: false}) : String(value);
+  const number = value => value == null ? "undefined" : typeof value === "number" ? (value !== 0 && (Math.abs(value) < 0.001 || Math.abs(value) >= 100000) ? value.toExponential(5) : value.toLocaleString("en-US", {maximumSignificantDigits: 6, useGrouping: false})) : String(value);
   const colors = ["#0072B2", "#D55E00", "#009E73", "#CC79A7"];
   let latest = null, revision = 0, timer;
   function invalidate() {
-    revision++; latest = null; $("#st-output").innerHTML = ""; $("#st-export").disabled = true; $("#st-export-csv").disabled = true;
+    revision++; latest = null; $("#st-output").innerHTML = ""; $("#st-output").dataset.tool = ""; $("#st-status").textContent = "Waiting for updated calculation."; $("#st-export").disabled = true; $("#st-export-csv").disabled = true;
   }
   function curvesCSV(answer) {
     const rows = [["plot", "curve", "x", "x_units", "y", "y_units"]];
@@ -14,6 +14,7 @@
     return rows.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(",")).join("\r\n") + "\r\n";
   }
   function draw(answer) {
+    $("#st-output").dataset.tool = answer.tool;
     $("#st-output").innerHTML = '<div class="ts-cards">' + answer.values.map(v => '<article class="ts-card"><div class="ts-card-label">' + esc(v.label) + '</div><div class="ts-card-value">' + esc(number(v.value)) + ' <span>' + esc(v.unit) + '</span></div></article>').join("") + '</div>' +
       '<ul>' + answer.notes.map(note => '<li>' + esc(note) + '</li>').join("") + '</ul>' +
       answer.tables.map(t => '<div class="ts-table-wrap" tabindex="0" role="region" aria-label="' + esc(t.caption) + '"><table class="ts-table"><caption>' + esc(t.caption) + '</caption><thead><tr>' + t.headers.map(h => '<th scope="col">' + esc(h) + '</th>').join("") + '</tr></thead><tbody>' + t.rows.map(row => '<tr>' + row.map((v,i) => (i ? '<td>' : '<th scope="row">') + esc(number(v)) + (i ? '</td>' : '</th>')).join("") + '</tr>').join("") + '</tbody></table></div>').join("") +
@@ -42,7 +43,7 @@
     invalidate(); const id = revision;
     const payload = {tool, layer: layers[kept], layers, energy_keV: api.referenceEnergy()};
     document.querySelectorAll('[data-st-tool="' + tool + '"] [data-arg]').forEach(input => {
-      payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : (input.type === "number" || input.hasAttribute("data-number")) ? Number(input.value) : input.value;
+      payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : (input.type === "number" || input.hasAttribute("data-number")) ? (input.value.trim() === "" ? null : Number(input.value)) : input.value;
     });
     $("#st-status").textContent = "Calculating…";
     try {

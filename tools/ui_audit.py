@@ -106,6 +106,10 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
             for view in ANALYSIS_VIEWS:
                 page.keyboard.press("ArrowRight")
                 page.locator(f"#view-{view}").wait_for(state="visible")
+                if view == "scattering":
+                    page.wait_for_function("document.querySelector('#ts-status').textContent.includes('keV')", timeout=60_000)
+                if view == "tools":
+                    page.wait_for_function("document.querySelector('#st-output').dataset.tool === 'optics'", timeout=60_000)
                 result = page.evaluate(AUDIT_SCRIPT)
                 tab = page.locator(f"#tab-{view}")
                 result["violations"]["tab_keyboard_navigation"] = int(
@@ -124,6 +128,37 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                 page.locator(f"#view-{view}").wait_for(state="visible")
                 views[f"dark_{view}"] = page.evaluate(AUDIT_SCRIPT)
                 capture(f"dark-{view}")
+            # Populated tools, not just empty panels. Exercise both themes and every new operation.
+            for theme in ("dark", "light"):
+                if theme == "light":
+                    page.locator("#theme-toggle").click()
+                    page.wait_for_function("document.documentElement.dataset.theme === 'light'")
+                    page.wait_for_timeout(250)
+                page.locator("#tab-tools").click()
+                for tool in ("optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
+                    page.locator("#st-tool").select_option(tool)
+                    if tool == "pdf":
+                        page.locator("#st-demo-pdf").wait_for(state="visible")
+                        page.locator("#st-demo-pdf").click()
+                    page.locator("#st-run").click()
+                    page.wait_for_function("tool => document.querySelector('#st-output').dataset.tool === tool", arg=tool, timeout=60_000)
+                    views[f"{theme}_tool_{tool}"] = page.evaluate(AUDIT_SCRIPT)
+                page.locator("#tab-materials").click()
+                page.locator("#batch-run").evaluate("el => el.closest('details').open = true")
+                page.locator("#batch-csv").fill("name,basis,density_g_cm3,thickness_mm,composition\\ns,mole,2.2,.135,SiO2:1\\nbad,mass,2,1,Xx:1")
+                page.locator("#batch-run").click()
+                page.wait_for_function("document.querySelector('#batch-status').textContent.startsWith('1 of 2')")
+                views[f"{theme}_batch_results"] = page.evaluate(AUDIT_SCRIPT)
+                for button, dialog in (("share-project", "share-dialog"), ("cite-this", "citation-dialog")):
+                    page.locator(f"#{button}").click()
+                    page.locator(f"#{dialog}[open]").wait_for()
+                    views[f"{theme}_{dialog}"] = page.evaluate(AUDIT_SCRIPT)
+                    page.keyboard.press("Escape")
+            # Restore the dark state expected by the existing library audit.
+            page.locator("#theme-toggle").click()
+            page.locator("#theme-toggle").click()
+            page.wait_for_function("document.documentElement.dataset.theme === 'dark'")
+            page.wait_for_timeout(250)
             # Then the materials library, in the theme the page is showing.
             page.locator("#tab-overview").click()
             page.click("#open-materials-library")

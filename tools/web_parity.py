@@ -10,6 +10,7 @@ numbers differ and by how much, and fails above TOLERANCE.
 
 from __future__ import annotations
 
+import argparse
 import functools
 import http.server
 import json
@@ -107,7 +108,9 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
 def main() -> int:
     from playwright.sync_api import sync_playwright
 
-    site = ROOT / "_site"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--site", type=Path, default=ROOT / "_site", help="unpublished local build directory")
+    site = parser.parse_args().site.resolve()
     if not (site / "index.html").is_file():
         raise SystemExit("Build the site first: python tools/build_web.py")
     handler = functools.partial(_QuietHandler, directory=str(site))
@@ -138,6 +141,23 @@ def main() -> int:
                     unequal += 1
                     if difference > worst:
                         worst, worst_at = difference, path
+        sample = {"name": "Silicon", "basis": "mole", "density_g_cm3": 2.329, "thickness_mm": .001,
+                  "components": [{"formula": "Si", "fraction": 1}]}
+        cases = [("citation", None), ("compare", {"energy_keV": 14, "csv": "name,basis,density_g_cm3,thickness_mm,composition\\ns,mole,2.2,.135,SiO2:1"}),
+                 ("total-scattering", {"layer": sample, "energy_keV": 20, "ions": {"Si": "Si4+"}})]
+        for tool in ("optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
+            cases.append(("scattering-tools", {"tool": tool, "layer": sample, "layers": [sample], "energy_keV": 8.048,
+                                               "q": [0, .1, .2], "sq": [1, 1.1, 1], "r_max_angstrom": 2}))
+        for route, payload in cases:
+            answer = page.evaluate("([route,body]) => AttenuationWeb.request(route, body)",
+                                   [route, json.dumps(payload) if payload is not None else None])
+            if answer["status"] != 200:
+                structural.append(f"{route} smoke: {answer['status']} {answer['text'][:200]}")
+            else:
+                decoded = json.loads(answer["text"])
+                if payload and "tool" in payload and decoded.get("tool") != payload["tool"]:
+                    structural.append(f"{route}: wrong tool response")
+        print(f"{len(cases)} additional API smoke cases exercised in real Pyodide.")
         browser.close()
     server.shutdown()
     print(f"{total} numbers compared: {total - unequal} identical, {unequal} differ.")

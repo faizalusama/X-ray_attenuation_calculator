@@ -41,3 +41,12 @@
 .ts-section textarea{width:100%;box-sizing:border-box;font-size:14px}
 .ts-section summary{font-size:15px;min-height:24px;cursor:pointer}
 [data-st-tool][hidden]{display:none}
+
+.panel.ts-section{padding:20px}
+.ts-controls>p{grid-column:1/-1;margin:8px 0;line-height:1.5}
+.ts-controls label{min-width:0}
+.ts-controls label:has(textarea){grid-column:1/-1}
+.ts-controls textarea{min-height:140px}
+.ts-controls button{min-width:0;max-width:100%;white-space:normal;min-height:36px;align-self:end}
+.results-topline{flex-wrap:wrap}
+.results-topline .tabs{flex:1 1 100%;min-width:0}

@@ -17,3 +17,10 @@ test('tool CSV preserves precision and quotes curve metadata',()=>{
   assert.ok(csv.includes('0.1234567890123456'));
   assert.equal(csv.split('\r\n').filter(Boolean).length,3);
 });
+
+test('batch CSV quotes names and prevents spreadsheet formula execution',()=>{
+  const {exportCSV}=require('../static/comparison.js');
+  const csv=exportCSV({rows:[{row:2,name:'=1+1',transmission:0.5,error:null}]});
+  assert.ok(csv.includes('"' + "'=1+1" + '"'));
+  assert.ok(csv.includes('"0.5"'));
+});
