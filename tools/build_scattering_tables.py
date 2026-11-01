@@ -30,8 +30,8 @@ GRID = np.concatenate([np.arange(0, 0.2, 0.005), np.arange(0.2, 1, 0.02), np.ara
 
 
 def incoherent_table() -> dict[str, Any]:
-    import xraydb  # noqa: PLC0415
-    import xraylib  # noqa: PLC0415
+    import xraydb
+    import xraylib
 
     values = {xraydb.atomic_symbol(z): [float(f"{xraylib.SF_Compt(z, float(s)) if s > 0 else 0.0:.6g}") for s in GRID] for z in range(1, 99)}
     return {"description": "Incoherent scattering function S(sinθ/λ) per atom, electrons.",

@@ -16,6 +16,7 @@ import json
 import sys
 import threading
 from collections.abc import Iterator
+from math import log
 from pathlib import Path
 from typing import Any
 
