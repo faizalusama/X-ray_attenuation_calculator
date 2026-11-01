@@ -61,18 +61,22 @@ All eleven plots open initially in a responsive grid. Each plot has its own rele
 
 Graphs and active controls lead the page. Reference measurements and expandable scientific limits sit below the plots; suggestions open from the bottom-right Ideas button. The system editor is visible on the right by default, with a calculation-flow schematic and the current layer stack beneath its inputs. On narrow screens the editor stacks above the plots. Hide inputs frees the full width; that choice is remembered. Length units can be changed between nm, µm, mm, cm and m without changing physical dimensions; project/API thicknesses remain in mm. Preferences, plot visibility and the last valid inputs are remembered locally. Existing saved layouts expand once to introduce all eleven plots, then subsequent custom layouts are preserved.
 
-SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG.
+SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG. PNG export gives the same figure at 4200 × 2280 pixels. Exported figures stay light in the dark theme.
+
+For your own plotting software, **Plot data CSV** saves exactly what the selected plot shows, in the units shown, including the thickness map as a matrix. **All curves CSV** saves every energy-dependent quantity for the stack and for each layer in one table with fixed column names in fixed units, along with `attenuation-all-curves-settings.json` describing each column, the composition, density and provenance, and the transmitted spectrum if one was used.
+
+The interface has automatic, light and dark themes, and removing a layer or component can be undone.
 
 ## What is included
 
-- **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, and illustrative materials presets.
+- **Composition:** chemical formula parsing, automatic molecular masses, normalized wt% / mol% / at.% / vol% input, elemental mass breakdown, and illustrative materials presets.
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
-- **Geometry:** multiple homogeneous planar layers, individual thicknesses in mm, and incidence angles measured from the surface normal.
-- **Energy:** 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.
+- **Geometry:** multiple homogeneous planar layers, individual thicknesses or areal densities, and incidence angles measured from the surface normal.
+- **Energy:** X-ray anode lines, wavelength or energy input, 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.
 - **Outputs:** total mass and linear attenuation, photoelectric / coherent / incoherent contributions, primary transmission, removed-primary fraction, optical depth, individual material HVL / TVL / 1/e length, and the thickness multiplier to meet a monoenergetic target transmission.
 - **Spectra:** import a discrete-bin photon-fluence spectrum; calculate photon- or energy-weighted transmission, transmitted spectrum, and mean photon energy before / after the stack.
 - **Uncertainty:** reproducible Monte Carlo propagation of independent density and thickness uncertainties through positive lognormal distributions. The interval excludes composition, database, geometry-angle, and model uncertainty.
-- **Reproducibility:** project JSON, complete calculation JSON with input and provenance, full-precision CSV, SVG charts, a batch command, an example notebook, and automated scientific/API tests.
+- **Reproducibility:** project JSON, complete calculation JSON with input and provenance, full-precision CSV of every curve, per-plot data CSV, SVG and PNG charts, a batch command, an example notebook, and automated scientific/API tests.
 
 ## Scientific scope
 
@@ -94,9 +98,13 @@ This project currently has **no independent cross-database validation**. The NIS
 
 ## Input conventions
 
-Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Mole fractions refer to **formula units of the entered components**. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point. Two spellings parse validly but rarely mean what was typed, so the result carries a warning: a period before further elements (`CuSO4.5H2O`, `BaO.2TiO2`), and an all-capitals formula that hides a two-letter element (`SIO2` is sulfur + iodine + oxygen). Check the reported mass fractions either way.
+Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Compositions can be entered in wt% (`mass`), mol% (`mole`), at.% (`atomic`) or vol% (`volume`). Mole percent refers to **formula units of the entered components**, so 20 mol% Na2O is not 20 at.% Na. Atomic percent needs one element per row and is rejected for compounds. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point. Two spellings parse validly but rarely mean what was typed, so the result carries a warning: a period before further elements (`CuSO4.5H2O`, `BaO.2TiO2`), and an all-capitals formula that hides a two-letter element (`SIO2` is sulfur + iodine + oxygen). Check the reported mass fractions either way.
 
 Angles are from the surface normal, so normal incidence is 0°. The effective path is thickness / cos(angle). HVL, TVL, and attenuation length are distances **along the ray** in an individual homogeneous material, not the thickness of the complete multilayer stack. Target scaling multiplies all layer thicknesses at their existing angles and composition.
+
+A layer can be specified by areal density in mg/cm² instead of thickness. Thickness then follows from the effective density, and optical depth depends only on the areal density, so density uncertainty does not apply to that layer. Thicknesses can be typed with their own unit, such as `500 µm`, `2 mm` or `0.2 cm`.
+
+The reference energy can be chosen from a list of laboratory anode lines (Cr, Fe, Co, Cu, Ga, Mo, Rh, Ag, In, W: Kα, Kα1, Kα2, Kβ1), or typed as an energy or as a wavelength in Å. Line energies are from Table 1-2 of the [X-ray Data Booklet](https://xdb.lbl.gov/Section1/Table_1-2.pdf). Kα is the conventional 2:1 wavelength-weighted mean of Kα1 and Kα2. A source selects a single energy, not a tube spectrum: bremsstrahlung and filtering are not modelled, so use the Spectrum tab for a measured spectrum.
 
 Spectrum CSV files use two columns: `energy_keV,weight`. Each row is **integrated photon fluence in a discrete bin**, not counts per keV. If your measurement is a density per keV, multiply by bin widths before importing. Energy weighting changes the output observable; it does not change the meaning of the input weights. The sample CSV is illustrative and is not a calibrated tube-spectrum model.
 

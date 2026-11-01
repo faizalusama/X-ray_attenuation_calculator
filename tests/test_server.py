@@ -62,3 +62,46 @@ def test_export_rejects_unexpected_names_and_payloads():
     assert client.post("/api/download", json={}).status_code == 415
     assert client.post("/api/download", data={"filename": "../secret.txt", "content": "x"}).status_code == 422
     assert client.post("/api/download", data={"content": "x"}).status_code == 422
+
+
+def test_static_assets_are_compressed_and_cached_by_version():
+    plotly = client.get("/static/vendor/plotly-4.0.0.min.js", headers={"Accept-Encoding": "gzip"})
+    assert plotly.status_code == 200
+    assert plotly.headers["content-encoding"] == "gzip"
+    assert "immutable" in plotly.headers["cache-control"]
+    versioned = client.get("/static/app.js?v=test", headers={"Accept-Encoding": "gzip"})
+    assert "max-age=31536000" in versioned.headers["cache-control"]
+    assert client.get("/static/app.js").headers["cache-control"] == "no-cache"
+    # API responses must never be cached.
+    assert client.get("/api/health").headers["cache-control"] == "no-store"
+
+
+def test_page_offers_a_skip_link_to_main():
+    page = client.get("/").text
+    assert 'class="skip-link" href="#main"' in page
+    assert '<main id="main">' in page
+    assert "/static/readability.css" in page
+
+
+def test_every_cached_asset_stamp_matches_its_content():
+    # Browsers keep ?v= assets for a year, so a stamp that does not change with
+    # the file would serve stale code. Fix with: python tools/stamp_assets.py
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    from stamp_assets import stale
+    assert stale() == []
+
+
+def test_new_export_names_are_accepted():
+    for filename in ("attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv", "attenuation-plot-map.csv"):
+        assert client.post("/api/download", data={"filename": filename, "content": "x"}).status_code == 200
+
+
+def test_dark_theme_is_generated_from_the_current_light_stylesheets():
+    # Fix with: python tools/build_dark_css.py
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    from build_dark_css import TARGET, generate
+    assert TARGET.read_text(encoding="utf-8").replace("\r\n", "\n") == generate()

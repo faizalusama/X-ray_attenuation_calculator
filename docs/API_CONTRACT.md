@@ -2,7 +2,7 @@
 
 The application is a local Python FastAPI server, with static HTML/CSS/JS in `static/`.
 Scientific engine: `xray_workbench/physics.py`, exposing `calculate(payload: dict) -> dict` and `presets() -> list`.
-HTTP: GET `/api/presets` returns `{presets: [...]}`; POST `/api/calculate` accepts the request below and returns the result. Validation failures use HTTP 422 `{detail: string}`.
+HTTP: GET `/api/presets` returns `{presets: [...]}`; GET `/api/xray-sources` returns `{sources: [{id, anode, line, name, energy_keV, wavelength_angstrom}]}`; POST `/api/calculate` accepts the request below and returns the result. Validation failures use HTTP 422 `{detail: string}`.
 
 ## Request
 ```json
@@ -20,7 +20,7 @@ HTTP: GET `/api/presets` returns `{presets: [...]}`; POST `/api/calculate` accep
   "uncertainty": {"enabled": false, "samples": 1000, "seed": 42}
 }
 ```
-Basis is `mass`, `mole`, or `volume`. Components can optionally provide `density_g_cm3` (required for volume fractions or ideal density). Density mode `bulk` means supplied measured density already includes pores and porosity must be 0; `solid` multiplies supplied density by (1-porosity); `ideal` infers solid density via additive specific volume and then applies porosity. Angles measured from surface normal. Uncertainties are independent relative one-sigma percentages of effective density and normal thickness; seeded positive lognormal sampling. Density and thickness uncertainties allowed in all modes, applied to final effective density/thickness.
+Basis is `mass`, `mole`, `atomic`, or `volume`; `atomic` needs one element per component and is treated as mole fractions of those elements. A layer may give `areal_density_mg_cm2` instead of relying on `thickness_mm`: thickness becomes areal density / effective density, density uncertainty is ignored for that layer with a warning, and the derived thickness is returned in the result. Components can optionally provide `density_g_cm3` (required for volume fractions or ideal density). Density mode `bulk` means supplied measured density already includes pores and porosity must be 0; `solid` multiplies supplied density by (1-porosity); `ideal` infers solid density via additive specific volume and then applies porosity. Angles measured from surface normal. Uncertainties are independent relative one-sigma percentages of effective density and normal thickness; seeded positive lognormal sampling. Density and thickness uncertainties allowed in all modes, applied to final effective density/thickness.
 
 Spectrum, if present: `{energy_keV: [10,20,30], weights: [1,2,1], weighting: "photon", label: "Measured spectrum"}`. Each weight is integrated fluence in its discrete bin; **not** spectral density. Weighting `photon` or `energy` controls weighted transmission. Evaluate each input energy directly. No invented X-ray tube spectrum.
 

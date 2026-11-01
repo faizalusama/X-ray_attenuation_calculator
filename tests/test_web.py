@@ -26,7 +26,7 @@ def without_timestamp(result):
     return result
 
 
-@pytest.mark.parametrize("route", ["health", "presets"])
+@pytest.mark.parametrize("route", ["health", "presets", "xray-sources"])
 def test_read_routes_match_the_local_server(route):
     status, text = handle(route)
     assert status == 200

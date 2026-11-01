@@ -3,3 +3,6 @@
 #engine-status.ready{background:#e8f4f1;color:#14524a}
 #engine-status.failed{background:#fbe9e7;color:#8a1f11}
 #engine-status a{color:inherit;font-weight:600}
+html[data-theme="dark"] #engine-status{background:#3a2f12;color:#f3e3bd}
+html[data-theme="dark"] #engine-status.ready{background:#143029;color:#bfe5db}
+html[data-theme="dark"] #engine-status.failed{background:#451c16;color:#f6cfc8}

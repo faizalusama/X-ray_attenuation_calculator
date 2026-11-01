@@ -196,8 +196,8 @@ def _prepare_layer(raw: Any, index: int) -> _Layer:
     label = f"Layer {index + 1}"
     name = _text(raw.get("name"), f"{label} name", label)
     basis = raw.get("basis", "mass")
-    if basis not in ("mass", "mole", "volume"):
-        raise ValueError(f"{label} basis must be mass, mole, or volume.")
+    if basis not in ("mass", "mole", "atomic", "volume"):
+        raise ValueError(f"{label} basis must be mass, mole, atomic, or volume.")
     mode = raw.get("density_mode", "bulk")
     if mode not in ("bulk", "solid", "ideal"):
         raise ValueError(f"{label} density_mode must be bulk, solid, or ideal.")
@@ -209,6 +209,8 @@ def _prepare_layer(raw: Any, index: int) -> _Layer:
         item = _object(item, f"{label}, component {i + 1}")
         formula = _text(item.get("formula"), f"{label} formula")
         atoms = dict(_parse_formula(formula))
+        if basis == "atomic" and (len(atoms) != 1 or next(iter(atoms.values())) != 1):
+            raise ValueError(f"{label}: atomic percent needs one element per component; '{formula}' is not a single element. Use mole fractions for compounds.")
         molar_mass = sum(_atomic_mass(symbol) * count for symbol, count in atoms.items())
         amount = _number(item.get("fraction"), f"{label}, {formula} fraction", 0)
         if basis == "volume" or mode == "ideal":
@@ -228,7 +230,7 @@ def _prepare_layer(raw: Any, index: int) -> _Layer:
     if fractions.max() == 0:
         raise ValueError(f"{label} needs at least one positive component fraction.")
     fractions /= fractions.max()  # Avoid overflow for large but finite relative weights.
-    if basis == "mole":
+    if basis in ("mole", "atomic"):  # An atomic percent is a mole percent of single atoms.
         fractions *= masses
     elif basis == "volume":
         fractions *= densities
@@ -245,11 +247,17 @@ def _prepare_layer(raw: Any, index: int) -> _Layer:
     else:
         density = float(1 / np.sum(fractions / np.asarray(densities))) * (1 - porosity)
     thickness = _number(raw.get("thickness_mm", 1), f"{label} thickness (mm)", 0, 1e9)
+    areal = raw.get("areal_density_mg_cm2")
+    if areal is not None:
+        # mg/cm² ÷ g/cm³ = 10⁻³ cm = 10⁻² mm. Replaces the entered thickness.
+        thickness = _number(areal, f"{label} areal density (mg/cm²)", 0, 1e9) * 0.01 / density
     angle = _number(raw.get("angle_deg", 0), f"{label} angle (degrees)", -89.9, 89.9)
     if abs(angle) >= 89.9:
         raise ValueError(f"{label} angle must lie strictly between −89.9° and 89.9°.")
     path = thickness / cos(radians(angle))
     density_sd = _number(raw.get("density_uncertainty_pct", 0), f"{label} density uncertainty (%)", 0, 100) / 100
+    if areal is not None:
+        density_sd = 0.0  # Mass per area is fixed: optical depth no longer depends on density.
     thickness_sd = _number(raw.get("thickness_uncertainty_pct", 0), f"{label} thickness uncertainty (%)", 0, 100) / 100
     elements: dict[str, float] = {}
     output_components = []
@@ -368,6 +376,8 @@ def calculate(payload: JsonObject) -> JsonObject:
                                   for message in _formula_warnings(component["formula"])))
     if not low <= reference_energy <= high:
         warnings.append("Reference energy lies outside the plotted sweep and was evaluated directly.")
+    if any(item.get("areal_density_mg_cm2") is not None and item.get("density_uncertainty_pct") for item in raw_layers):
+        warnings.append("Layers entered by areal density ignore density uncertainty, because mass per area already fixes their optical depth. Thickness uncertainty applies to their areal density.")
     if any(item.get("density_mode") == "ideal" for item in raw_layers):
         warnings.append("Ideal density assumes additive constituent volumes. Real glasses, solid solutions and sintered ceramics can deviate; use measured bulk density for quantitative work.")
     # Elemental coefficients are shared across layers: fetch each element once.

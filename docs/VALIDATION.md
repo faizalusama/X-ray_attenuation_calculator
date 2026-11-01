@@ -201,3 +201,12 @@ Adds a browser version. The same `xray_workbench` package runs inside the browse
 **Not checked.** Firefox, Safari and real phones. The local JavaScript suites need Node.js, which this machine lacks; they run in CI. As before, this is a check of the numerical implementation, not experimental validation.
 
 **Other new checks.** `tests/test_web.py` holds the browser routes to the same answers as the local server and checks that the site runs the same `physics.py`. Results from the browser record their runtime in `provenance.runtime`.
+
+**Continuous integration.** On the GitHub runner, the same comparison finds 154 differences, the largest 1.43 × 10⁻¹⁴ relative, with the engine loading in 9.4 s.
+
+**Additions to the input and export interface.** Atomic percent, areal density, X-ray sources, CSV and PNG exports, dark mode and undo were added on this version without changing how any existing input is calculated. The native SHA-256 above was recomputed after these changes.
+
+- Atomic percent is treated as mole fractions of single elements. A test checks that it gives the same coefficients as the mole calculation, and mass fractions matching ones worked out from atomic masses.
+- Areal density sets thickness to areal density / effective density. Tests check that optical depth does not depend on density, that 27 mg/cm² of Al at 2.7 g/cm³ is 0.1 mm, and that optical depth equals (μ/ρ) × areal density from the Elam data.
+- X-ray line energies come from the X-ray Data Booklet (LBNL), Table 1-2. Tests check them against wavelengths typed independently (for example Cu Kα1 1.5406 Å, Mo Kα1 0.7093 Å) and, within 0.2%, against the Elam tables. A source sets one reference energy. It does not model a tube spectrum.
+- `tools/ui_audit.py` now also audits every analysis tab in the dark theme at three widths. Plot colours inside Plotly figures are chosen by hand for the dark theme and are not all covered by the computed-style contrast check.

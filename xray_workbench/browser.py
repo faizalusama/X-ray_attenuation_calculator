@@ -13,6 +13,7 @@ from typing import Any
 from . import MODEL, __version__
 from .physics import presets
 from .results import run_calculation
+from .sources import xray_sources
 
 
 def _invalid_constant(value: str) -> Any:
@@ -25,6 +26,8 @@ def handle(route: str, body: str | None = None, runtime: str = "") -> tuple[int,
         return 200, json.dumps({"status": "ok", "version": __version__, "model": MODEL})
     if route == "presets":
         return 200, json.dumps({"presets": presets()})
+    if route == "xray-sources":
+        return 200, json.dumps({"sources": xray_sources()})
     if route != "calculate":
         return 404, json.dumps({"detail": "Not Found"})
     try:

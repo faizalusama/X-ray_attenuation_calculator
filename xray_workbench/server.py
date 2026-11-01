@@ -11,12 +11,14 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import MODEL, __version__
 from ._types import JsonObject
 from .physics import presets
 from .results import run_calculation
+from .sources import xray_sources
 
 
 def _static_root() -> Path:
@@ -39,9 +41,14 @@ def _static_root() -> Path:
 
 STATIC_ROOT = _static_root()
 MAX_BODY_BYTES = 2_000_000
+#: The quantities in static/dashboard.js, each exportable as plot data.
+PLOT_DATA_MODES = ("transmission", "removed", "mass", "linear", "channels", "tau", "hvl", "tvl", "length", "design", "map")
 app = FastAPI(title="X-ray Attenuation Calculator", version=__version__,
               description="Local narrow-beam X-ray attenuation calculator for multicomponent materials.")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]", "testserver"])
+# Plotly alone is 4.2 MB of text; compressed it travels at roughly a third of
+# that. Loopback is fast, but the same server also runs on shared machines.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
 @app.middleware("http")
@@ -50,8 +57,15 @@ async def security_headers(request: Request, call_next: Callable[[Request], Awai
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
-    if request.url.path.startswith("/api/"):
+    path = request.url.path
+    if path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
+    elif path.startswith("/static/"):
+        # Assets referenced with ?v=… or a versioned vendor filename never
+        # change in place, so the browser may keep them for a year; anything
+        # else is revalidated, so an edit is never masked by a stale copy.
+        versioned = "v=" in request.url.query or path.startswith("/static/vendor/")
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable" if versioned else "no-cache"
     return response
 
 
@@ -63,6 +77,11 @@ def health() -> JsonObject:
 @app.get("/api/presets")
 def get_presets() -> JsonObject:
     return {"presets": presets()}
+
+
+@app.get("/api/xray-sources")
+def get_xray_sources() -> JsonObject:
+    return {"sources": xray_sources()}
 
 
 @app.post("/api/calculate")
@@ -112,6 +131,8 @@ async def download_artifact(request: Request) -> Response:
         raise HTTPException(422, "Invalid export form.") from exc
     allowed = {"attenuation-project.json", "attenuation-results.json", "attenuation-sweep.csv", "attenuation-dashboard.svg"}
     allowed.update(f"attenuation-{mode}.svg" for mode in ("transmission", "removed", "mass", "linear", "channels"))
+    allowed.update({"attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv"})
+    allowed.update(f"attenuation-plot-{mode}.csv" for mode in PLOT_DATA_MODES)
     if filename not in allowed:
         raise HTTPException(422, "Unsupported export filename.")
     return Response(content.encode("utf-8"), media_type="application/octet-stream",

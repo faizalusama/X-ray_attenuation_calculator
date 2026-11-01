@@ -3,7 +3,7 @@
 // Browser build only. Answers the local server's /api routes from the same Python
 // engine, running in a Web Worker, so app.js and dashboard.js need no second code path.
 (function () {
-  const ROUTES = {"/api/calculate": "calculate", "/api/presets": "presets", "/api/health": "health"};
+  const ROUTES = {"/api/calculate": "calculate", "/api/presets": "presets", "/api/health": "health", "/api/xray-sources": "xray-sources"};
   const LOCAL_INSTALL = "https://github.com/faizalusama/X-ray_attenuation_calculator#start-the-graphical-application";
   const pending = new Map();
   const nativeFetch = window.fetch.bind(window);
