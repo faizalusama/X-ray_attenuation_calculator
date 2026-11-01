@@ -451,5 +451,6 @@ html[data-theme="dark"] .ts-copy code{background:#1c2931;color:#a2bbd4}
 html[data-theme="dark"] .ts-warnings{background:#4d3606;border:1px solid #745d27;color:#e4cb96}
 html[data-theme="dark"] .utility-dialog{border:1px solid #364755;background:#1c1c1c;color:#a2bbd4}
 html[data-theme="dark"] .utility-dialog::backdrop{background:rgba(187,205,226,0.55)}
+html[data-theme="dark"] .ts-section label,html[data-theme="dark"] .ts-controls label,html[data-theme="dark"] .utility-dialog label{color:#91a5b5}
 html[data-theme="dark"] .button.quiet{color:#b8c9d3}
 html[data-theme="dark"] .angle-slider .slider-heading output{color:#b9aee0}

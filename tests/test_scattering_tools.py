@@ -66,3 +66,16 @@ def test_contrast_has_zero_same_phase_and_porod_symmetry():
     zero = scattering_tools(request("contrast", layers=[SI,water], volume_fraction=0))["data"]
     assert zero["xray_porod_invariant_inv_angstrom4"] == 0
     assert a["neutron_contrast_squared_inv_angstrom4"] > 0
+
+def test_converter_round_trip_source_change_and_scherrer_units():
+    first = scattering_tools(request("converter", value=28.44, fwhm_deg=0.1))["data"]
+    assert first["d_angstrom"] == pytest.approx(3.136, abs=0.003)
+    assert first["scherrer_size_nm"] == pytest.approx(81.97, abs=0.1)
+    for quantity, value in [("q",first["q_inv_angstrom"]), ("s",first["s_inv_angstrom"]), ("d",first["d_angstrom"])]:
+        got = scattering_tools(request("converter", quantity=quantity, value=value))["data"]
+        assert got["two_theta_deg"] == pytest.approx(28.44, abs=1e-12)
+    zero = scattering_tools(request("converter", quantity="q", value=0))["data"]
+    assert zero["d_angstrom"] is None
+    assert zero["scherrer_size_nm"] is None
+    with pytest.raises(ValueError, match="Instrument FWHM"):
+        scattering_tools(request("converter", fwhm_deg=0.1, instrument_fwhm_deg=0.2))

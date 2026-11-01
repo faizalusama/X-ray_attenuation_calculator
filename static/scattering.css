@@ -36,3 +36,8 @@
 .utility-dialog textarea{width:100%;box-sizing:border-box;overflow-wrap:anywhere;font-size:14px}
 .utility-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 @media(max-width:440px){.ts-plots{grid-template-columns:minmax(0,1fr)}}
+
+.ts-section label,.ts-controls label,.utility-dialog label{font-size:14px;color:#42586a}
+.ts-section textarea{width:100%;box-sizing:border-box;font-size:14px}
+.ts-section summary{font-size:15px;min-height:24px;cursor:pointer}
+[data-st-tool][hidden]{display:none}

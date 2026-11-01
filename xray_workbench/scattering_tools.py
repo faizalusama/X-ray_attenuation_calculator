@@ -6,7 +6,7 @@ The wave convention is exp(i kz z), n = 1 - delta + i beta.
 """
 from __future__ import annotations
 
-from math import pi, sqrt
+from math import asin, cos, pi, radians, sin, sqrt
 from typing import Any
 
 import numpy as np
@@ -169,8 +169,53 @@ def contrast(payload: JsonObject) -> JsonObject:
                    "Natural-isotope nuclear neutron contrast only; magnetic scattering, polydispersity and finite-q truncation are not modeled."])
 
 
+def converter(payload: JsonObject) -> JsonObject:
+    energy = _number(payload.get("energy_keV"), "Energy (keV)", 1, 800)
+    wavelength = HC_KEV_ANGSTROM / energy
+    quantity = payload.get("quantity", "two_theta_deg")
+    value = _number(payload.get("value", 28.44), "Conversion input", 0, 1e9)
+    if quantity == "two_theta_deg":
+        if value > 180:
+            raise ValueError("2θ must lie between 0 and 180 degrees.")
+        q = 4*pi*sin(radians(value)/2)/wavelength
+    elif quantity == "q":
+        q = value
+    elif quantity == "d":
+        if value <= 0:
+            raise ValueError("d spacing must be positive.")
+        q = 2*pi/value
+    elif quantity == "s":
+        q = 4*pi*value
+    else:
+        raise ValueError("Quantity must be two_theta_deg, q, d or s.")
+    def angle_at(e: float) -> float | None:
+        reach = q*HC_KEV_ANGSTROM/e/(4*pi)
+        return 2*asin(reach)*180/pi if reach <= 1 else None
+    angle = angle_at(energy)
+    target = _number(payload.get("target_energy_keV", 17.479), "Target energy (keV)", 1, 800)
+    width = _number(payload.get("fwhm_deg", 0), "Observed FWHM (° in 2θ)", 0, 20)
+    instrument = _number(payload.get("instrument_fwhm_deg", 0), "Instrument FWHM (° in 2θ)", 0, 20)
+    shape = _number(payload.get("shape_factor", 0.9), "Scherrer shape factor", 0.01, 2)
+    if instrument > width:
+        raise ValueError("Instrument FWHM exceeds observed FWHM.")
+    breadth = radians(sqrt(width**2-instrument**2))
+    denominator = breadth*cos(radians(angle or 0)/2)
+    size = shape*wavelength/denominator/10 if angle is not None and 0 < angle < 180 and denominator > 1e-15 else None
+    data = {"q_inv_angstrom": q, "s_inv_angstrom": q/(4*pi), "d_angstrom": 2*pi/q if q > 0 else None,
+            "two_theta_deg": angle, "target_two_theta_deg": angle_at(target), "scherrer_size_nm": size}
+    return result("converter", data,
+                  [("Q", q, "Å⁻¹"), ("s = sinθ/λ = Q/(4π)", q/(4*pi), "Å⁻¹"), ("d spacing", data["d_angstrom"], "Å"),
+                   ("2θ at reference energy", angle, "°"), ("2θ at target energy", data["target_two_theta_deg"], "°"),
+                   ("Scherrer coherent-domain size", size, "nm")], [],
+                  ["Q = 4πsinθ/λ = 2π/d. Bragg order n=1. Unreachable angles and d at Q=0 are undefined.",
+                   "Scherrer L = Kλ/(β cosθ); β is FWHM in 2θ radians after Gaussian quadrature subtraction of instrumental width.",
+                   "Size is a coherent-domain estimate, not particle size. Strain, size distributions and profile-shape effects are excluded."])
+
+
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "converter":
+        return converter(payload)
     if payload.get("tool") == "contrast":
         return contrast(payload)
     if payload.get("tool") == "reflectivity":
