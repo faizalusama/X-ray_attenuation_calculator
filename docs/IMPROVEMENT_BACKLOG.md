@@ -14,6 +14,9 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
+- Claude routine · `claude/routine-2026-11-02-library-origin` · 2026-11-02 ·
+  item 11 (export provenance), slice 1: library origin on layers.
+
 ## Ready
 
 ### Accessibility and readability
