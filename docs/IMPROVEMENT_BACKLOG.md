@@ -14,9 +14,6 @@ right section, with the evidence that motivated them.
 
 _(agent · branch · date · item)_
 
-- Claude routine · `claude/routine-2026-11-02-library-origin` · 2026-11-02 ·
-  item 11 (export provenance), slice 1: library origin on layers.
-
 ## Ready
 
 ### Accessibility and readability
@@ -53,11 +50,39 @@ _(agent · branch · date · item)_
 10. **Frontend tests for `static/materials.js`.** It has no Node unit tests;
     extract pure helpers (filtering, formatting) and test them like
     `tests/test_frontend.cjs`.
-11. **Single source for asset stamps in exports.** SVG exports embed the
-    workbench version; confirm they also record the materials-library dataset
-    and backend versions used.
+11. **Export provenance, remaining slices.** Audit 2026-11-02: CSV, JSON and
+    dashboard SVG exports already record the backend identifier, dataset and
+    dataset version plus the workbench version and configuration SHA-256.
+    Slice 1 (Done) records the materials-library origin of each layer in the
+    configuration. Still to do: (a) show the library origin in the visible
+    SVG footer and the provenance panel, not only in metadata; (b) add
+    per-layer `layer_N_library_material_id` columns to the CSV, which carries
+    no configuration; (c) `exportedSVG` in `static/app.js` is no longer called
+    by the app (only by `tests/test_frontend.cjs`) and its footer labels the
+    dataset version "XrayDB" even for the xraylib backend; remove it or route
+    the dashboard export through it.
+12. **Exact-equality physics gate is platform-sensitive.** On the routine's
+    Linux container (Python 3.13.18, numpy 2.5.3 and 2.5.4, scipy 1.18.1,
+    Intel Xeon with AVX-512), unmodified `interface-refresh` gives
+    `mean_energy_out_keV` 44.189562006464314, one unit in the last place above
+    the 44.18956200646431 recorded in `docs/VALIDATION.md`; transmission and
+    target scale match exactly. Consistent with the per-platform differences
+    VALIDATION.md already documents. The owner should decide whether the
+    routine's gate compares against a same-machine baseline or a ULP bound.
+13. **`mypy` fails on `tools/ui_audit.py` when Playwright is installed.**
+    With playwright 1.63.0 present, line 62 (`page.on("pageerror", lambda exc,
+    errors=errors: ...)`) is rejected: the two-argument lambda matches no
+    `Page.on` overload. CI's mypy job does not install Playwright, so it stays
+    green; a contributor with Playwright installed sees a red `python -m mypy`.
+    Bind `errors` with a one-argument closure or `functools.partial` instead.
 
 ## Done
+
+- 2026-11-02 · Claude routine · `claude/routine-2026-11-02-library-origin` ·
+  item 11 slice 1: layers added from the materials library carry
+  `library: {material_id, dataset, dataset_sha256, density_status}` through
+  project save/load, the calculation route and every export that embeds the
+  configuration; dropped when composition or density is edited.
 
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and

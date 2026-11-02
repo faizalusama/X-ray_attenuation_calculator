@@ -22,6 +22,8 @@ HTTP: GET `/api/presets` returns `{presets: [...]}`; POST `/api/calculate` accep
 ```
 Basis is `mass`, `mole`, or `volume`. Components can optionally provide `density_g_cm3` (required for volume fractions or ideal density). Density mode `bulk` means supplied measured density already includes pores and porosity must be 0; `solid` multiplies supplied density by (1-porosity); `ideal` infers solid density via additive specific volume and then applies porosity. Angles measured from surface normal. Uncertainties are independent relative one-sigma percentages of effective density and normal thickness; seeded positive lognormal sampling. Density and thickness uncertainties allowed in all modes, applied to final effective density/thickness.
 
+A layer may carry an optional `library` object, `{material_id, dataset, dataset_sha256, density_status}`, naming the materials-library entry it was added from (`dataset_sha256` is the retrieved source file's hash, or null for derived datasets such as `stoichiometry`). `GET /api/materials/{id}` returns it in its `layer`. The engine ignores it, so it never changes a computed value, but it is part of the echoed `configuration`, so `configuration_sha256`, JSON results and SVG metadata record it. The browser drops it as soon as the layer's composition, basis, density model, density or porosity is edited.
+
 Spectrum, if present: `{energy_keV: [10,20,30], weights: [1,2,1], weighting: "photon", label: "Measured spectrum"}`. Each weight is integrated fluence in its discrete bin; **not** spectral density. Weighting `photon` or `energy` controls weighted transmission. Evaluate each input energy directly. No invented X-ray tube spectrum.
 
 ## Result

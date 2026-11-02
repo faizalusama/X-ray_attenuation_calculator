@@ -102,13 +102,20 @@ class Material:
 
         The density is passed through as a bulk density. An unverified density
         is still used, which is why the caller must surface ``density_status``.
+        ``library`` records where the layer came from so that saved projects and
+        exports can name the entry; the engine ignores it, so it never changes
+        a computed number. The browser drops it once composition or density is
+        edited, because the layer is then no longer the library entry.
         """
+        retrieved = datasets()[self.dataset_id].get("retrieved_sha256")
         return {
             "name": self.name, "basis": self.basis,
             "components": [{"formula": f, "fraction": x} for f, x in self.components],
             "density_g_cm3": self.density_g_cm3, "density_mode": "bulk", "porosity": 0,
             "thickness_mm": thickness_mm, "angle_deg": 0,
             "density_uncertainty_pct": 0, "thickness_uncertainty_pct": 0,
+            "library": {"material_id": self.id, "dataset": self.dataset_id,
+                        "dataset_sha256": retrieved, "density_status": self.density_status},
         }
 
 

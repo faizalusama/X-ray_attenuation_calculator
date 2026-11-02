@@ -223,3 +223,25 @@ def test_api_summaries_carry_formulas_for_formula_search():
     assert set(gd2o2s["formulas"]) == {"O", "S", "Gd", "Gd2O2S"}
     zirconia = next(m for m in listing if m["id"] == "stoich-zirconia-3y")
     assert zirconia["formulas"] == ["ZrO2", "Y2O3"]
+
+
+def test_library_layer_names_its_entry_and_dataset_without_changing_physics():
+    material = materials.get("nist-glass-borosilicate-pyrex")
+    layer = material.to_layer(2.0)
+    assert layer["library"] == {"material_id": material.id, "dataset": "nist-srd126-table2",
+                                "dataset_sha256": materials.datasets()["nist-srd126-table2"]["retrieved_sha256"],
+                                "density_status": "sourced"}
+    # Stoichiometric entries are derived, not retrieved: no dataset fingerprint.
+    assert materials.get("stoich-zirconia-3y").to_layer()["library"]["dataset_sha256"] is None
+    energy = {"min_keV": 10, "max_keV": 200, "points": 20, "reference_keV": 60}
+    bare = {key: value for key, value in layer.items() if key != "library"}
+    tagged, untagged = calculate({"energy": energy, "layers": [layer]}), calculate({"energy": energy, "layers": [bare]})
+    for key in ("transmission", "optical_depth"):
+        assert tagged[key] == untagged[key]
+    assert tagged["reference"] == untagged["reference"]
+
+
+def test_library_origin_survives_the_calculation_route_into_the_exported_configuration():
+    layer = client.get("/api/materials/nist-glass-borosilicate-pyrex").json()["layer"]
+    result = client.post("/api/calculate", json={"layers": [layer]}).json()
+    assert result["configuration"]["layers"][0]["library"]["material_id"] == "nist-glass-borosilicate-pyrex"

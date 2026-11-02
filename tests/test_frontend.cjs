@@ -1,7 +1,7 @@
 "use strict";
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {cleanProject, parseSpectrumText, logTicks, linePath, intervalPath, exportedSVG, initial, limits} = require('../static/app.js');
+const {cleanProject, forgetLibraryOrigin, parseSpectrumText, logTicks, linePath, intervalPath, exportedSVG, initial, limits} = require('../static/app.js');
 const project = () => ({schema_version:1,configuration:structuredClone(initial)});
 const {createLiveScheduler} = require('../static/app.js');
 
@@ -116,4 +116,22 @@ test('standalone SVG has visible title, legend, units, sources and exact embedde
   assert.match(output,/>Glass &amp; ceramic<\/text>/);
   assert.match(output,/cm²\/g/);assert.match(output,/>Source: XrayDB/);assert.match(output,/Configuration SHA-256/);
   assert.match(output,/zero values omitted/);assert.match(output,/<metadata>/);assert.match(output,/&quot;reference_keV&quot;:30/);
+});
+test('materials-library origin is kept through project cleaning and validated strictly',()=>{
+  const origin={material_id:'nist-glass-borosilicate-pyrex',dataset:'nist-srd126-table2',dataset_sha256:'4'.repeat(64),density_status:'sourced'};
+  const p=project();p.configuration.layers[0].library={...origin,extra:'<script>'};
+  assert.deepEqual(cleanProject(p).layers[0].library,origin);
+  const derived=project();derived.configuration.layers[0].library={...origin,dataset:'stoichiometry',dataset_sha256:null};
+  assert.equal(cleanProject(derived).layers[0].library.dataset_sha256,null);
+  assert.equal('library' in cleanProject(project()).layers[0],false);
+  for(const bad of ['x',[],{...origin,material_id:'Has Spaces'},{...origin,dataset_sha256:'abc'},{...origin,density_status:'checked'}]){
+    const q=project();q.configuration.layers[0].library=bad;
+    assert.throws(()=>cleanProject(q),/Layer 1 has an invalid materials-library origin/);
+  }
+});
+test('editing composition or density drops the library origin; geometry edits keep it',()=>{
+  const tagged=()=>({...structuredClone(initial.layers[0]),library:{material_id:'a',dataset:'b',dataset_sha256:null,density_status:'sourced'}});
+  for(const field of ['basis','density_mode','density_g_cm3','porosity']) assert.equal('library' in forgetLibraryOrigin(tagged(),field),false,field);
+  for(const field of ['name','thickness_mm','angle_deg','density_uncertainty_pct','thickness_uncertainty_pct']) assert.equal('library' in forgetLibraryOrigin(tagged(),field),true,field);
+  assert.equal('library' in forgetLibraryOrigin(tagged()),false);
 });

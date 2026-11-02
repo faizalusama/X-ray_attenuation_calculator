@@ -467,6 +467,24 @@
     try { await dashboard.exportSVG(); } catch (exception) { error(`Could not export figure: ${exception.message}`); }
     finally { $("#export-svg").disabled = !state.result || state.stale; $("#quick-export-svg").disabled = !state.result || state.stale; }
   }
+  // Materials-library origin of a layer. The engine ignores it; it travels in
+  // the configuration so saved projects and exports name the entry they used.
+  const compositionFields = new Set(["basis", "density_mode", "density_g_cm3", "porosity"]);
+  function libraryOrigin(value, index) {
+    if (value == null) return null;
+    const bad = () => new Error(`Layer ${index + 1} has an invalid materials-library origin.`);
+    if (typeof value !== "object" || Array.isArray(value)) throw bad();
+    const id = item => typeof item === "string" && /^[a-z0-9-]{1,80}$/.test(item);
+    if (!id(value.material_id) || !id(value.dataset) || !["sourced", "unverified"].includes(value.density_status)) throw bad();
+    if (value.dataset_sha256 != null && !(typeof value.dataset_sha256 === "string" && /^[0-9a-f]{64}$/.test(value.dataset_sha256))) throw bad();
+    return {material_id: value.material_id, dataset: value.dataset, dataset_sha256: value.dataset_sha256 ?? null, density_status: value.density_status};
+  }
+  // A layer whose composition or density has been edited is no longer the
+  // library entry, so it must stop claiming to be one.
+  function forgetLibraryOrigin(layer, field = null) {
+    if (layer && (field === null || compositionFields.has(field))) delete layer.library;
+    return layer;
+  }
   function cleanProject(documentValue) {
     const object = (value, label) => { if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be an object.`); return value; };
     const finite = (value, label, min = -Infinity, max = Infinity, integer = false) => {
@@ -522,6 +540,8 @@
       if (next.porosity >= 1) throw new Error("Porosity must be less than 1.");
       if (mode === "bulk" && next.porosity !== 0) throw new Error("Measured bulk density already includes pores; set porosity to 0 or choose solid density.");
       for (const key of ["density_uncertainty_pct", "thickness_uncertainty_pct"]) next[key] = finite(optional(layer[key], 0), key, 0, 100);
+      const origin = libraryOrigin(layer.library, index);
+      if (origin) next.library = origin;
       return next;
     });
     if (c.spectrum != null) {
@@ -535,7 +555,7 @@
   }
 
   // Pure data helpers are also exercised directly by Node regression tests.
-  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, parseSpectrumText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
+  if (typeof module !== "undefined" && module.exports) module.exports = {cleanProject, forgetLibraryOrigin, parseSpectrumText, niceTicks, logTicks, csvCell, linePath, intervalPath, exportedSVG, createLiveScheduler, initial, limits};
   if (typeof document === "undefined") return;
 
   $("#config-form").noValidate=true;
@@ -553,13 +573,14 @@
       $("#energy-reference").value = input.value;
       dirty();
     }else if(input.dataset.componentField){
-      const component=state.configuration.layers[Number(input.dataset.layer)].components[Number(input.dataset.component)];
+      const component=forgetLibraryOrigin(state.configuration.layers[Number(input.dataset.layer)]).components[Number(input.dataset.component)];
       if(input.dataset.componentField==="formula") component.formula=input.value;
       else if(input.dataset.componentField==="density_g_cm3"&&input.value==="") delete component.density_g_cm3;
       else component[input.dataset.componentField]=numeric(input);
       dirty();
     }else if(input.dataset.field){
       const layer=state.configuration.layers[Number(input.dataset.layer)];
+      forgetLibraryOrigin(layer,input.dataset.field);
       layer[input.dataset.field]=input.dataset.field==="thickness_mm"?canonicalLength(numeric(input)):input.type==="number"?numeric(input):input.value;
       if(input.dataset.field==="name") {
         const toggle=$(`[data-action="toggle"][data-index="${input.dataset.layer}"]`);
@@ -586,8 +607,8 @@
     if(action==="remove"&&layers.length>1){layers.splice(index,1);state.openLayer=Math.min(index,layers.length-1);}
     if(action==="up"&&index>0){[layers[index-1],layers[index]]=[layers[index],layers[index-1]];state.openLayer=index-1;}
     if(action==="down"&&index<layers.length-1){[layers[index+1],layers[index]]=[layers[index],layers[index+1]];state.openLayer=index+1;}
-    if(action==="add-component"){if(layers[index].components.length>=limits.components){error(`A material supports up to ${limits.components} components.`);return;}layers[index].components.push({formula:"",fraction:0});}
-    if(action==="remove-component"&&layers[index].components.length>1)layers[index].components.splice(Number(button.dataset.component),1);
+    if(action==="add-component"){if(layers[index].components.length>=limits.components){error(`A material supports up to ${limits.components} components.`);return;}forgetLibraryOrigin(layers[index]).components.push({formula:"",fraction:0});}
+    if(action==="remove-component"&&layers[index].components.length>1)forgetLibraryOrigin(layers[index]).components.splice(Number(button.dataset.component),1);
     dirty();renderLayers();
   });
   $("#add-layer").addEventListener("click",()=>{
