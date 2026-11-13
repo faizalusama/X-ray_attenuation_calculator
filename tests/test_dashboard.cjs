@@ -124,7 +124,7 @@ test('imported v2 backend selection is never silently dropped',()=>{
 });
 
 
-test('every available quantity has an open default plot and existing settings survive expansion',()=>{
+test('every available quantity can be opened and existing settings survive expansion',()=>{
   const {allPanels,QUANTITIES,MAX_PLOTS}=require('../static/dashboard.js');
   const panels=allPanels();
   assert.equal(panels.length,11);assert.equal(MAX_PLOTS,11);
@@ -178,4 +178,84 @@ test('plot data follows the plot: primary and secondary series, display units, a
   const map=plotTable(twoLayers,{layers:[{thickness_mm:1},{thickness_mm:2}],target_transmission:.1},{primary:'map',secondary:'none',layer:'all'},'mm',3);
   assert.deepEqual(map.headers.slice(1),result.energy_keV);
   assert.equal(map.rows[0].length,result.energy_keV.length+1);
+});
+
+function dashboardHarness() {
+  const nodes=new Map(), handlers=[];
+  const document={querySelector(selector) {
+    if(!nodes.has(selector)) nodes.set(selector,{
+      classList:{toggle(){}},setAttribute(){},
+      addEventListener(type,listener){handlers.push({selector,type,listener});}
+    });
+    return nodes.get(selector);
+  },querySelectorAll(){return [];}};
+  const dashboard=require('../static/dashboard.js').create(document,null,{onError(message){throw new Error(message);}});
+  return {dashboard,async showAll(){
+    const button={id:'show-all-plots',dataset:{}};
+    handlers.find(h=>h.selector==='.chart-panel'&&h.type==='click').listener({target:{closest(){return button;}}});
+    await dashboard.redraw();
+  }};
+}
+
+test('fresh and empty preferences retain the four useful startup plots',()=>{
+  for(const value of [undefined,null,{}, {dashboard:{}}, {dashboard:{panels:[]}}, {dashboard:{layoutVersion:2,panels:[]}}]){
+    const {dashboard}=dashboardHarness();
+    dashboard.restore(value);
+    assert.deepEqual(dashboard.preferences().dashboard.panels.map(p=>p.primary),['transmission','removed','mass','linear']);
+    const reload=dashboardHarness().dashboard;
+    reload.restore(dashboard.preferences());
+    assert.deepEqual(reload.preferences(),dashboard.preferences());
+  }
+});
+
+test('saved custom layouts retain order, duplicates and settings across layout versions and reload',()=>{
+  for(const layoutVersion of [undefined,1,2,3,4]){
+    const panels=[{...allPanels().find(p=>p.primary==='hvl'),id:1,secondary:'mass',logX:false,logY:false,logY2:true,
+      font:12,bold:false,edges:false,layers:false,grid:false,layer:2,
+      ranges:{xaxis:[10,40],yaxis:[2,8],yaxis2:[-1,1]},visibility:{'y-hvl-hvl-0':'legendonly','y2-mass-mass-0':false}},
+      {...allPanels()[0],id:2},{...allPanels()[0],id:3,font:15}];
+    const saved={lengthUnit:'µm',dashboard:{layoutVersion,panels,active:2,layout:'stack',linked:false,gesture:'pan',
+      wheel:true,clickReference:true,maxScale:8,secondaryOpen:true,controlsOpen:true,inputLayoutVersion:1,wide:true}};
+    const original=structuredClone(saved), {dashboard}=dashboardHarness();
+    dashboard.restore(saved);
+    const restored=dashboard.preferences();
+    assert.deepEqual(restored.dashboard.panels,panels);
+    assert.equal(restored.lengthUnit,'µm');
+    for(const key of ['active','layout','linked','gesture','wheel','clickReference','maxScale','secondaryOpen','controlsOpen','wide'])
+      assert.equal(restored.dashboard[key],saved.dashboard[key],key);
+    assert.deepEqual(saved,original);
+    const reload=dashboardHarness().dashboard;
+    reload.restore(restored);
+    assert.deepEqual(reload.preferences(),restored);
+  }
+});
+
+test('explicit eleven-plot layouts survive restore even without a layout version',()=>{
+  for(const layoutVersion of [undefined,2,3]){
+    const {dashboard}=dashboardHarness(), panels=allPanels();
+    dashboard.restore({dashboard:{layoutVersion,panels,active:10,layout:'stack'}});
+    assert.deepEqual(dashboard.preferences().dashboard.panels,panels);
+    assert.equal(dashboard.preferences().dashboard.active,10);
+    assert.equal(dashboard.preferences().dashboard.layout,'stack');
+  }
+});
+
+test('Show all expands to eleven quantities, retains plot settings and survives reload',async()=>{
+  const {dashboard,showAll}=dashboardHarness();
+  const saved=dashboard.preferences();
+  Object.assign(saved.dashboard.panels[2],{secondary:'hvl',logX:false,logY2:true,font:12,
+    ranges:{xaxis:[10,40],yaxis:[-2,1]},visibility:{'y-mass-mass-0':'legendonly'}});
+  saved.lengthUnit='cm';
+  dashboard.restore(saved);
+  await showAll();
+  const expanded=dashboard.preferences();
+  assert.deepEqual(expanded.dashboard.panels.map(p=>p.primary),Object.keys(require('../static/dashboard.js').QUANTITIES));
+  assert.equal(new Set(expanded.dashboard.panels.map(p=>p.id)).size,11);
+  assert.deepEqual(expanded.dashboard.panels[2],saved.dashboard.panels[2]);
+  assert.equal(expanded.lengthUnit,'cm');
+  const reload=dashboardHarness().dashboard;
+  reload.restore(expanded);
+  assert.deepEqual(reload.preferences(),expanded);
+  await showAll();
+  assert.deepEqual(dashboard.preferences(),expanded);
 });
