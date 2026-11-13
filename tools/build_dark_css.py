@@ -20,7 +20,7 @@ from functools import partial
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ("styles.css", "dashboard.css", "readability.css", "materials.css", "scattering.css")
+SOURCES = ("styles.css", "dashboard.css", "readability.css", "materials.css", "scattering.css", "workspace.css")
 TARGET = ROOT / "static" / "dark.css"
 THEME = 'html[data-theme="dark"]'
 COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black)\b")
