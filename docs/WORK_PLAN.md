@@ -1,0 +1,127 @@
+# PR7 coordinated work plan
+
+Updated: 13 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
+release, Pages enablement, public deployment or repository setting changes.
+
+## State inspected before planning
+
+Fetched all branches. PR7 starts at add823c. Open PRs #2 (accessibility),
+#3 (citation), #4 (paper), #7 (candidate) are separate scopes. Existing Claude
+routine branches include library-origin and XrayDB-4.6 compatibility work.
+Do not duplicate or silently integrate these. The original temporary integration
+checkout has missing source files; it is preserved. A durable coordinator checkout
+is at outputs/xray-pr7-coordinator. The preview copy is outputs/preview-1.1.0.
+
+Read AGENTS.md, HANDOFF_PR7.md and the backlog. Handoff items 1–15 are ALL
+implemented already, verified against the branch source and completion record.
+They are SKIPPED_DONE, not queued again. No unbuilt handoff feature was found.
+This round changes presentation and research evidence, not scientific numbers.
+
+## Ownership and review protocol
+
+Worker source-file allowlists below are disjoint. Coordinator alone owns this plan,
+the shared backlog, MANIFEST.sha256, generated asset stamps/dark.css, commits,
+integration merges and pushes. Workers do not edit generated artifacts or commit
+before coordinator review; they leave edits in their own branch/worktree and
+report readiness. Coordinator reviews scope/diff, generates artifacts, runs all
+checks, commits the reviewed branch, then merges it into claude/web-version.
+Generated artifacts are resealed after each merge, resolving generated-only
+conflicts by regeneration rather than changing source behavior.
+
+Every reviewed branch must pass full pytest, ruff, strict mypy, Node suites,
+manifest verification, and the native digest:
+4d50d8cd05b54d9c0251e633a5d803b6ced194e1ec3eb4c5134ee02fdb5372e4.
+New scientific numbers require independent reference tests and verified DOI
+evidence; no scientific values are planned here. Standards without a DOI use
+their official versioned URL, with no invented identifier.
+Never widen tolerance, alter data, or erase user edits to make a branch pass.
+Reject or return a failing branch for repair and record the concrete reason.
+Integrate passing branches one at a time, rerun checks, push and check PR7 CI.
+
+## L1 — Workspace layout and progressive disclosure
+
+Status: PLANNED
+Branch: codex/layout-workspace
+Worktree: outputs/xray-task-layout
+Goal: visibly group tabs into Attenuation, Scattering and Reference, put the
+configuration panel on the left with accessible collapse/reopen controls, introduce
+Simple and Advanced modes without changing any input values, and provide a
+prominent materials-library entry point.
+May touch: static/index.html, static/app.js, static/workspace.js,
+static/workspace.css, tools/build_dark_css.py, tests/test_workspace.cjs.
+Constraints: preserve existing tab IDs and keyboard behavior; modes must not
+silently reset or disable active scientific settings. Hidden invalid/advanced
+settings must remain discoverable. Use theme-safe styles and phone layouts.
+Checks: focused Node tests, existing frontend tests, full review gate, final UI audit.
+Dependencies: none. Owner: unassigned.
+
+## L2 — Four-plot initial dashboard
+
+Status: PLANNED
+Branch: codex/compact-dashboard
+Worktree: outputs/xray-task-dashboard
+Goal: show four useful plots on a fresh workspace and make Show all restore all
+available plots. Preserve explicitly saved layouts and scientific/plot settings.
+May touch: static/dashboard.js, tests/test_dashboard.cjs, tools/ui_audit.py.
+Constraints: no new physics or changed plotted data. Adapt the audit to exercise
+both four-plot startup and Show all rather than merely lowering an assertion.
+Checks: default/saved/custom/Show-all Node regressions, full review gate, audit.
+Dependencies: none. Owner: unassigned.
+
+## R1 — Source and benchmark evidence only
+
+Status: PLANNED
+Branch: codex/research-validation
+Worktree: outputs/xray-task-research
+Goal: gather and verify primary references relevant to the layout and existing
+scientific capabilities, including DOI metadata and independent benchmark
+provenance. Flag unsupported claims or candidate data for human checking.
+May touch: docs/research/PR7_SOURCE_EVIDENCE.md,
+docs/research/pr7-source-evidence.json.
+Constraints: research only; no changes to UI, physics, materials, reference values
+or manuscript. Never label literature data human-verified without the required
+named reviewer. Do not duplicate the JOSS/citation PRs or active routine work.
+Checks: resolve DOIs against Crossref/DataCite/primary records, link exact locators,
+validate JSON, full review gate. Evidence is not experimental validation.
+Dependencies: none. Owner: unassigned.
+
+## A1 — Audit the combined result
+
+Status: WAITING_DEPENDENCIES
+Branch: codex/final-layout-audit
+Worktree: outputs/xray-task-audit
+Goal: audit the actual integrated layout, modes, library entry, collapse/reopen,
+four plots/Show all, exports and tab keyboard behavior in light/dark themes at
+desktop, tablet and 375px phone width, including populated results.
+May touch: tools/workspace_ui_audit.py, tests/test_workspace_audit.py.
+Constraints: do not edit implementation to mask a failure. Report reproducible
+defects to coordinator/L1/L2 for repair. Preserve all existing audit coverage.
+Checks: full review gate, existing interface audit, added interaction audit,
+manual screenshot review, actual browser/native parity and PR7 CI.
+Dependencies: L1, L2, R1 reviewed and merged. Owner: unassigned.
+
+## Daily coordinator protocol
+
+Daily at 18:00 Europe/Copenhagen, read this plan and current repo instructions.
+Fetch and inspect PR7, branches, open PRs and active claims. Review waiting
+branches first. If three or more branches are awaiting review, start no workers:
+report the queue and stop. Otherwise skip DONE, MERGED, SKIPPED_DONE, IN_PROGRESS
+and BLOCKED items. Start at most three eligible tasks per run, never more than
+three concurrent workers, each in a separate worktree and codex/<task> branch
+based only on claude/web-version. Apply the full branch review and serial
+integration procedure above, then update this plan and report results.
+If all items are complete, inspect for regressions and record justified follow-up
+candidates; do not invent changes or start unrelated work.
+
+## Integration and rejection record
+
+- Initial plan: pending baseline checks.
+- No branch accepted, rejected or integrated yet in this coordination round.
+
+## Preview and publishing
+
+Update outputs/preview-1.1.0 to the tested integration revision only if clean;
+preserve local edits otherwise. Preview locally using its START_WINDOWS.cmd or
+python launch.py; public hosting remains unapproved. A preview update is not a
+release. Keep #7 in draft. Paper/JOSS review and publishing remain owner actions.
