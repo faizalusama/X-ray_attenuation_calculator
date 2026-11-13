@@ -81,7 +81,7 @@ with four-plot startup plus all-eleven expansion, light/dark and phone coverage.
 
 ## R1 — Source and benchmark evidence only
 
-Status: IN_PROGRESS
+Status: MERGED
 Branch: codex/research-validation
 Worktree: outputs/xray-task-research
 Goal: gather and verify primary references relevant to the layout and existing
@@ -96,9 +96,14 @@ Checks: resolve DOIs against Crossref/DataCite/primary records, link exact locat
 validate JSON, full review gate. Evidence is not experimental validation.
 Dependencies: none. Owner: Codex worker R1 (Wegener; 01a1d5e3-ff04-7692-a15e-b5fe583196f5).
 
+Reviewed commit: 86f5288. Saved JSON and five reference metadata records match
+Crossref exactly. Full gate passed: 826 Python tests, 58 Node, ruff, mypy,
+manifest and exact digest. Primary-source limitations and the Chantler page-range
+discrepancy remain explicitly recorded; no production scientific data added.
+
 ## A1 — Audit the combined result
 
-Status: PREPARING_AUDIT (final execution waits for L2/R1 integration)
+Status: IN_PROGRESS (dependencies merged; coordinator applies worker audit patch)
 Branch: codex/final-layout-audit
 Worktree: outputs/xray-task-audit
 Goal: audit the actual integrated layout, modes, library entry, collapse/reopen,
@@ -110,7 +115,7 @@ Constraints: do not edit implementation to mask a failure. Report reproducible
 defects to coordinator/L1/L2 for repair. Preserve all existing audit coverage.
 Checks: full review gate, existing interface audit, added interaction audit,
 manual screenshot review, actual browser/native parity and PR7 CI.
-Dependencies: L1 merged; L2/R1 must merge before final execution.
+Dependencies: L1/L2/R1 merged; final execution must use the combined result.
 Owner: Carver, 01a1d60f-3c0a-7193-af85-aeffab93363f. Independent audit code
 preparation is permitted now; coordinator runs it only on the combined result.
 
@@ -168,3 +173,7 @@ branch has been rejected. L1 PR7 CI is green at 77d1977. Browser parity compares
 - L2 accepted: d5846f2. Four useful startup plots; explicit saved layouts, ranges,
   typography and visibility preserved. Generated-only index stamp/manifest merge
   conflicts resolved by regeneration; L1 source layout retained.
+
+- R1 accepted: 86f5288. All five Crossref records verified by coordinator;
+  primary locators and test mappings documented without new numerical data.
+  Unresolved original-table/human review limits are retained, not waived.
