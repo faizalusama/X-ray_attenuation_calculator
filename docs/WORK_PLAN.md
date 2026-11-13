@@ -41,7 +41,7 @@ Integrate passing branches one at a time, rerun checks, push and check PR7 CI.
 
 ## L1 — Workspace layout and progressive disclosure
 
-Status: PLANNED
+Status: IN_PROGRESS
 Branch: codex/layout-workspace
 Worktree: outputs/xray-task-layout
 Goal: visibly group tabs into Attenuation, Scattering and Reference, put the
@@ -54,11 +54,11 @@ Constraints: preserve existing tab IDs and keyboard behavior; modes must not
 silently reset or disable active scientific settings. Hidden invalid/advanced
 settings must remain discoverable. Use theme-safe styles and phone layouts.
 Checks: focused Node tests, existing frontend tests, full review gate, final UI audit.
-Dependencies: none. Owner: unassigned.
+Dependencies: none. Owner: Codex worker L1 (Anscombe; 01a1d5e3-fd0d-7b33-9fba-1a417c92b839).
 
 ## L2 — Four-plot initial dashboard
 
-Status: PLANNED
+Status: IN_PROGRESS
 Branch: codex/compact-dashboard
 Worktree: outputs/xray-task-dashboard
 Goal: show four useful plots on a fresh workspace and make Show all restore all
@@ -67,11 +67,11 @@ May touch: static/dashboard.js, tests/test_dashboard.cjs, tools/ui_audit.py.
 Constraints: no new physics or changed plotted data. Adapt the audit to exercise
 both four-plot startup and Show all rather than merely lowering an assertion.
 Checks: default/saved/custom/Show-all Node regressions, full review gate, audit.
-Dependencies: none. Owner: unassigned.
+Dependencies: none. Owner: Codex worker L2 (Ptolemy; 01a1d5e3-fea6-7191-9093-4f274a3c98eb).
 
 ## R1 — Source and benchmark evidence only
 
-Status: PLANNED
+Status: IN_PROGRESS
 Branch: codex/research-validation
 Worktree: outputs/xray-task-research
 Goal: gather and verify primary references relevant to the layout and existing
@@ -84,7 +84,7 @@ or manuscript. Never label literature data human-verified without the required
 named reviewer. Do not duplicate the JOSS/citation PRs or active routine work.
 Checks: resolve DOIs against Crossref/DataCite/primary records, link exact locators,
 validate JSON, full review gate. Evidence is not experimental validation.
-Dependencies: none. Owner: unassigned.
+Dependencies: none. Owner: Codex worker R1 (Wegener; 01a1d5e3-ff04-7692-a15e-b5fe583196f5).
 
 ## A1 — Audit the combined result
 
@@ -94,7 +94,8 @@ Worktree: outputs/xray-task-audit
 Goal: audit the actual integrated layout, modes, library entry, collapse/reopen,
 four plots/Show all, exports and tab keyboard behavior in light/dark themes at
 desktop, tablet and 375px phone width, including populated results.
-May touch: tools/workspace_ui_audit.py, tests/test_workspace_audit.py.
+May touch: tools/workspace_ui_audit.py, tests/test_workspace_audit.py,
+.github/workflows/ci.yml (wire the additional live audit into CI).
 Constraints: do not edit implementation to mask a failure. Report reproducible
 defects to coordinator/L1/L2 for repair. Preserve all existing audit coverage.
 Checks: full review gate, existing interface audit, added interaction audit,
@@ -102,6 +103,9 @@ manual screenshot review, actual browser/native parity and PR7 CI.
 Dependencies: L1, L2, R1 reviewed and merged. Owner: unassigned.
 
 ## Daily coordinator protocol
+
+Existing scheduled task improve-x-ray-workbench-daily updated and ACTIVE at
+18:00 Europe/Copenhagen in this chat (replaces its earlier 07:00 time).
 
 Daily at 18:00 Europe/Copenhagen, read this plan and current repo instructions.
 Fetch and inspect PR7, branches, open PRs and active claims. Review waiting
@@ -116,7 +120,7 @@ candidates; do not invent changes or start unrelated work.
 
 ## Integration and rejection record
 
-- Initial plan: pending baseline checks.
+- Baseline gate passed: 826 Python tests, 58 Node tests, ruff, strict mypy, manifest and exact native digest. Plan committed as 2de66a6; worker round 1 started.
 - No branch accepted, rejected or integrated yet in this coordination round.
 
 ## Preview and publishing
