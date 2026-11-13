@@ -23,7 +23,7 @@
   };
   const state = {configuration: clone(initial), resultConfiguration: null, presets: [], openLayer: 0, result: null, revision: 0, activeRequest: 0, busy: false, tab: "overview", sources: [], mode: "transmission", channelLayer: 0, hiddenSeries: new Set(), chart: null, stale: false};
   let toastTimer;
-  let live, dashboard;
+  let live, dashboard, workspace;
   state.lengthUnit = "mm";
   state.savedConfiguration = clone(initial);
   const displayUnits = typeof AttenuationDashboard !== "undefined" ? AttenuationDashboard : (typeof require === "function" ? require("./dashboard.js") : null);
@@ -44,7 +44,7 @@
   function remember() {
     if (!dashboard) return;
     try {
-      const saved = {schema_version: 1, configuration: state.resultConfiguration || state.savedConfiguration, ui: {...dashboard.preferences(), tab: state.tab, lengthUnit: state.lengthUnit, scopeOpen: $("#model-scope").open, suggestionsOpen: !$("#suggestions-section").hidden}};
+      const saved = {schema_version: 1, configuration: state.resultConfiguration || state.savedConfiguration, ui: {...dashboard.preferences(), ...workspace.preferences(), tab: state.tab, lengthUnit: state.lengthUnit, scopeOpen: $("#model-scope").open, suggestionsOpen: !$("#suggestions-section").hidden}};
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       $("#remember-status").textContent = "Settings and last valid inputs saved on this browser.";
     } catch { $("#remember-status").textContent = "Browser storage unavailable; use Save project to keep your settings."; }
@@ -135,6 +135,7 @@
     setStatus("Updating automatically…", "pending");
     markPending("Updating automatically…");
     syncSliders();
+    workspace?.update();
     live.schedule();
   }
   function markPending(message) {
@@ -181,7 +182,7 @@
     const thickness = fieldName === "thickness_mm";
     const minimum = thickness ? 0 : -89.8;
     const unit = thickness ? state.lengthUnit : "°";
-    return `<label class="slider-box ${thickness ? "thickness-slider" : "angle-slider"}"><span class="slider-heading"><span>${label}</span><output data-slider-output>${number(value)} ${unit}</output></span><span class="slider-track-shell"><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${minimum}" max="${maximum}" value="${esc(value)}" step="any"></span><span class="slider-scale"><span>${number(minimum)} ${unit}</span><span data-slider-maximum>${number(maximum)} ${unit}</span></span></label>`;
+    return `<label ${thickness ? "" : `data-workspace-advanced="angle" data-layer="${index}"`} class="slider-box ${thickness ? "thickness-slider" : "angle-slider"}"><span class="slider-heading"><span>${label}</span><output data-slider-output>${number(value)} ${unit}</output></span><span class="slider-track-shell"><input type="range" data-layer="${index}" data-slider-field="${fieldName}" aria-label="${label} slider" min="${minimum}" max="${maximum}" value="${esc(value)}" step="any"></span><span class="slider-scale"><span>${number(minimum)} ${unit}</span><span data-slider-maximum>${number(maximum)} ${unit}</span></span></label>`;
   }
   function field(label, name, value, index, extra = "", unit = "", type = "number") {
     return `<label>${label}${unit ? '<div class="input-unit">' : ""}<input type="${type}" data-layer="${index}" data-field="${name}" value="${esc(value)}" step="any" ${extra}>${unit ? `<span>${unit}</span></div>` : ""}</label>`;
@@ -201,14 +202,15 @@
           ${layer.components.map((component, ci) => `<div class="composition-grid component-row"><input type="text" value="${esc(component.formula)}" data-layer="${index}" data-component="${ci}" data-component-field="formula" required aria-label="Component ${ci + 1} chemical formula" placeholder="SiO2"><input type="number" value="${esc(component.fraction)}" data-layer="${index}" data-component="${ci}" data-component-field="fraction" min="0" step="any" required aria-label="Component ${ci + 1} fraction parts"><input type="number" value="${esc(component.density_g_cm3 ?? "")}" data-layer="${index}" data-component="${ci}" data-component-field="density_g_cm3" min="0.000000000001" max="10000" step="any" ${ideal || layer.basis === "volume" ? "required" : ""} aria-label="Component ${ci + 1} density in grams per cubic centimetre" placeholder="${ideal || layer.basis === "volume" ? "req." : "opt."}"><button type="button" class="mini-button danger" data-action="remove-component" data-index="${index}" data-component="${ci}" aria-label="Remove component ${ci + 1}" ${layer.components.length === 1 ? "disabled" : ""}>×</button></div>`).join("")}
           <button type="button" class="add-component" data-action="add-component" data-index="${index}">+ Add component</button>
           <div class="density-help">${basis.help} Values are normalized automatically, so 80, 15, 5 and 0.8, 0.15, 0.05 are the same.</div>
-          <div class="field-grid"><label>Density model<select data-layer="${index}" data-field="density_mode"><option value="bulk" ${layer.density_mode === "bulk" ? "selected" : ""}>Measured bulk</option><option value="solid" ${layer.density_mode === "solid" ? "selected" : ""}>Solid + porosity</option><option value="ideal" ${ideal ? "selected" : ""}>Ideal mixture</option></select></label>${field(ideal ? "Density (computed)" : layer.density_mode === "solid" ? "Solid density · g/cm³" : "Bulk density · g/cm³", "density_g_cm3", ideal ? "" : layer.density_g_cm3, index, `${ideal ? 'placeholder="Computed automatically"' : ""} min="0.000000000001" max="10000" ${ideal ? "disabled" : "required"}`)}</div>
+          <div class="field-grid"><label data-workspace-advanced="density" data-layer="${index}">Density model<select data-layer="${index}" data-field="density_mode"><option value="bulk" ${layer.density_mode === "bulk" ? "selected" : ""}>Measured bulk</option><option value="solid" ${layer.density_mode === "solid" ? "selected" : ""}>Solid + porosity</option><option value="ideal" ${ideal ? "selected" : ""}>Ideal mixture</option></select></label>${field(ideal ? "Density (computed)" : layer.density_mode === "solid" ? "Solid density · g/cm³" : "Bulk density · g/cm³", "density_g_cm3", ideal ? "" : layer.density_g_cm3, index, `${ideal ? 'placeholder="Computed automatically"' : ""} min="0.000000000001" max="10000" ${ideal ? "disabled" : "required"}`)}</div>
           ${layer.density_mode !== "bulk" ? `<div class="field-grid">${field("Porosity · fraction", "porosity", layer.porosity, index, 'min="0" max="0.999999" required')}<p class="density-help">${ideal ? "Additive constituent volume; measured densities are preferred." : "Effective density = solid density × (1 − porosity)."}</p></div>` : '<div class="density-help">Measured bulk density already accounts for pores.</div>'}
-          <div class="field-grid layer-bottom-fields"><label>Specify by<select data-layer="${index}" data-thickness-mode aria-label="Specify layer by thickness or areal density"><option value="length" ${areal ? "" : "selected"}>Thickness</option><option value="areal" ${areal ? "selected" : ""}>Areal density</option></select></label>${areal ? field("Areal density", "areal_density_mg_cm2", layer.areal_density_mg_cm2, index, 'min="0" max="1000000000" required', "mg/cm²") : field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `inputmode="decimal" autocomplete="off" spellcheck="false" required title="A number in ${state.lengthUnit}, or with its own unit: 2 mm, 500 µm, 0.2 cm"`, state.lengthUnit, "text")}</div>
-          <div class="field-grid">${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}${areal ? '<p class="density-help">Thickness follows from the density. Optical depth depends only on the areal density.</p>' : ""}</div>
+          <div class="field-grid layer-bottom-fields"><label data-workspace-advanced="areal" data-layer="${index}">Specify by<select data-layer="${index}" data-thickness-mode aria-label="Specify layer by thickness or areal density"><option value="length" ${areal ? "" : "selected"}>Thickness</option><option value="areal" ${areal ? "selected" : ""}>Areal density</option></select></label>${areal ? field("Areal density", "areal_density_mg_cm2", layer.areal_density_mg_cm2, index, 'min="0" max="1000000000" required', "mg/cm²") : field("Normal thickness", "thickness_mm", displayLength(layer.thickness_mm), index, `inputmode="decimal" autocomplete="off" spellcheck="false" required title="A number in ${state.lengthUnit}, or with its own unit: 2 mm, 500 µm, 0.2 cm"`, state.lengthUnit, "text")}</div>
+          <div class="field-grid" data-workspace-advanced="angle" data-layer="${index}">${field("Angle from normal", "angle_deg", layer.angle_deg, index, 'min="-89.9" max="89.9" required', "°")}${areal ? '<p class="density-help">Thickness follows from the density. Optical depth depends only on the areal density.</p>' : ""}</div>
           <div class="geometry-sliders">${areal ? "" : geometrySlider("thickness_mm", displayLength(layer.thickness_mm), index, `Explore thickness · ${state.lengthUnit}`, displayLength(Math.max(10, layer.thickness_mm * 1.2)))}${geometrySlider("angle_deg", layer.angle_deg, index, "Explore angle", 89.8)}</div>
         </div></article>`;
     }).join("");
     renderUncertaintyInputs();
+    workspace?.update();
   }
   function renderUncertaintyInputs() {
     $("#uncertainty-inputs").innerHTML = state.configuration.layers.map((layer, index) => `<div class="uncertainty-layer"><span>${String(index + 1).padStart(2, "0")} · ${esc(layer.name)}</span>${field("Density σ · %", "density_uncertainty_pct", layer.density_uncertainty_pct ?? 0, index, 'min="0" max="100" required')}${field("Thickness σ · %", "thickness_uncertainty_pct", layer.thickness_uncertainty_pct ?? 0, index, 'min="0" max="100" required')}</div>`).join("");
@@ -227,6 +229,7 @@
     syncLengthButtons();
     renderLayers();
     syncSliders();
+    workspace?.update();
   }
 
   function parseSpectrumText(source, weighting = "photon", label = "Measured spectrum") {
@@ -260,20 +263,14 @@
     return cleanProject({schema_version: 1, configuration: config});
   }
   function validateForms(automatic = false) {
+    workspace.update();
     const inputs = [...$$("#config-form input"), ...$$("#config-form select")];
     if ($("#uncertainty-enabled").checked) inputs.push(...$$("#view-uncertainty input"));
     for (const input of inputs) {
       if (input.disabled || input.checkValidity()) continue;
       if (automatic) { setStatus("Waiting for valid input", "pending"); markPending("Input incomplete."); return false; }
-      const card = input.closest(".layer-card");
-      if (card) {
-        card.classList.add("open");
-        $(".layer-body", card).hidden = false;
-        $(".layer-toggle", card).setAttribute("aria-expanded", "true");
-      }
-      if (input.closest("#view-uncertainty")) activateTab("uncertainty");
+      workspace.reveal(input);
       input.reportValidity();
-      input.focus();
       return false;
     }
     return true;
@@ -789,7 +786,7 @@
   $$("[data-tab]").forEach(button=>button.addEventListener("click",()=>activateTab(button.dataset.tab)));
   $(".tabs").addEventListener("keydown",event=>{
     if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
-    event.preventDefault();const buttons=$$("[data-tab]");const current=buttons.indexOf(document.activeElement);
+    event.preventDefault();const buttons=$$('.tabs [role="tab"][data-tab]');const current=buttons.indexOf(document.activeElement);
     const next=event.key==="Home"?0:event.key==="End"?buttons.length-1:(current+(event.key==="ArrowRight"?1:-1)+buttons.length)%buttons.length;
     activateTab(buttons[next].dataset.tab);buttons[next].focus();
   });
@@ -805,7 +802,7 @@
   $("#export-svg").addEventListener("click",exportSVG);
   $("#quick-export-svg").addEventListener("click",exportSVG);
   $("#export-json").addEventListener("click",()=>{if(state.result&&!state.stale)download(JSON.stringify({...state.result,schema_version:1,configuration:state.resultConfiguration},null,2)+"\n","attenuation-results.json","application/json");});
-  $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
+  $("#save-project").addEventListener("click",()=>{try{const config=payload();download(JSON.stringify({schema_version:1,configuration:config,ui:{...dashboard.preferences(), ...workspace.preferences(),tab:state.tab,lengthUnit:state.lengthUnit,scopeOpen:$("#model-scope").open,suggestionsOpen:!$("#suggestions-section").hidden}},null,2)+"\n","attenuation-project.json","application/json");toast("Project saved with configuration and spectrum.");}catch(exception){error(exception.message);}});
   $("#cite-this").addEventListener("click", async () => {
     try {
       const response = await fetch("/api/citation");
@@ -863,6 +860,7 @@
     if (typeof ui.scopeOpen === "boolean") $("#model-scope").open = ui.scopeOpen;
     if (typeof ui.suggestionsOpen === "boolean") { $("#suggestions-section").hidden = !ui.suggestionsOpen; $("#ideas-button").setAttribute("aria-expanded", ui.suggestionsOpen); }
     dashboard.restore(ui);
+    workspace.restore(ui);
   }
   $("#length-units").addEventListener("click", event => {
     const button = event.target.closest("[data-length-unit]");
@@ -910,6 +908,19 @@
       onImage: saveImage,
       onExport: (svg, filename) => { download(svg, filename, "image/svg+xml"); toast("Figure exported with current view, units and calculation provenance."); },
       onReference: value => { if (value >= 1 && value <= 800) { state.configuration.energy.reference_keV = value; $("#energy-reference").value = value; dirty(); } }});
+    workspace = AttenuationWorkspace.create(document, {
+      getConfiguration: () => ({...state.configuration, spectrum: $("#spectrum-enabled").checked,
+        uncertainty: {...state.configuration.uncertainty, enabled: $("#uncertainty-enabled").checked}}),
+      setInputs: visible => {
+        const ui = dashboard.preferences();
+        ui.dashboard.wide = !visible;
+        dashboard.restore(ui);
+        dashboard.redraw();
+      },
+      activateTab,
+      onLayerOpen: index => { state.openLayer = index; },
+      onChange: remember,
+    });
     let restored = false;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

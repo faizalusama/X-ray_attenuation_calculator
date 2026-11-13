@@ -41,7 +41,7 @@ Integrate passing branches one at a time, rerun checks, push and check PR7 CI.
 
 ## L1 — Workspace layout and progressive disclosure
 
-Status: AWAITING_REVIEW
+Status: MERGED
 Branch: codex/layout-workspace
 Worktree: outputs/xray-task-layout
 Goal: visibly group tabs into Attenuation, Scattering and Reference, put the
@@ -55,6 +55,12 @@ silently reset or disable active scientific settings. Hidden invalid/advanced
 settings must remain discoverable. Use theme-safe styles and phone layouts.
 Checks: focused Node tests, existing frontend tests, full review gate, final UI audit.
 Dependencies: none. Owner: Codex worker L1 (Anscombe; 01a1d5e3-fd0d-7b33-9fba-1a417c92b839).
+
+Reviewed commit: 19af369. Source allowlist respected; 826 Python and 70 Node tests,
+ruff, mypy, manifest and exact digest passed. Unchanged interface audit passed
+in installed headless Edge; desktop/phone screenshots reviewed. Chromium restored
+for the final combined audit. Initial missing Chromium was an environment gap,
+not a waived assertion or accepted source defect.
 
 ## L2 — Four-plot initial dashboard
 
@@ -139,7 +145,7 @@ candidates; do not invent changes or start unrelated work.
 
 - Baseline gate passed: 826 Python tests, 58 Node tests, ruff, strict mypy, manifest and exact native digest. Plan committed as 2de66a6; worker round 1 started.
 - C1 accepted: reviewed test-only patch from Claude 16ecfcb, port 9e3cac7; decoder compatibility only, no assertion/tolerance/production change.
-- L1 worker complete; coordinator review pending.
+- L1 accepted: 19af369; grouped tabs, left collapse/reopen, modes preserve settings, library entry visible. Full gate and live audit passed; source and screenshots reviewed.
 
 ## Preview and publishing
 
