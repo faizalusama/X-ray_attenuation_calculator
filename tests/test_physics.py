@@ -188,11 +188,14 @@ def test_edge_brackets_cover_actual_elam_knots_for_all_supported_elements():
     # straddles nominal metadata while missing the actual tabulated jump.
     # Repeated log-energy knots represent the two sides of each Elam edge.
     database = xraydb.get_xraydb()
+    # XrayDB 4.6 stores array columns lzma-compressed and decodes them with
+    # XrayDB.unpack; 4.5.x stores plain JSON and has no unpack method.
+    unpack = getattr(database, "unpack", lambda value: np.array(json.loads(value)))
     checked = 0
     for atomic_number in range(1, 99):
         symbol = xraydb.atomic_symbol(atomic_number)
         row = database.get_cache("photoabsorption", column="element", value=symbol)[0]
-        log_energy = np.array(json.loads(row.log_energy))
+        log_energy = np.asarray(unpack(row.log_energy))
         steps = np.exp(log_energy[np.flatnonzero(np.diff(log_energy) == 0)])
         for edge in xraydb.xray_edges(symbol).values():
             if not 1000 <= edge.energy <= 800000:

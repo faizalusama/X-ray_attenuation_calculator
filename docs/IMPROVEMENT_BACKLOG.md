@@ -53,8 +53,22 @@ _(agent · branch · date · item)_
 11. **Single source for asset stamps in exports.** SVG exports embed the
     workbench version; confirm they also record the materials-library dataset
     and backend versions used.
+12. **CI does not notice upstream releases until the next push.** CI installs
+    `.[dev]` (`xraydb>=4.5.8,<5`, unpinned) only on push and pull request.
+    XrayDB 4.6.0 and 4.6.1 (released 2026-11-09) broke a test on
+    `interface-refresh`, whose last CI run (2026-10-26) stayed green. A weekly
+    scheduled CI run, or a job that installs `requirements-lock.txt` beside the
+    unpinned one, would separate "upstream moved" from "our change broke it".
+    Workflow changes are the owner's decision.
 
 ## Done
+
+- 2026-11-13 · Claude routine · `claude/routine-2026-11-13-xraydb-46-compat` ·
+  `test_edge_brackets_cover_actual_elam_knots_for_all_supported_elements`
+  failed under XrayDB 4.6.x, which stores array columns lzma-compressed; the
+  test now decodes them with `XrayDB.unpack` when present (JSON on 4.5.x).
+  Computed outputs for `examples/borosilicate-multilayer.json` are
+  bit-identical under 4.5.8 and 4.6.1 apart from the recorded version.
 
 - 2026-10-26 · Claude · `interface-refresh` · WCAG 2.2 AA round 1: contrast
   53→0, text under 12 px 51→0, targets under 24 px 71→0; skip link; gzip and
