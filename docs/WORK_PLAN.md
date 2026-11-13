@@ -41,7 +41,7 @@ Integrate passing branches one at a time, rerun checks, push and check PR7 CI.
 
 ## L1 — Workspace layout and progressive disclosure
 
-Status: IN_PROGRESS
+Status: AWAITING_REVIEW
 Branch: codex/layout-workspace
 Worktree: outputs/xray-task-layout
 Goal: visibly group tabs into Attenuation, Scattering and Reference, put the
@@ -102,6 +102,23 @@ Checks: full review gate, existing interface audit, added interaction audit,
 manual screenshot review, actual browser/native parity and PR7 CI.
 Dependencies: L1, L2, R1 reviewed and merged. Owner: unassigned.
 
+## C1 — Review existing XrayDB 4.6 test compatibility patch
+
+Status: MERGED
+Branch: codex/xraydb46-test-compat
+Worktree: outputs/xray-task-compat
+Owner: coordinator reviewing an already completed Claude contribution; no fourth worker.
+Goal: repair the newly reproduced CI failure reading compressed XrayDB 4.6 table
+columns. Reuse only the completed test-only change from Claude commit 16ecfcb;
+do not duplicate its implementation or merge its unrelated branch history.
+May touch: tests/test_physics.py only (coordinator reseals generated metadata).
+Checks: existing edge-knot assertions unchanged under XrayDB 4.5.8 and 4.6.1,
+full review gate, unchanged complete 16-case digest under both, PR7 CI.
+Reviewed commit: 9e3cac7. Full reference gate passed (826 tests, 58 Node);
+109 physics tests and the exact full digest also passed under XrayDB 4.6.1.
+Reason added: current unpinned CI installs XrayDB 4.6.1 and fails decoding plain
+JSON in the test; production engine and browser parity already pass.
+
 ## Daily coordinator protocol
 
 Existing scheduled task improve-x-ray-workbench-daily updated and ACTIVE at
@@ -121,7 +138,8 @@ candidates; do not invent changes or start unrelated work.
 ## Integration and rejection record
 
 - Baseline gate passed: 826 Python tests, 58 Node tests, ruff, strict mypy, manifest and exact native digest. Plan committed as 2de66a6; worker round 1 started.
-- No branch accepted, rejected or integrated yet in this coordination round.
+- C1 accepted: reviewed test-only patch from Claude 16ecfcb, port 9e3cac7; decoder compatibility only, no assertion/tolerance/production change.
+- L1 worker complete; coordinator review pending.
 
 ## Preview and publishing
 
