@@ -82,7 +82,7 @@
         element.hidden = !visible && !element.contains(document.activeElement);
       }
       document.documentElement.dataset.workspaceMode = mode;
-      $$("[data-workspace-mode]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.workspaceMode === mode)));
+      $$("button[data-workspace-mode]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.workspaceMode === mode)));
       const summary = $("#workspace-active-settings"), settings = activeSettings(config);
       summary.replaceChildren();
       summary.hidden = !settings.length;
@@ -106,7 +106,7 @@
       update();
       if (persist) callbacks.onChange();
     }
-    $$("[data-workspace-mode]").forEach(button => button.addEventListener("click", () => setMode(button.dataset.workspaceMode)));
+    $$("button[data-workspace-mode]").forEach(button => button.addEventListener("click", () => setMode(button.dataset.workspaceMode)));
     $("#workspace-invalid").addEventListener("click", () => reveal(invalidInput));
     function hideInputs() {
       // Reuse the dashboard preference, with focus returning to a control on every tab.
