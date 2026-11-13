@@ -64,7 +64,7 @@ not a waived assertion or accepted source defect.
 
 ## L2 — Four-plot initial dashboard
 
-Status: IN_PROGRESS
+Status: MERGED
 Branch: codex/compact-dashboard
 Worktree: outputs/xray-task-dashboard
 Goal: show four useful plots on a fresh workspace and make Show all restore all
@@ -74,6 +74,10 @@ Constraints: no new physics or changed plotted data. Adapt the audit to exercise
 both four-plot startup and Show all rather than merely lowering an assertion.
 Checks: default/saved/custom/Show-all Node regressions, full review gate, audit.
 Dependencies: none. Owner: Codex worker L2 (Ptolemy; 01a1d5e3-fea6-7191-9093-4f274a3c98eb).
+
+Reviewed commit: d5846f2. Full gate: 826 Python tests, 62 Node tests, ruff,
+mypy, manifest and exact digest passed. Existing live audit passed in Chromium
+with four-plot startup plus all-eleven expansion, light/dark and phone coverage.
 
 ## R1 — Source and benchmark evidence only
 
@@ -160,3 +164,7 @@ Coordination note: L2/R1 tool approvals stalled with no edits; workers redirecte
 to supply exact patches/content for coordinator application and checks. No source
 branch has been rejected. L1 PR7 CI is green at 77d1977. Browser parity compares
 247,930 values within the unchanged tolerance (maximum relative error 5.46e-16).
+
+- L2 accepted: d5846f2. Four useful startup plots; explicit saved layouts, ranges,
+  typography and visibility preserved. Generated-only index stamp/manifest merge
+  conflicts resolved by regeneration; L1 source layout retained.

@@ -77,9 +77,17 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
             page.goto(url, wait_until="networkidle")
             # Wait for every default plot and the successful calculation state,
             # rather than hoping a fixed delay covers slower CI machines.
-            page.wait_for_function("""() => document.querySelectorAll('.scientific-plot.js-plotly-plot').length === 11 &&
+            page.wait_for_function("""() => document.querySelectorAll('.scientific-plot.js-plotly-plot').length === 4 &&
                 document.querySelector('#result-status')?.textContent.includes('up to date')""", timeout=30_000)
-            views: dict[str, Any] = {"main": page.evaluate(AUDIT_SCRIPT)}
+            views: dict[str, Any] = {"compact_main": page.evaluate(AUDIT_SCRIPT)}
+            capture("compact-main")
+            # Expand before the existing audit so every quantity and readout
+            # retains coverage, in addition to the fresh compact workspace.
+            page.locator("#show-all-plots").click()
+            page.wait_for_function("""() => document.querySelectorAll('.scientific-plot.js-plotly-plot').length === 11 &&
+                document.querySelectorAll('.plot-reference-body table').length === 11 &&
+                document.querySelector('#result-status')?.textContent.includes('up to date')""", timeout=30_000)
+            views["main"] = page.evaluate(AUDIT_SCRIPT)
             capture("main")
             reference = page.locator(".plot-reference-details").first
             reference.locator("summary").focus()

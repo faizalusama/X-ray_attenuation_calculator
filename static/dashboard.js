@@ -227,7 +227,7 @@
   function create(document, Plotly, callbacks) {
     const $ = selector => document.querySelector(selector);
     const $$ = selector => [...document.querySelectorAll(selector)];
-    const settings = {panels: allPanels(), active: 0, layout: "grid", logX: true,
+    const settings = {panels: ["transmission", "removed", "mass", "linear"].map((mode, i) => panel(mode, i + 1)), active: 0, layout: "grid", logX: true,
       edges: true, layers: true, linked: true, gesture: "zoom", wheel: false, clickReference: false, font: 13, maxScale: 3, revision: 0, secondaryOpen: false, controlsOpen: false, wide: false, layoutVersion: 3, inputLayoutVersion: 1, typographyVersion: 1};
     let result = null, configuration = null, unit = "mm", sequence = MAX_PLOTS, syncing = false, rendering = Promise.resolve(), queued = false;
     const chosen = () => settings.panels[settings.active];
@@ -556,10 +556,8 @@
       },
       restore(value) {
         Object.assign(settings, cleanPreferences(value));
-        // Upgrade an older two/four-plot workspace once. Later custom choices
-        // remain remembered; Show all plots restores the complete dashboard.
-        if (value?.dashboard?.layoutVersion !== 3) { settings.panels = allPanels(settings.panels); settings.active = 0; settings.layout = "grid"; }
-        if (value?.dashboard?.typographyVersion !== 1) settings.panels.forEach(p => { p.font = Math.max(18, p.font); });
+        // Saved panels are explicit choices, regardless of layout version.
+        // Missing panels keep the compact defaults; Show all is opt-in.
         sequence = Math.max(...settings.panels.map(p => p.id));
         if (Object.hasOwn(LENGTH_UNITS, value?.lengthUnit)) unit = value.lengthUnit;
         controls();
