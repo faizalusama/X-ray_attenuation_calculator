@@ -94,7 +94,7 @@ Dependencies: none. Owner: Codex worker R1 (Wegener; 01a1d5e3-ff04-7692-a15e-b5f
 
 ## A1 — Audit the combined result
 
-Status: WAITING_DEPENDENCIES
+Status: PREPARING_AUDIT (final execution waits for L2/R1 integration)
 Branch: codex/final-layout-audit
 Worktree: outputs/xray-task-audit
 Goal: audit the actual integrated layout, modes, library entry, collapse/reopen,
@@ -106,7 +106,9 @@ Constraints: do not edit implementation to mask a failure. Report reproducible
 defects to coordinator/L1/L2 for repair. Preserve all existing audit coverage.
 Checks: full review gate, existing interface audit, added interaction audit,
 manual screenshot review, actual browser/native parity and PR7 CI.
-Dependencies: L1, L2, R1 reviewed and merged. Owner: unassigned.
+Dependencies: L1 merged; L2/R1 must merge before final execution.
+Owner: Carver, 01a1d60f-3c0a-7193-af85-aeffab93363f. Independent audit code
+preparation is permitted now; coordinator runs it only on the combined result.
 
 ## C1 — Review existing XrayDB 4.6 test compatibility patch
 
@@ -153,3 +155,8 @@ Update outputs/preview-1.1.0 to the tested integration revision only if clean;
 preserve local edits otherwise. Preview locally using its START_WINDOWS.cmd or
 python launch.py; public hosting remains unapproved. A preview update is not a
 release. Keep #7 in draft. Paper/JOSS review and publishing remain owner actions.
+
+Coordination note: L2/R1 tool approvals stalled with no edits; workers redirected
+to supply exact patches/content for coordinator application and checks. No source
+branch has been rejected. L1 PR7 CI is green at 77d1977. Browser parity compares
+247,930 values within the unchanged tolerance (maximum relative error 5.46e-16).
