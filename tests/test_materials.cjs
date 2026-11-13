@@ -78,3 +78,15 @@ test('the shortest half-value layer is reported, or nothing for an empty selecti
   assert.equal(shortestHvl(points).id,'b');assert.deepEqual(ids(points),['a','b','c','d']);
   assert.equal(shortestHvl([]), undefined);
 });
+
+test("library legend wraps complete names and escapes markup without truncating long tokens", () => {
+  const {legendLabel} = require("../static/materials.js");
+  assert.equal(legendLabel("Coherent (Rayleigh)", 15), "Coherent<br>(Rayleigh)");
+  assert.equal(legendLabel("Photoelectric", 20), "Photoelectric");
+  assert.equal(legendLabel("ABCDEFGHIJ", 4), "ABCD<br>EFGH<br>IJ");
+  assert.equal(legendLabel("<img & data>", 30), "&lt;img &amp; data&gt;");
+  const name = "3 mol% yttria-stabilised zirconia (3Y-TZP) — total";
+  const wrapped = legendLabel(name, 15);
+  assert.ok(wrapped.split("<br>").every(part => Array.from(part).length <= 15));
+  assert.equal(wrapped.replaceAll("<br>", "").replaceAll(" ", ""), name.replaceAll(" ", ""));
+});

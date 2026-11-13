@@ -210,3 +210,21 @@ that non-button styling containers carry no aria-pressed; digest unchanged.
 
 - F2 accepted: 917bc16, full gate826Python+75Node passed; only button
   selectors changed. Native scientific digest remains unchanged.
+
+## F3 — Repair phone library legend clipping
+
+Status: MERGED
+Branch: codex/library-legend-reflow
+Worktree: outputs/xray-task-library-reflow
+Owner: coordinator.
+Goal: wrap long library chart legend names at narrow widths without clipping,
+truncation, smaller fonts or changed plotted data.
+May touch: static/materials.js, tests/test_materials.cjs.
+Checks: safe label wrapping regressions, full gate, exact digest; unchanged final
+320/375px library-detail bounds assertion and screenshot review.
+Reason: 320px audit failed in both themes; focused screenshot confirmed total
+legend text extends beyond its SVG and is cut off. Not a waived audit finding.
+
+- F3 accepted: b52f3cd, full gate826Python+76Node passed. Complete labels
+  are safely escaped and wrapped using available chart width. Plot arrays,
+  fonts, densities and reference outputs remain unchanged. Final A1 rerun pending.
