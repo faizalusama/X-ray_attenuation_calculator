@@ -104,13 +104,14 @@ function harness(stored = null, throwStorage = false) {
   const config = clone(initial), snapshot = clone(config), writes = [];
   const modes = [simple, advanced], disclosures = [angle, grid];
   const selects = {
-    "[data-workspace-mode]": modes, "[data-workspace-advanced]": disclosures,
+    "button[data-workspace-mode]": modes, "[data-workspace-advanced]": disclosures,
     "#config-form input, #config-form select": [input, angleInput], "#view-uncertainty input": [],
   };
   doc = {
     documentElement: element(), activeElement: null, readyState: "complete",
     querySelector: key => elements.get(key) || null,
-    querySelectorAll: key => selects[key] || [],
+    querySelectorAll: key => key === "[data-workspace-mode]" ?
+      (doc.documentElement.dataset.workspaceMode ? [doc.documentElement, ...modes] : modes) : selects[key] || [],
     createElement: () => element(),
   };
   let changes = 0, tab = "", layer = -1;
@@ -214,4 +215,15 @@ test("library entry installed by a later deferred module moves intact into the g
   assert.ok(h.elements.get("#workspace-library-slot").children.includes(library));
   library.click();
   assert.equal(opened, true, "moving the original button preserves its library handler");
+});
+
+test("mode pressed-state belongs only to buttons while the root keeps its styling mode", () => {
+  const h = harness();
+  for (const mode of ["simple", "advanced", "simple"]) {
+    h[mode].click();
+    assert.equal(h.doc.documentElement.dataset.workspaceMode, mode);
+    assert.equal(h.doc.documentElement.getAttribute("aria-pressed"), undefined);
+    assert.equal(h.simple.getAttribute("aria-pressed"), String(mode === "simple"));
+    assert.equal(h.advanced.getAttribute("aria-pressed"), String(mode === "advanced"));
+  }
 });

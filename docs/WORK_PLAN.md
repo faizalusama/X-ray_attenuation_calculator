@@ -177,3 +177,22 @@ branch has been rejected. L1 PR7 CI is green at 77d1977. Browser parity compares
 - R1 accepted: 86f5288. All five Crossref records verified by coordinator;
   primary locators and test mappings documented without new numerical data.
   Unresolved original-table/human review limits are retained, not waived.
+
+## F1 — Audit-discovered mode button state correction
+
+Status: MERGED
+Branch: codex/workspace-mode-button-state
+Worktree: outputs/xray-task-mode-state
+Owner: coordinator; no additional worker.
+Goal: mode pressed-state and click binding apply only to mode buttons, never
+to the page root which also carries data-workspace-mode for styling.
+May touch: static/workspace.js, tests/test_workspace.cjs.
+Checks: real DOM root has no aria-pressed, mode buttons retain correct state;
+Node regression, full gate, unchanged digest, final interaction audit.
+Reason: live audit found ambiguous mode selectors and invalid aria-pressed on
+html. The audit locator is corrected separately; production state leak needs F1.
+
+- F1 accepted: d0d60f5, full gate826Python+75Node passed with exactdigest.
+  The final audit initially rejected selector ambiguity, lint/import typing and
+  an assumed spectrum table; coordinator is repairing those audit defects against
+  the real DOM, retaining the intended data/focus checks. No branch rejected.
