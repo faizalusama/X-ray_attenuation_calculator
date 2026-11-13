@@ -257,8 +257,8 @@
       document.querySelector(".workspace").classList.toggle("dashboard-wide", settings.wide);
       $("#dashboard-focus").setAttribute("aria-pressed", settings.wide);
       $("#dashboard-focus").textContent = settings.wide ? "Show inputs" : "Hide inputs";
-      $$("[data-gesture]").forEach(b => b.setAttribute("aria-pressed", b.dataset.gesture === settings.gesture));
-      $$("[data-layout]").forEach(b => b.setAttribute("aria-pressed", b.dataset.layout === settings.layout));
+      $$("button[data-gesture]").forEach(b => b.setAttribute("aria-pressed", b.dataset.gesture === settings.gesture));
+      $$("button[data-layout]").forEach(b => b.setAttribute("aria-pressed", b.dataset.layout === settings.layout));
       $("#wheel-zoom").disabled = settings.gesture === "locked";
       $("#reference-pick").disabled = settings.gesture === "locked";
       $("#plot-control-title").textContent = `Configure plot ${settings.active + 1}`;

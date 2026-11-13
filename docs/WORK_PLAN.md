@@ -196,3 +196,17 @@ html. The audit locator is corrected separately; production state leak needs F1.
   The final audit initially rejected selector ambiguity, lint/import typing and
   an assumed spectrum table; coordinator is repairing those audit defects against
   the real DOM, retaining the intended data/focus checks. No branch rejected.
+
+## F2 — Audit-discovered dashboard button state correction
+
+Status: MERGED
+Branch: codex/dashboard-button-state
+Worktree: outputs/xray-task-dashboard-state
+Owner: coordinator.
+Goal: layout/gesture pressed-state must apply only to their actual buttons, not
+to the plot-grid container sharing data-layout.
+May touch: static/dashboard.js. Checks: full gate and final real-browser assertion
+that non-button styling containers carry no aria-pressed; digest unchanged.
+
+- F2 accepted: 917bc16, full gate826Python+75Node passed; only button
+  selectors changed. Native scientific digest remains unchanged.
