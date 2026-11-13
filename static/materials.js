@@ -79,9 +79,29 @@
   }
 
   function shortestHvl(points) { return [...points].sort((a, b) => a.hvl_mm - b.hvl_mm)[0]; }
+  // Plotly does not wrap legend text. Keep complete names and escape markup,
+  // using a conservative glyph width at the existing 12px legend font.
+  function legendLabel(value, columns) {
+    const limit = Math.max(1, Math.floor(columns)), lines = [];
+    let line = "";
+    for (const word of String(value ?? "").trim().split(/\s+/)) {
+      const chars = Array.from(word);
+      while (chars.length > limit) {
+        if (line) { lines.push(line); line = ""; }
+        lines.push(chars.splice(0, limit).join(""));
+      }
+      const tail = chars.join("");
+      if (!tail) continue;
+      if (line && Array.from(line + " " + tail).length > limit) { lines.push(line); line = ""; }
+      line += (line ? " " : "") + tail;
+    }
+    if (line) lines.push(line);
+    return lines.map(esc).join("<br>");
+  }
+
 
   if (typeof module === "object" && module.exports) {
-    module.exports = {esc, fmt, sub, FAMILIES, CATEGORY_LABEL, MAX_COMPARE, familyFor, filterMaterials, libraryOrder, massPercent, withComparison, shortestHvl};
+    module.exports = {esc, fmt, sub, FAMILIES, CATEGORY_LABEL, MAX_COMPARE, familyFor, filterMaterials, libraryOrder, massPercent, withComparison, shortestHvl, legendLabel};
   }
   if (typeof document === "undefined") return;
 
@@ -248,6 +268,7 @@
     const E = result.energy_keV, main = result.layers[0];
     $("#ml-elements").innerHTML = compositionBar(main.elemental_mass_fractions);
     const positive = values => values.map(v => (v > 0 ? v : null));
+    const legendColumns = Math.max(8, Math.floor(($("#ml-curve").clientWidth - 60) / 12));
     const traces = [
       {x: E, y: positive(main.mu_mass_cm2_g), name: `${d.name} — total`, line: {color: isDark() ? "#dbe5ee" : "#203951", width: 2.6}},
       {x: E, y: positive(main.photoelectric_cm2_g), name: "Photoelectric", line: {color: "#0072B2", width: 1.4, dash: "dash"}},
@@ -255,7 +276,7 @@
       {x: E, y: positive(main.incoherent_cm2_g), name: "Incoherent (Compton)", line: {color: "#E69F00", width: 1.4, dash: "dashdot"}},
       ...details.slice(1).map((x, i) => ({x: E, y: positive(result.layers[i + 1].mu_mass_cm2_g), name: x.name,
                                           line: {color: COMPARE_COLORS[i], width: 2.2}})),
-    ].map(t => ({type: "scatter", mode: "lines", hovertemplate: "%{x:.4g} keV<br>%{y:.4g} cm²/g<extra>%{fullData.name}</extra>", ...t}));
+    ].map(t => ({type: "scatter", mode: "lines", hovertemplate: "%{x:.4g} keV<br>%{y:.4g} cm²/g<extra>%{fullData.name}</extra>", ...t, name: legendLabel(t.name, legendColumns)}));
     const layout = {margin: {l: 70, r: 16, t: 10, b: 52}, font: {family: "Segoe UI, Arial, sans-serif", size: 13, color: "#253647"},
       xaxis: {type: "log", title: {text: "Photon energy (keV)"}, gridcolor: "#e3eaee", zeroline: false},
       yaxis: {type: "log", title: {text: "μ/ρ (cm²/g)"}, gridcolor: "#e3eaee", exponentformat: "power", zeroline: false},
