@@ -93,6 +93,7 @@ jobs:
           node --check static/scattering.js
           node --check static/app.js
           node --check static/dashboard.js
+          node --check static/workspace.js
           node --check web/shim.js
           node --check web/engine_worker.js
 
@@ -100,6 +101,7 @@ jobs:
         run: |
           node tests/test_frontend.cjs
           node tests/test_dashboard.cjs
+          node tests/test_workspace.cjs
           node tests/test_materials.cjs
           node tests/test_scattering.cjs
 
@@ -126,12 +128,18 @@ jobs:
       - name: Audit
         run: python tools/ui_audit.py --report ui-audit-report.json
 
+      - name: Workspace interaction audit
+        if: always()
+        run: python tools/workspace_ui_audit.py --report workspace-ui-audit-report.json
+
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: ui-audit-report
-          path: ui-audit-report.json
+          path: |
+            ui-audit-report.json
+            workspace-ui-audit-report.json
 
   browser-version:
     name: Browser version matches the native engine
