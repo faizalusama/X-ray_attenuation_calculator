@@ -1,6 +1,6 @@
 # PR7 coordinated work plan
 
-Updated: 13 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Updated: 14 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
 Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
 release, Pages enablement, public deployment or repository setting changes.
 
@@ -103,7 +103,7 @@ discrepancy remain explicitly recorded; no production scientific data added.
 
 ## A1 — Audit the combined result
 
-Status: IN_PROGRESS (dependencies merged; coordinator applies worker audit patch)
+Status: MERGED
 Branch: codex/final-layout-audit
 Worktree: outputs/xray-task-audit
 Goal: audit the actual integrated layout, modes, library entry, collapse/reopen,
@@ -118,6 +118,14 @@ manual screenshot review, actual browser/native parity and PR7 CI.
 Dependencies: L1/L2/R1 merged; final execution must use the combined result.
 Owner: Carver, 01a1d60f-3c0a-7193-af85-aeffab93363f. Independent audit code
 preparation is permitted now; coordinator runs it only on the combined result.
+
+Reviewed commit: d7f30bf. Combined-result gate passed: 831 Python tests,
+14 subtests, 76 Node tests, ruff, strict mypy, manifest and exact native digest.
+Both live audits passed. The added audit covers eight theme/viewport scenarios
+at 1440, 768, 375 and 320 px, with no failed checks or browser errors. Existing
+audit coverage is retained. Screenshots were reviewed; automated contrast checks
+still report their explicit visual-review limits, not full WCAG certification.
+Audit findings F1/F2/F3 were repaired in their own reviewed branches below.
 
 ## C1 — Review existing XrayDB 4.6 test compatibility patch
 
@@ -227,4 +235,18 @@ legend text extends beyond its SVG and is cut off. Not a waived audit finding.
 
 - F3 accepted: b52f3cd, full gate826Python+76Node passed. Complete labels
   are safely escaped and wrapped using available chart width. Plot arrays,
-  fonts, densities and reference outputs remain unchanged. Final A1 rerun pending.
+  fonts, densities and reference outputs remain unchanged. Final A1 rerun passed.
+
+## Completion and remaining review
+
+L1/L2/R1/C1/F1/F2/F3/A1 are complete. No branch was rejected or left waiting
+for review; reproduced defects were fixed before acceptance. All 15 handoff
+features were already implemented and were not duplicated. No new scientific
+numbers, materials or numerical tolerances were introduced in this round.
+The final merge repeats the full gate; PR7 CI must also pass on that commit.
+
+Owner review of the unpublished candidate remains open. Source evidence records
+the original-table/human-review limits and Chantler bibliography discrepancy;
+these are research follow-ups, not verified production data. Daily runs should
+inspect for justified regressions or evidence-backed follow-ups before claiming
+new tasks, using the queue limits above. Publishing remains unapproved.
