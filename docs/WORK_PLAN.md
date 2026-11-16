@@ -292,7 +292,7 @@ below in order of dependency once an independent benchmark has been identified.
 - S1, MERGED, codex/detector-q-coverage. Plan SAXS/WAXS Q coverage from
   measured detector radii, distance and energy. Own detector_coverage.py in the
   package and its namesake test. Check against an independent geometry reference.
-- S2, IN_PROGRESS, codex/tomography-projection. Convert one flat/dark/sample
+- S2, MERGED, codex/tomography-projection. Convert one flat/dark/sample
   count triplet to transmission and a projection. Own tomo_projection.py in
   the package and its namesake test. Compare with reference normalization,
   including invalid and above-flat counts.
