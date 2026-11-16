@@ -1,6 +1,6 @@
 # PR7 coordinated work plan
 
-Updated: 14 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Updated: 16 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
 Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
 release, Pages enablement, public deployment or repository setting changes.
 
@@ -250,3 +250,35 @@ the original-table/human-review limits and Chantler bibliography discrepancy;
 these are research follow-ups, not verified production data. Daily runs should
 inspect for justified regressions or evidence-backed follow-ups before claiming
 new tasks, using the queue limits above. Publishing remains unapproved.
+
+## Daily inspection — 15 November 2026
+
+Fetched all branches and confirmed the expected GitHub remote, clean coordinator
+checkout and local/remote integration revision 1e3e570. PR7 is still open and draft.
+CI run 43594965929 passed all 11 jobs on that revision, including native/browser
+parity and both live interface audits. No new source changes or review branches
+were found. All coordinator task branches are already integrated; the waiting
+worker queue is zero. PRs #2/#3/#4 and Claude routine branches remain separate.
+
+No eligible tasks: zero workers started, zero feature branches accepted or
+rejected. The original 15 handoff features and this plan's implementation tasks
+remain complete. This run records status only; scientific outputs and UI behavior
+are unchanged. The preview checkout was clean at the same tested revision.
+
+Next follow-ups remain the documented primary-table/named-human source review
+and cross-browser/physical-device validation gaps. No unverified literature data
+is eligible for import. Owner review of the draft candidate remains in progress;
+publishing is not approved. The documentation-only update uses the required
+local commit gate and PR7 CI; its live audit results are retained with that run.
+
+## Daily inspection — 16 November 2026
+
+Fetched current branches and checked open PRs again: integration remains 1e3e570
+with green CI run 43594965929. The only local changes were the coordinator's
+unfinished 15 November inspection note and its manifest entry; no user or source
+edits were overwritten. This run finishes that documentation update using the
+required verification gate. No worker branches await review and no tasks are
+eligible; zero workers, merges or rejections. Separate PRs and Claude routine
+branches remain untouched. The next eligible work still depends on the source
+review or additional browser/device evidence described above. The candidate
+remains unpublished and in owner review.
