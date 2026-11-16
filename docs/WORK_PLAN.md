@@ -289,7 +289,7 @@ The owner requested continued development across total scattering, SAXS, WAXS,
 tomography and related techniques. Daily runs may implement the READY items
 below in order of dependency once an independent benchmark has been identified.
 
-- S1, IN_PROGRESS, codex/detector-q-coverage. Plan SAXS/WAXS Q coverage from
+- S1, MERGED, codex/detector-q-coverage. Plan SAXS/WAXS Q coverage from
   measured detector radii, distance and energy. Own detector_coverage.py in the
   package and its namesake test. Check against an independent geometry reference.
 - S2, IN_PROGRESS, codex/tomography-projection. Convert one flat/dark/sample
