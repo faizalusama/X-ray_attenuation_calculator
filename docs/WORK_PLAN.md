@@ -282,3 +282,37 @@ eligible; zero workers, merges or rejections. Separate PRs and Claude routine
 branches remain untouched. The next eligible work still depends on the source
 review or additional browser/device evidence described above. The candidate
 remains unpublished and in owner review.
+
+## Synchrotron development
+
+The owner requested continued development across total scattering, SAXS, WAXS,
+tomography and related techniques. Daily runs may implement the READY items
+below in order of dependency once an independent benchmark has been identified.
+
+- S1, IN_PROGRESS, codex/detector-q-coverage. Plan SAXS/WAXS Q coverage from
+  measured detector radii, distance and energy. Own detector_coverage.py in the
+  package and its namesake test. Check against an independent geometry reference.
+- S2, IN_PROGRESS, codex/tomography-projection. Convert one flat/dark/sample
+  count triplet to transmission and a projection. Own tomo_projection.py in
+  the package and its namesake test. Compare with reference normalization,
+  including invalid and above-flat counts.
+- S3, IN_PROGRESS, codex/synchrotron-interface. Connect both tools to the
+  shared API and existing exports. Own scattering_tools.py, static/index.html,
+  static/scattering-tools.js, static/scattering.css, tools/ui_audit.py,
+  tools/web_parity.py and docs/SCATTERING_TOOLS.md. Exercise populated tools,
+  both themes, phone widths and native/browser entry points.
+- S4, READY, codex/pdf-q-window-study. Compare two selected Qmax cutoffs on
+  the same normalized S(Q) with the existing window choice, reporting both
+  effective endpoints. Own a new pdf_window_study module and tests. Validate
+  finite-range transforms against analytic integrals before UI integration.
+- S5, READY, codex/saxs-guinier. Fit a user-selected low-q interval of
+  background-corrected I(q), report Rg, I(0), selected range and qRg bounds.
+  Own a new guinier module and tests. Verify a published benchmark and the
+  assumptions on shape, aggregation and uncertainty before enabling the fit.
+- S6, READY, codex/tomo-sampling. Estimate angular sampling for parallel-beam
+  tomography from object support and requested resolution. Own a new
+  tomo_sampling module and tests. Verify the original sampling convention
+  and an independent example, distinguishing detector pitch and resolution.
+
+S4–S6 integrations must include user controls, export, parity and accessibility
+checks. Start shared interface edits serially after the independent modules.

@@ -1,6 +1,8 @@
 # Improvement backlog
 
 ## In progress
+- Codex, 2026-11-16: S1 detector coverage, S2 tomography projections and S3
+  synchrotron interface on their assigned branches in WORK_PLAN.md.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
