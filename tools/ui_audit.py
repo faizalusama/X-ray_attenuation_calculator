@@ -143,7 +143,13 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                     page.wait_for_function("document.documentElement.dataset.theme === 'light'")
                     page.wait_for_timeout(250)
                 page.locator("#tab-tools").click()
-                for tool in ("optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
+                guide = page.locator(".technique-guide summary")
+                guide.focus()
+                guide.press("Enter")
+                page.locator(".technique-guide dd").first.wait_for(state="visible")
+                views[f"{theme}_technique_guide"] = page.evaluate(AUDIT_SCRIPT)
+                guide.press("Enter")
+                for tool in ("detector", "projection", "optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
                     page.locator("#st-tool").select_option(tool)
                     if tool == "pdf":
                         page.locator("#st-demo-pdf").wait_for(state="visible")

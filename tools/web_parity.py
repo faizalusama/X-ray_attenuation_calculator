@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from xray_workbench.physics import calculate, presets  # noqa: E402
+from xray_workbench.scattering_tools import scattering_tools  # noqa: E402
 
 #: Largest relative difference accepted. Measured maximum when written: 5.7e-14.
 TOLERANCE = 1e-12
@@ -145,7 +146,7 @@ def main() -> int:
                   "components": [{"formula": "Si", "fraction": 1}]}
         cases = [("citation", None), ("compare", {"energy_keV": 14, "csv": "name,basis,density_g_cm3,thickness_mm,composition\ns,mole,2.2,.135,SiO2:1"}),
                  ("total-scattering", {"layer": sample, "energy_keV": 20, "ions": {"Si": "Si4+"}})]
-        for tool in ("optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
+        for tool in ("detector", "projection", "optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
             cases.append(("scattering-tools", {"tool": tool, "layer": sample, "layers": [sample], "energy_keV": 8.048,
                                                "q": [0, .1, .2], "sq": [1, 1.1, 1], "r_max_angstrom": 2}))
         for route, payload in cases:
@@ -157,6 +158,16 @@ def main() -> int:
                 decoded = json.loads(answer["text"])
                 if payload and "tool" in payload and decoded.get("tool") != payload["tool"]:
                     structural.append(f"{route}: wrong tool response")
+                if payload and payload.get("tool") in ("detector", "projection"):
+                    native_data = scattering_tools(payload)["data"]
+                    total += count_numbers(native_data)
+                    for path, difference in differences(decoded.get("data"), native_data, str(payload["tool"])):
+                        if difference is None:
+                            structural.append(path)
+                        else:
+                            unequal += 1
+                            if difference > worst:
+                                worst, worst_at = difference, path
         print(f"{len(cases)} additional API smoke cases exercised in real Pyodide.")
         browser.close()
     server.shutdown()
