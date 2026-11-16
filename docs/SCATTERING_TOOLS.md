@@ -4,7 +4,25 @@ These tools are separate from primary-beam attenuation. Reference energy is keV.
 Optical grazing angles are from the **surface**; attenuation incidence is from
 the normal. Every tool exports its inputs/results as JSON; plotted curves export CSV.
 
-## Optical constants
+## Detector coverage and tomography in the Technique tools tab
+
+For SAXS and WAXS, enter the sample-to-detector distance L and two usable
+beam-centred radii R in mm. For an untilted flat detector, the scattering
+angle is 2θ = atan2(R,L). At wavelength λ in Å the elastic momentum transfer
+is q = 4π sin(θ)/λ in Å⁻¹. The result includes q and angle limits, plus a
+radius-to-q curve for export. Use measured masks and beamstop shadows to
+select usable radii. An outer corner can receive part of a ring even where
+full azimuthal integration is impossible. See [pyFAI geometry, qFunction](https://www.silx.org/doc/pyFAI/2025.12/api/geometry/index.html).
+
+For a transmission tomography ray, enter sample S, flat F and dark D counts
+from matched exposures at the same pixel. The tool calculates T = (S−D)/(F−D)
+and p = −ln(T). In monochromatic absorption tomography p estimates the
+dimensionless integral of μ along the ray. Both corrected counts must be
+positive. Counts above the flat give a negative projection which is retained
+in the results and JSON export. Starting values are illustrative. See
+[TomoPy normalize and minus_log](https://tomopy.readthedocs.io/en/stable/_modules/tomopy/prep/normalize.html).
+
+## Optical constants and penetration depth
 
 Element number densities N_j follow from effective density and mass fractions.
 SLD_x = r_e sum N_j (Z_j + f'_j - i f''_j), using Chantler through XrayDB.

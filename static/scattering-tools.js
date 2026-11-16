@@ -31,17 +31,22 @@
   async function run() {
     if ($("#view-tools").hidden) return;
     const api = window.AttenuationWorkbench, layers = api.layers();
-    if (!layers.length || !api.referenceEnergy()) return;
+    const tool = $("#st-tool").value;
+    const needsLayer = !["projection", "detector"].includes(tool);
+    $("#st-layer-label").hidden = !needsLayer;
+    document.querySelectorAll("[data-st-tool]").forEach(panel => { panel.hidden = panel.dataset.stTool !== tool; });
+    invalidate(); const id = revision;
+    const energy = api.referenceEnergy();
+    if ((needsLayer && !layers.length) || (tool !== "projection" && !energy)) return;
     const select = $("#st-layer"), kept = Math.min(Number(select.value) || 0, layers.length - 1);
     select.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); select.value = String(kept);
     document.querySelectorAll("[data-layer-choice]").forEach(s => {
       const previous = s.value, value = previous === "" ? Math.min(1, layers.length-1) : Math.min(Number(previous), layers.length-1);
       s.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); s.value = String(value);
     });
-    const tool = $("#st-tool").value;
-    document.querySelectorAll("[data-st-tool]").forEach(p => { p.hidden = p.dataset.stTool !== tool; });
-    invalidate(); const id = revision;
-    const payload = {tool, layer: layers[kept], layers, energy_keV: api.referenceEnergy()};
+    const payload = {tool};
+    if (tool !== "projection") payload.energy_keV = energy;
+    if (needsLayer) Object.assign(payload, {layer: layers[kept], layers});
     document.querySelectorAll('[data-st-tool="' + tool + '"] [data-arg]').forEach(input => {
       payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : (input.type === "number" || input.hasAttribute("data-number")) ? (input.value.trim() === "" ? null : Number(input.value)) : input.value;
     });
@@ -51,7 +56,8 @@
       const answer = await response.json(); if (id !== revision) return;
       if (!response.ok) throw new Error(answer.detail || "Scattering calculation failed.");
       latest = {...answer, configuration: payload}; draw(answer); $("#st-export").disabled = false; $("#st-export-csv").disabled = !answer.plots.length;
-      $("#st-status").textContent = "Calculated at " + api.referenceEnergy() + " keV. Export includes inputs and data provenance.";
+      $("#st-status").textContent = tool === "projection" ? "Projection calculated. Inputs and results are ready to export." :
+        "Calculated at " + energy + " keV. Export includes inputs and data provenance.";
     } catch (exception) { if (id === revision) $("#st-status").textContent = exception.message; }
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(run, 250); }

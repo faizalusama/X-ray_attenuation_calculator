@@ -296,7 +296,7 @@ below in order of dependency once an independent benchmark has been identified.
   count triplet to transmission and a projection. Own tomo_projection.py in
   the package and its namesake test. Compare with reference normalization,
   including invalid and above-flat counts.
-- S3, IN_PROGRESS, codex/synchrotron-interface. Connect both tools to the
+- S3, MERGED, codex/synchrotron-interface. Connect both tools to the
   shared API and existing exports. Own scattering_tools.py, static/index.html,
   static/scattering-tools.js, static/scattering.css, tools/ui_audit.py,
   tools/web_parity.py and docs/SCATTERING_TOOLS.md. Exercise populated tools,
@@ -316,3 +316,12 @@ below in order of dependency once an independent benchmark has been identified.
 
 S4–S6 integrations must include user controls, export, parity and accessibility
 checks. Start shared interface edits serially after the independent modules.
+
+Reviewed S1 (3dc9c35), S2 (9e63f75) and S3 (51b5bd7). Reference tests use
+pyFAI geometry and TomoPy normalization/log conventions. Crossref confirmed
+all three scientific DOIs in the new modules and tests. In the integrated
+interface 859 Python and 76 Node tests passed. Native/browser parity compared
+248,547 values with a maximum comparison metric of 5.46e-16. Native digest
+matches the reference. Populated detector, projection and keyboard-operable
+technique guide passed the desktop/tablet/phone audit in light and dark.
+Next eligible tasks are S4–S6. No branches rejected.

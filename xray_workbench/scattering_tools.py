@@ -375,6 +375,12 @@ def pdf_transform(payload: JsonObject) -> JsonObject:
 
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "detector":
+        from .detector_coverage import detector_coverage
+        return detector_coverage(payload)
+    if payload.get("tool") == "projection":
+        from .tomo_projection import projection
+        return projection(payload)
     if payload.get("tool") == "pdf":
         return pdf_transform(payload)
     if payload.get("tool") == "powder":
