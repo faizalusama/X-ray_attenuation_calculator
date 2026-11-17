@@ -348,9 +348,21 @@ recovery, SVG downloads and normal tool switching. The local development
 preview is on port 8767. Initial asset-stamp failure during editing was
 corrected by regeneration and the complete gate was rerun successfully.
 
-Follow-up D2, READY, codex/optics-schematic: grazing-angle geometry and
+Follow-up D2, IN_PROGRESS, codex/optics-schematic: grazing-angle geometry and
 penetration-depth probe using the existing optical response, with numeric
-equivalents for keyboard users. Follow-up D3, READY, codex/pdf-schematic:
+equivalents for keyboard users. Follow-up D3, IN_PROGRESS, codex/pdf-schematic:
 link the selected transform window and Q range to the existing PDF curves.
 Each follow-up owns its new diagram module and tests, integrating shared
 controls only after prior branches have been reviewed.
+
+## Daily run — 17 November 2026
+
+Starting at clean 7a8e640, CI run 44068305310 passed all 11 jobs.
+Fetched branches and inspected PRs #2/#3/#4/#7; no waiting coordinator
+branches. D2 and D3 started in separate worktrees, each restricted to its
+new diagram module and Node test. Coordinator owns shared controller, index,
+styles, audit and CI integration on codex/schematic-extension (I2), the third
+task. Native calculations and returned result arrays are reused.
+Acceptance: full branch gates, safe exports, keyboard probes, actual result
+correspondence and existing populated light/dark desktop/phone audit coverage.
+S4–S6 remain eligible after these tasks. No source data is being added.

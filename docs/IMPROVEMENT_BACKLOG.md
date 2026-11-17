@@ -1,6 +1,8 @@
 # Improvement backlog
 
 ## In progress
+- Codex, 2026-11-17: D2 optics and D3 PDF diagrams with I2 integration,
+  separate worktrees; see WORK_PLAN.md for source-file ownership.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
