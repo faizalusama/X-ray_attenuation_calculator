@@ -348,7 +348,7 @@ recovery, SVG downloads and normal tool switching. The local development
 preview is on port 8767. Initial asset-stamp failure during editing was
 corrected by regeneration and the complete gate was rerun successfully.
 
-Follow-up D2, IN_PROGRESS, codex/optics-schematic: grazing-angle geometry and
+Follow-up D2, MERGED, codex/optics-schematic: grazing-angle geometry and
 penetration-depth probe using the existing optical response, with numeric
 equivalents for keyboard users. Follow-up D3, IN_PROGRESS, codex/pdf-schematic:
 link the selected transform window and Q range to the existing PDF curves.
