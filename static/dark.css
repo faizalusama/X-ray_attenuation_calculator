@@ -452,6 +452,8 @@ html[data-theme="dark"] .ts-warnings{background:#4d3606;border:1px solid #745d27
 html[data-theme="dark"] .utility-dialog{border:1px solid #364755;background:#1c1c1c;color:#a2bbd4}
 html[data-theme="dark"] .utility-dialog::backdrop{background:rgba(187,205,226,0.55)}
 html[data-theme="dark"] .ts-section label,html[data-theme="dark"] .ts-controls label,html[data-theme="dark"] .utility-dialog label{color:#91a5b5}
+html[data-theme="dark"] .sg-panel{--sg-accent:#78ebec;--sg-ray:#f4c571;--sg-probe:#8f63b6;--sg-muted:#7d8e9c;--sg-back:#142631;border:1px solid #2e404b;background:#1c1c1c}
+html[data-theme="dark"] [data-theme=dark] .sg-panel{--sg-accent:#36a19a;--sg-ray:#965b0c;--sg-probe:#3f176a;--sg-muted:#677d8f;--sg-back:#b0c2d5;background:#18222c;border-color:#869bae;color:#dbe5ee}
 html[data-theme="dark"] .workspace-tools{background:#1c1c1c;border:1px solid #263442}
 html[data-theme="dark"] .workspace-tools p{color:#8c9eaa}
 html[data-theme="dark"] .workspace-mode button[aria-pressed=true]{background:#203650;color:#fff}

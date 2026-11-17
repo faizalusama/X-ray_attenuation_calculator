@@ -6,6 +6,14 @@ the normal. Every tool exports its inputs/results as JSON; plotted curves export
 
 ## Detector coverage and tomography in the Technique tools tab
 
+The live experiment view draws detector geometry using a common distance
+scale and tomography bars using a common count scale. Its sliders edit the
+same numerical inputs as the tool. Arrow keys and the Home/End keys work.
+The detector radius probe selects one of the calculated curve points and
+shows its radius, scattering angle and Q. Model and exact values expands
+the current numeric readout. Save diagram SVG exports the drawing with its
+current theme colours and an accessible description.
+
 For SAXS and WAXS, enter the sample-to-detector distance L and two usable
 beam-centred radii R in mm. For an untilted flat detector, the scattering
 angle is 2θ = atan2(R,L). At wavelength λ in Å the elastic momentum transfer

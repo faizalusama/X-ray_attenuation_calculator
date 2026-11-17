@@ -1,6 +1,8 @@
 # Improvement backlog
 
 ## In progress
+- Codex, codex/live-technique-schematics, 2026-11-17: parameter-linked SVG
+  detector and tomography diagrams, keyboard controls, result probes and export.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed

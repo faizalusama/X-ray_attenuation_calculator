@@ -4,8 +4,9 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const number = value => value == null ? "undefined" : typeof value === "number" ? (value !== 0 && (Math.abs(value) < 0.001 || Math.abs(value) >= 100000) ? value.toExponential(5) : value.toLocaleString("en-US", {maximumSignificantDigits: 6, useGrouping: false})) : String(value);
   const colors = ["#0072B2", "#D55E00", "#009E73", "#CC79A7"];
-  let latest = null, revision = 0, timer;
+  let latest = null, revision = 0, timer, schematics = null;
   function invalidate() {
+    schematics?.clear($("#st-tool").value);
     revision++; latest = null; $("#st-output").innerHTML = ""; $("#st-output").dataset.tool = ""; $("#st-status").textContent = "Waiting for updated calculation."; $("#st-export").disabled = true; $("#st-export-csv").disabled = true;
   }
   function curvesCSV(answer) {
@@ -14,6 +15,7 @@
     return rows.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(",")).join("\r\n") + "\r\n";
   }
   function draw(answer) {
+    schematics?.update(answer);
     $("#st-output").dataset.tool = answer.tool;
     $("#st-output").innerHTML = '<div class="ts-cards">' + answer.values.map(v => '<article class="ts-card"><div class="ts-card-label">' + esc(v.label) + '</div><div class="ts-card-value">' + esc(number(v.value)) + ' <span>' + esc(v.unit) + '</span></div></article>').join("") + '</div>' +
       '<ul>' + answer.notes.map(note => '<li>' + esc(note) + '</li>').join("") + '</ul>' +
@@ -62,6 +64,11 @@
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(run, 250); }
   function install() {
+    schematics = window.TechniqueSchematics.create($("#st-schematic"), (field, value) => {
+      const input = document.querySelector('[data-st-tool="' + $("#st-tool").value + '"] [data-arg="' + field + '"]');
+      input.value = value;
+      input.dispatchEvent(new Event("input", {bubbles: true}));
+    });
     $("#st-sq-file").addEventListener("change", async event => {
       const file = event.target.files[0]; if (!file) return;
       try {
@@ -74,7 +81,7 @@
       const rows = Array.from({length: 4001}, (_,i) => { const q = i/100; return q + "," + (1 + (q === 0 ? 3 : Math.exp(-q)*Math.sin(3*q)/q)); });
       $("#st-sq-data").value = "q,S\n" + rows.join("\n"); invalidate(); schedule();
     });
-    $("#st-tool").addEventListener("change", schedule);
+    $("#st-tool").addEventListener("change", () => { invalidate(); schedule(); });
     $("#st-controls").addEventListener("input", () => { invalidate(); schedule(); });
     $("#st-run").addEventListener("click", run);
     $("#st-export-csv").addEventListener("click", () => { if (latest) window.AttenuationWorkbench.download(curvesCSV(latest), "scattering-tools.csv", "text/csv;charset=utf-8"); });

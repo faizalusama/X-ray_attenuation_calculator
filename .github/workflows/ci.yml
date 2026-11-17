@@ -91,6 +91,7 @@ jobs:
           node --check static/scattering-tools.js
           node --check static/comparison.js
           node --check static/scattering.js
+          node --check static/technique-schematics.js
           node --check static/app.js
           node --check static/dashboard.js
           node --check static/workspace.js

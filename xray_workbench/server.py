@@ -185,7 +185,7 @@ async def download_artifact(request: Request) -> Response:
         raise HTTPException(422, "Invalid export form.") from exc
     allowed = {"attenuation-project.json", "attenuation-results.json", "attenuation-sweep.csv", "attenuation-dashboard.svg"}
     allowed.update(f"attenuation-{mode}.svg" for mode in ("transmission", "removed", "mass", "linear", "channels"))
-    allowed.update({"attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv",
+    allowed.update({"technique-diagram.svg", "attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv",
                     "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv", "xray-workbench-citation.bib", "scattering-tools.json", "scattering-tools.csv"})
     allowed.update(f"attenuation-plot-{mode}.csv" for mode in PLOT_DATA_MODES)
     if filename not in allowed:
