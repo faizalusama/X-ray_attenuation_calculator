@@ -72,44 +72,57 @@
     function install(nextTool) {
       tool = nextTool;
       const detector = tool === "detector";
+      const extended = tool === "optics" || tool === "pdf";
+      const caption = tool === "optics" ?
+        "Grazing angle is measured from the surface. Rays illustrate the geometry; the depth readout uses the calculated intensity 1/e depth." :
+        tool === "pdf" ? "Left • supplied Q interval. Right • output r interval. The whole input contributes to every output sample." :
+        detector ? "Side view • common distance scale. Solid teal shows the incident beam. The dashed lines bound the usable radii, and the violet ray marks your probe." :
+        "Upper bar • open-beam flat. Lower bar • sample. The grey segment is the dark contribution. Bar lengths share a linear count scale.";
+      const model = tool === "optics" ?
+        "The probe selects an existing grazing-angle sample and its calculated normal intensity depth. Optical constants and the approximate critical angle come from the current material and reference energy." :
+        tool === "pdf" ? "G(r) is computed from all supplied Q samples over the displayed interval, with the selected window. The probe reads the supplied S(Q) and modified transform integrand at a single Q." :
+        detector ? "The rays use the validated radius-to-angle results. 2θ = atan2(R, L), q = 4π sin(θ)/λ. The probe selects a calculated point. The numerical inputs above accept distances beyond the slider range." :
+        "T = (sample − dark)/(flat − dark). The projection is −ln(T). The displayed values come from the current calculation. Above-flat counts retain T greater than one and a negative projection.";
       host.hidden = false;
       host.innerHTML = '<div class="sg-heading"><h3>Live experiment view</h3><button type="button" class="button outline small" data-sg-export>Save diagram SVG</button></div>' +
         '<p class="sg-state"></p><figure class="sg-figure"><div class="sg-drawing"></div>' +
-        '<figcaption>' + (detector ? 'Side view • common distance scale. Solid teal shows the incident beam. The dashed lines bound the usable radii, and the violet ray marks your probe.' :
-          'Upper bar • open-beam flat. Lower bar • sample. The grey segment is the dark contribution. Bar lengths share a linear count scale.') + '</figcaption></figure>' +
+        '<figcaption>' + caption + '</figcaption></figure>' +
         '<div class="sg-values"></div><div class="sg-controls">' +
-        (detector ? '<label for="sg-distance">Move detector (mm)<input id="sg-distance" type="range" data-sg-field="distance_mm" min="10" max="5000" step="1"></label>' +
+        (extended ? '<label for="sg-probe">' + (tool === "optics" ? 'Probe grazing angle' : 'Probe input Q') + '<input id="sg-probe" type="range" min="0" max="200" step="1" value="100"></label>' :
+          detector ? '<label for="sg-distance">Move detector (mm)<input id="sg-distance" type="range" data-sg-field="distance_mm" min="10" max="5000" step="1"></label>' +
           '<label for="sg-probe">Probe detector radius<input id="sg-probe" type="range" min="0" max="200" step="1" value="100"></label>' :
           '<label for="sg-sample">Explore sample counts<input id="sg-sample" type="range" data-sg-field="sample_counts" min="51" max="2100" step="1"></label>') +
         '</div><details class="sg-equations"><summary>Model and exact values</summary><p>' +
-        (detector ? 'The rays use the validated radius-to-angle results. 2θ = atan2(R, L), q = 4π sin(θ)/λ. The probe selects a calculated point. The numerical inputs above accept distances beyond the slider range.' :
-          'T = (sample − dark)/(flat − dark). The projection is −ln(T). The displayed values come from the current calculation. Above-flat counts retain T greater than one and a negative projection.') +
+        model +
         '</p><pre class="sg-exact"></pre></details>';
     }
     function draw() {
       if (!current) return;
       const data = current.data, detector = tool === "detector";
-      const scene = detector ? detectorScene(data, probe) : projectionScene(data);
+      const extended = tool === "optics" || tool === "pdf";
+      const scene = tool === "optics" ? window.OpticsSchematic.opticsScene(current, probe) :
+        tool === "pdf" ? window.PdfSchematic.pdfScene(current, probe) :
+        detector ? detectorScene(data, probe) : projectionScene(data);
       host.querySelector(".sg-drawing").innerHTML = scene.markup;
-      const values = detector ? [
+      const values = extended ? scene.values : detector ? [
         ["Distance", data.distance_mm, "mm"], ["Probe radius", scene.radius, "mm"],
         ["Scattering angle 2θ", scene.angle, "°"], ["Probe q", scene.q, "Å⁻¹"],
       ] : [["Flat − dark", data.flat_counts - data.dark_counts, "counts"],
         ["Sample − dark", data.sample_counts - data.dark_counts, "counts"],
         ["Transmission", data.transmission, ""], ["Projection −ln(T)", data.line_integral, ""]];
       host.querySelector(".sg-values").innerHTML = values.map(([label, value, unit]) =>
-        '<div><span>' + escape(label) + '</span><strong>' + format(value) + ' ' + escape(unit) + '</strong></div>').join("");
-      setText(".sg-exact", JSON.stringify(detector ? {distance_mm: data.distance_mm, radius_mm: scene.radius,
+        '<div><span>' + escape(label) + '</span><strong>' + escape(typeof value === "number" ? format(value) : value ?? "undefined") + ' ' + escape(unit) + '</strong></div>').join("");
+      setText(".sg-exact", JSON.stringify(extended ? scene.exact : detector ? {distance_mm: data.distance_mm, radius_mm: scene.radius,
         two_theta_deg: scene.angle, q_inv_angstrom: scene.q} : data, null, 2));
-      if (detector) {
+      if (detector || extended) {
         const range = host.querySelector("#sg-probe");
-        range.max = String(data.radius_mm.length - 1);
+        range.max = String(extended ? scene.maxIndex : data.radius_mm.length - 1);
         range.value = String(scene.index);
         range.setAttribute("aria-valuetext", scene.summary);
       }
     }
     function update(answer) {
-      if (!["detector", "projection"].includes(answer.tool)) { clear(); host.hidden = true; tool = null; return; }
+      if (!["detector", "projection", "optics", "pdf"].includes(answer.tool)) { clear(); host.hidden = true; tool = null; return; }
       if (answer.tool !== tool) install(answer.tool);
       host.hidden = false;
       current = answer;
@@ -117,13 +130,16 @@
       host.querySelectorAll("input,button").forEach(control => { control.disabled = false; });
       const data = answer.data;
       const field = host.querySelector("[data-sg-field]");
-      const value = data[field.dataset.sgField];
-      const minimum = answer.tool === "detector" ? Math.min(10, value) : Math.min(data.dark_counts + 1, value);
-      const maximum = answer.tool === "detector" ? Math.max(5000, value) : Math.max(data.flat_counts * 2, value, minimum + 1);
-      field.min = String(minimum); field.max = String(maximum);
-      field.step = "any"; field.value = String(value);
-      field.setAttribute("aria-valuetext", format(value) + (answer.tool === "detector" ? " mm" : " counts"));
-      setText(".sg-state", answer.tool === "detector" ? "Move the detector or probe a ray. Arrow keys work on each slider." :
+      if (field) {
+        const value = data[field.dataset.sgField];
+        const minimum = answer.tool === "detector" ? Math.min(10, value) : Math.min(data.dark_counts + 1, value);
+        const maximum = answer.tool === "detector" ? Math.max(5000, value) : Math.max(data.flat_counts * 2, value, minimum + 1);
+        field.min = String(minimum); field.max = String(maximum);
+        field.step = "any"; field.value = String(value);
+        field.setAttribute("aria-valuetext", format(value) + (answer.tool === "detector" ? " mm" : " counts"));
+      }
+      setText(".sg-state", answer.tool === "optics" || answer.tool === "pdf" ? "Probe a calculated sample with the slider or arrow keys." :
+        answer.tool === "detector" ? "Move the detector or probe a ray. Arrow keys work on each slider." :
         "Change the sample counts to follow flat-field correction.");
       draw();
     }

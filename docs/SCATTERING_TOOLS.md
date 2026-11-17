@@ -32,6 +32,14 @@ in the results and JSON export. Starting values are illustrative. See
 
 ## Optical constants and penetration depth
 
+The live surface schematic uses grazing angle from the surface. Its probe
+reads the angle and normal intensity 1/e depth from the calculated curve.
+The illustrative ray diagram and numeric depth readout have separate scales.
+The PDF schematic shows the supplied Q interval and resulting r interval.
+Its probe reads S(Q) and the windowed transform integrand at an input sample;
+the transform still uses the whole supplied interval. Both diagrams support
+keyboard probing, exact readouts and SVG export.
+
 Element number densities N_j follow from effective density and mass fractions.
 SLD_x = r_e sum N_j (Z_j + f'_j - i f''_j), using Chantler through XrayDB.
 delta and beta are lambda²/(2 pi) times the real and absorptive SLD magnitudes.

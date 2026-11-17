@@ -366,3 +366,19 @@ task. Native calculations and returned result arrays are reused.
 Acceptance: full branch gates, safe exports, keyboard probes, actual result
 correspondence and existing populated light/dark desktop/phone audit coverage.
 S4–S6 remain eligible after these tasks. No source data is being added.
+
+D2 accepted as e17d612, D3 as 4cb21c1; integrated serially in 0e2d76a and
+df28739 after each full gate and unchanged native digest. I2 accepted as
+bef4bff, with both new modules wired into the browser, exports and audits.
+859 Python and 82 Node tests pass, plus ruff, strict mypy and the manifest.
+Both live audits pass. The combined interaction audit matched both new probe
+values against downloaded scientific results in all eight theme/viewport
+scenarios, with zero failed checks and browser errors. No branches rejected;
+no waiting coordinator queue. The final pushed revision is checked through
+PR7 CI before this daily run completes.
+
+The two workers produced no files or handoff after follow-up, so they were
+closed before implementation and the coordinator completed their disjoint
+modules. All three task limits and worktree isolation were retained.
+The regular preview remains the tested detached copy in outputs/preview-1.1.0.
+S4–S6 are the next eligible tasks. Publishing remains unapproved.

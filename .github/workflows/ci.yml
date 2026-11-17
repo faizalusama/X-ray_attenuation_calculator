@@ -92,6 +92,8 @@ jobs:
           node --check static/comparison.js
           node --check static/scattering.js
           node --check static/technique-schematics.js
+          node --check static/optics-schematic.js
+          node --check static/pdf-schematic.js
           node --check static/app.js
           node --check static/dashboard.js
           node --check static/workspace.js
@@ -105,6 +107,8 @@ jobs:
           node tests/test_workspace.cjs
           node tests/test_materials.cjs
           node tests/test_scattering.cjs
+          node tests/test_optics_schematic.cjs
+          node tests/test_pdf_schematic.cjs
 
   interface:
     name: Interface audit (WCAG 2.2 AA checks)
