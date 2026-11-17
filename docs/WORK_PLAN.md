@@ -350,7 +350,7 @@ corrected by regeneration and the complete gate was rerun successfully.
 
 Follow-up D2, MERGED, codex/optics-schematic: grazing-angle geometry and
 penetration-depth probe using the existing optical response, with numeric
-equivalents for keyboard users. Follow-up D3, IN_PROGRESS, codex/pdf-schematic:
+equivalents for keyboard users. Follow-up D3, MERGED, codex/pdf-schematic:
 link the selected transform window and Q range to the existing PDF curves.
 Each follow-up owns its new diagram module and tests, integrating shared
 controls only after prior branches have been reviewed.
