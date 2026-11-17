@@ -325,3 +325,32 @@ interface 859 Python and 76 Node tests passed. Native/browser parity compared
 matches the reference. Populated detector, projection and keyboard-operable
 technique guide passed the desktop/tablet/phone audit in light and dark.
 Next eligible tasks are S4–S6. No branches rejected.
+
+## D1 — Live technique schematics
+
+Status: MERGED. Branch: codex/live-technique-schematics.
+Worktree: outputs/xray-task-schematics. Owner: Codex, 17 November 2026.
+Goal: parameter-linked detector geometry and tomography count diagrams with
+keyboard sliders, validated-result probes, exact readouts and SVG export.
+Files: static/technique-schematics.js, scattering-tools.js, scattering.css,
+index.html; server.py download allowlist; tests/test_scattering.cjs;
+tools/ui_audit.py, tools/workspace_ui_audit.py and CI syntax checks.
+Coordinator maintains generated stamps, manifest and these status files.
+Checks: full review gate, populated light/dark interaction audit at
+1440/768/375/320px, invalid-input recovery, safe SVG export and unchanged
+native digest. Drawings consume the existing science responses.
+
+Reviewed fe843f4. The native digest matches the reference; 859 Python and
+78 Node tests pass with ruff, strict mypy, stamps and manifest. Both live
+audits pass, including 1440/768/375/320px light/dark interaction checks,
+keyboard sliders, stale-result clearing, above-flat and invalid-count
+recovery, SVG downloads and normal tool switching. The local development
+preview is on port 8767. Initial asset-stamp failure during editing was
+corrected by regeneration and the complete gate was rerun successfully.
+
+Follow-up D2, READY, codex/optics-schematic: grazing-angle geometry and
+penetration-depth probe using the existing optical response, with numeric
+equivalents for keyboard users. Follow-up D3, READY, codex/pdf-schematic:
+link the selected transform window and Q range to the existing PDF curves.
+Each follow-up owns its new diagram module and tests, integrating shared
+controls only after prior branches have been reviewed.

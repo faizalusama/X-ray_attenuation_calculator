@@ -1,0 +1,152 @@
+"use strict";
+(function () {
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const format = value => Number(value).toLocaleString("en-US", {maximumSignificantDigits: 5});
+  const line = (x1, y1, x2, y2, kind = "") => '<line class="' + kind + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+  function svg(body, title, description) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" role="img" aria-labelledby="sg-title sg-desc">' +
+      '<title id="sg-title">' + escape(title) + '</title><desc id="sg-desc">' + escape(description) + '</desc>' + body + '</svg>';
+  }
+  function detectorScene(data, index) {
+    const i = Math.min(data.radius_mm.length - 1, Math.max(0, Math.round(index)));
+    const radius = data.radius_mm[i];
+    const scale = Math.min(420 / data.distance_mm, 110 / data.outer_radius_mm);
+    const sample = 70, centre = 150, detector = sample + scale * data.distance_mm;
+    const outer = scale * data.outer_radius_mm, inner = scale * data.inner_radius_mm;
+    const probe = scale * radius;
+    const summary = 'Probe radius ' + format(radius) + ' mm, scattering angle 2θ ' +
+      format(data.two_theta_deg[i]) + ' degrees, q ' + format(data.q_inv_angstrom[i]) + ' inverse ångström.';
+    const body = '<path class="sg-envelope" d="M70 150 L' + detector + ' ' + (centre - outer) +
+      ' L' + detector + ' ' + (centre + outer) + ' Z"/>' +
+      line(20, centre, detector + 28, centre, "sg-axis") +
+      line(20, centre, sample, centre, "sg-incident") +
+      line(detector, centre - outer, detector, centre + outer, "sg-detector") +
+      line(detector, centre - inner, detector, centre + inner, "sg-blocked") +
+      line(sample, centre, detector, centre - outer, "sg-boundary") +
+      line(sample, centre, detector, centre - inner, "sg-boundary") +
+      line(sample, centre, detector, centre - probe, "sg-probe") +
+      '<circle cx="70" cy="150" r="6" class="sg-sample"/>' +
+      '<circle cx="' + detector + '" cy="' + (centre - probe) + '" r="5" class="sg-point"/>' +
+      line(sample, 280, detector, 280, "sg-dimension") +
+      line(sample, 272, sample, 288, "sg-dimension") +
+      line(detector, 272, detector, 288, "sg-dimension");
+    return {markup: svg(body, "Detector radial coverage", summary +
+      " The sample is the circle on the left. The detector is the vertical line on the right. Horizontal and vertical distances share one scale."),
+      summary, radius, angle: data.two_theta_deg[i], q: data.q_inv_angstrom[i], index: i};
+  }
+  function projectionScene(data) {
+    const maximum = Math.max(data.sample_counts, data.flat_counts);
+    const sampleWidth = 440 * (data.sample_counts / maximum);
+    const flatWidth = 440 * (data.flat_counts / maximum);
+    const darkWidth = 440 * (data.dark_counts / maximum);
+    const summary = 'Sample ' + format(data.sample_counts) + ', flat ' + format(data.flat_counts) +
+      ', dark ' + format(data.dark_counts) + ' counts. Transmission ' + format(data.transmission) +
+      ', projection ' + format(data.line_integral) + '.';
+    const body = '<rect x="70" y="50" width="' + flatWidth + '" height="65" rx="6" class="sg-flat"/>' +
+      '<rect x="70" y="50" width="' + darkWidth + '" height="65" class="sg-dark-counts"/>' +
+      '<rect x="70" y="165" width="' + sampleWidth + '" height="65" rx="6" class="sg-transmitted"/>' +
+      '<rect x="70" y="165" width="' + darkWidth + '" height="65" class="sg-dark-counts"/>' +
+      line(70 + darkWidth, 36, 70 + darkWidth, 249, "sg-dark-marker") +
+      line(70, 270, 510, 270, "sg-dimension");
+    return {markup: svg(body, "Raw flat and sample counts with dark contribution", summary +
+      " The upper bar is the flat reading. The lower bar is the sample reading. The dark contribution is the first segment of each bar. All counts share one linear scale."),
+      summary};
+  }
+  function create(host, changeInput) {
+    let current = null, tool = null, probe = 100;
+    const setText = (selector, text) => { host.querySelector(selector).textContent = text; };
+    function clear(nextTool) {
+      current = null;
+      if (nextTool !== tool) host.hidden = true;
+      host.setAttribute("aria-busy", "true");
+      const drawing = host.querySelector(".sg-drawing");
+      if (drawing) drawing.innerHTML = "";
+      const values = host.querySelector(".sg-values");
+      if (values) values.innerHTML = "";
+      const exact = host.querySelector(".sg-exact");
+      if (exact) exact.textContent = "";
+      host.querySelectorAll("#sg-probe,button").forEach(control => { control.disabled = true; });
+      const note = host.querySelector(".sg-state");
+      if (note) note.textContent = "Waiting for a valid calculation.";
+    }
+    function install(nextTool) {
+      tool = nextTool;
+      const detector = tool === "detector";
+      host.hidden = false;
+      host.innerHTML = '<div class="sg-heading"><h3>Live experiment view</h3><button type="button" class="button outline small" data-sg-export>Save diagram SVG</button></div>' +
+        '<p class="sg-state"></p><figure class="sg-figure"><div class="sg-drawing"></div>' +
+        '<figcaption>' + (detector ? 'Side view • common distance scale. Solid teal shows the incident beam. The dashed lines bound the usable radii, and the violet ray marks your probe.' :
+          'Upper bar • open-beam flat. Lower bar • sample. The grey segment is the dark contribution. Bar lengths share a linear count scale.') + '</figcaption></figure>' +
+        '<div class="sg-values"></div><div class="sg-controls">' +
+        (detector ? '<label for="sg-distance">Move detector (mm)<input id="sg-distance" type="range" data-sg-field="distance_mm" min="10" max="5000" step="1"></label>' +
+          '<label for="sg-probe">Probe detector radius<input id="sg-probe" type="range" min="0" max="200" step="1" value="100"></label>' :
+          '<label for="sg-sample">Explore sample counts<input id="sg-sample" type="range" data-sg-field="sample_counts" min="51" max="2100" step="1"></label>') +
+        '</div><details class="sg-equations"><summary>Model and exact values</summary><p>' +
+        (detector ? 'The rays use the validated radius-to-angle results. 2θ = atan2(R, L), q = 4π sin(θ)/λ. The probe selects a calculated point. The numerical inputs above accept distances beyond the slider range.' :
+          'T = (sample − dark)/(flat − dark). The projection is −ln(T). The displayed values come from the current calculation. Above-flat counts retain T greater than one and a negative projection.') +
+        '</p><pre class="sg-exact"></pre></details>';
+    }
+    function draw() {
+      if (!current) return;
+      const data = current.data, detector = tool === "detector";
+      const scene = detector ? detectorScene(data, probe) : projectionScene(data);
+      host.querySelector(".sg-drawing").innerHTML = scene.markup;
+      const values = detector ? [
+        ["Distance", data.distance_mm, "mm"], ["Probe radius", scene.radius, "mm"],
+        ["Scattering angle 2θ", scene.angle, "°"], ["Probe q", scene.q, "Å⁻¹"],
+      ] : [["Flat − dark", data.flat_counts - data.dark_counts, "counts"],
+        ["Sample − dark", data.sample_counts - data.dark_counts, "counts"],
+        ["Transmission", data.transmission, ""], ["Projection −ln(T)", data.line_integral, ""]];
+      host.querySelector(".sg-values").innerHTML = values.map(([label, value, unit]) =>
+        '<div><span>' + escape(label) + '</span><strong>' + format(value) + ' ' + escape(unit) + '</strong></div>').join("");
+      setText(".sg-exact", JSON.stringify(detector ? {distance_mm: data.distance_mm, radius_mm: scene.radius,
+        two_theta_deg: scene.angle, q_inv_angstrom: scene.q} : data, null, 2));
+      if (detector) {
+        const range = host.querySelector("#sg-probe");
+        range.max = String(data.radius_mm.length - 1);
+        range.value = String(scene.index);
+        range.setAttribute("aria-valuetext", scene.summary);
+      }
+    }
+    function update(answer) {
+      if (!["detector", "projection"].includes(answer.tool)) { clear(); host.hidden = true; tool = null; return; }
+      if (answer.tool !== tool) install(answer.tool);
+      host.hidden = false;
+      current = answer;
+      host.setAttribute("aria-busy", "false");
+      host.querySelectorAll("input,button").forEach(control => { control.disabled = false; });
+      const data = answer.data;
+      const field = host.querySelector("[data-sg-field]");
+      const value = data[field.dataset.sgField];
+      const minimum = answer.tool === "detector" ? Math.min(10, value) : Math.min(data.dark_counts + 1, value);
+      const maximum = answer.tool === "detector" ? Math.max(5000, value) : Math.max(data.flat_counts * 2, value, minimum + 1);
+      field.min = String(minimum); field.max = String(maximum);
+      field.step = "any"; field.value = String(value);
+      field.setAttribute("aria-valuetext", format(value) + (answer.tool === "detector" ? " mm" : " counts"));
+      setText(".sg-state", answer.tool === "detector" ? "Move the detector or probe a ray. Arrow keys work on each slider." :
+        "Change the sample counts to follow flat-field correction.");
+      draw();
+    }
+    host.addEventListener("input", event => {
+      const input = event.target;
+      if (input.id === "sg-probe") { probe = Number(input.value); draw(); }
+      if (input.dataset.sgField) changeInput(input.dataset.sgField, input.value);
+    });
+    host.addEventListener("click", event => {
+      if (event.target.closest("[data-sg-export]") && current) {
+        const graphic = host.querySelector("svg").cloneNode(true);
+        const original = host.querySelectorAll("svg, svg *");
+        [graphic, ...graphic.querySelectorAll("*")].forEach((element, i) => {
+          const style = getComputedStyle(original[i]);
+          ["fill", "fill-opacity", "stroke", "stroke-width", "stroke-dasharray", "opacity"].forEach(key => element.style.setProperty(key, style.getPropertyValue(key)));
+        });
+        const source = new XMLSerializer().serializeToString(graphic);
+        window.AttenuationWorkbench.download(source, "technique-diagram.svg", "image/svg+xml;charset=utf-8");
+      }
+    });
+    return {clear, update};
+  }
+  const api = {detectorScene, projectionScene, create};
+  if (typeof module !== "undefined") module.exports = api;
+  if (typeof window !== "undefined") window.TechniqueSchematics = api;
+})();
