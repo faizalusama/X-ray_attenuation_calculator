@@ -156,7 +156,7 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                         page.locator("#st-demo-pdf").click()
                     page.locator("#st-run").click()
                     page.wait_for_function("tool => document.querySelector('#st-output').dataset.tool === tool", arg=tool, timeout=60_000)
-                    if tool in ("detector", "projection"):
+                    if tool in ("detector", "projection", "optics", "pdf"):
                         page.locator("#st-schematic svg").wait_for(state="visible")
                         page.locator(".sg-equations summary").click()
                         views[f"{theme}_schematic_{tool}"] = page.evaluate(AUDIT_SCRIPT)
