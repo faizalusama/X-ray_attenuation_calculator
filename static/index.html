@@ -13,29 +13,31 @@
   <link rel="stylesheet" href="/static/scattering.css?v=8d9129252be3">
   <link rel="stylesheet" href="/static/workspace.css?v=f95db9edbdf3">
   <link rel="stylesheet" href="/static/dark.css?v=2548d84d7642">
+  <link rel="stylesheet" href="/static/studio.css?v=5ede311df293">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
-  <script src="/static/dashboard.js?v=1274740bb0c5" defer></script>
+  <script src="/static/dashboard.js?v=85300851f9b8" defer></script>
   <script src="/static/workspace.js?v=3fedbdc9908f" defer></script>
   <script src="/static/app.js?v=b6733743971c" defer></script>
-  <script src="/static/technique-schematics.js?v=4bef8be53481" defer></script>
+  <script src="/static/detector-spatial.js?v=d8938470bf3c" defer></script>
+  <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
-  <script src="/static/pdf-schematic.js?v=3ca27a927ec3" defer></script>
-  <script src="/static/scattering-tools.js?v=85f6c8e25c74" defer></script>
+  <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
+  <script src="/static/scattering-tools.js?v=e2dfe16d962e" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
-  <script src="/static/scattering.js?v=92d3c3373c81" defer></script>
-  <script src="/static/materials.js?v=13e3ad48d8e1" defer></script>
+  <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
+  <script src="/static/materials.js?v=4ff756081d4f" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to the calculator</a>
   <a class="skip-link" href="#results-workspace">Skip to analysis results</a>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand-name">X-ray Attenuation&nbsp;<span>Calculator</span><span class="brand-divider"></span><span class="topbar-subtitle">Materials research workspace</span></div>
+      <div class="brand-name"><span class="studio-mark" aria-hidden="true"><svg viewBox="0 0 36 36"><path d="M6 18h10l8-10m-8 10 8 10m-8-10h14"/><circle cx="16" cy="18" r="2.5"/></svg></span><span class="studio-brand-text">X-ray Workbench</span></div>
       <div class="topbar-right"><span class="local-badge"><i></i> Local workspace</span><button class="button quiet small" id="theme-toggle" title="Switch between automatic, light and dark themes">Theme: Auto</button><button class="button quiet small" id="fullscreen-workspace" aria-pressed="false">Full screen</button><button class="button quiet small" id="share-project" aria-haspopup="dialog">Share link</button><button class="button quiet small" id="load-project">Open project</button><button class="button outline small" id="save-project">Save project <span aria-hidden="true">↗</span></button></div>
     </header>
     <main id="main">
       <section class="page-heading">
-        <div><div class="eyebrow"><span></span> MATERIALS · GLASSES · CERAMICS</div><h1>X-ray attenuation calculator</h1><p>From composition to transmission. Understand every layer.</p></div>
+        <div class="studio-intro"><h1>X-ray experiment workbench</h1><p>Plan attenuation, scattering and tomography from your sample composition and beam settings.</p></div>
         <div class="model-label"><span class="model-dot"></span><div><strong>Beer–Lambert model</strong><span>Narrow beam · 1–800 keV</span></div></div>
       </section>
       <section id="first-run" class="first-run" aria-labelledby="first-run-title" hidden><div><h2 id="first-run-title">Getting started</h2><ol><li><strong>Describe your material.</strong> Enter its composition in wt%, mol%, at.% or vol%, then its density and thickness.</li><li><strong>Choose your X-ray source.</strong> Pick an anode line, or type an energy or wavelength.</li><li><strong>Read and export.</strong> Plots update as you type. Every plot exports as a figure, or as data for your own plotting software.</li></ol></div><button type="button" class="button outline small" id="close-guide">Got it</button></section>

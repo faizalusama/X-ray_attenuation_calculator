@@ -53,7 +53,7 @@
       summary};
   }
   function create(host, changeInput) {
-    let current = null, tool = null, probe = 100;
+    let current = null, tool = null, probe = 100, spatial = true, azimuth = 40, elevation = 20, drag = null;
     const setText = (selector, text) => { host.querySelector(selector).textContent = text; };
     function clear(nextTool) {
       current = null;
@@ -74,17 +74,19 @@
       const detector = tool === "detector";
       const extended = tool === "optics" || tool === "pdf";
       const caption = tool === "optics" ?
-        "Grazing angle is measured from the surface. Rays illustrate the geometry; the depth readout uses the calculated intensity 1/e depth." :
-        tool === "pdf" ? "Left • supplied Q interval. Right • output r interval. The whole input contributes to every output sample." :
-        detector ? "Side view • common distance scale. Solid teal shows the incident beam. The dashed lines bound the usable radii, and the violet ray marks your probe." :
-        "Upper bar • open-beam flat. Lower bar • sample. The grey segment is the dark contribution. Bar lengths share a linear count scale.";
+        '<span class="sg-key sg-key-beam">Incident ray</span><span class="sg-key sg-key-edge">Reflected ray</span><span class="sg-key sg-key-probe">Normal depth marker</span><span class="sg-view-description">Grazing angle is measured from the surface. The depth marker is schematic; the readout gives the intensity 1/e depth.</span>' :
+        tool === "pdf" ? '<span class="sg-key sg-key-beam">Windowed input · Q space</span><span class="sg-key sg-key-probe">G(r) · real space</span><span class="sg-view-description">Each preview uses its own vertical scale. The full Q interval contributes to every r point.</span>' :
+        detector ? '<span class="sg-key sg-key-beam">Incident beam</span><span class="sg-key sg-key-edge">Usable radial limit</span><span class="sg-key sg-key-probe">Probe ray</span><span class="sg-view-description"></span>' :
+        '<span class="sg-key sg-key-beam">Upper · open-beam flat</span><span class="sg-key sg-key-probe">Lower · sample</span><span class="sg-view-description">The grey segment is the dark contribution. Both bars use the same count scale.</span>';
       const model = tool === "optics" ?
         "The probe selects an existing grazing-angle sample and its calculated normal intensity depth. Optical constants and the approximate critical angle come from the current material and reference energy." :
         tool === "pdf" ? "G(r) is computed from all supplied Q samples over the displayed interval, with the selected window. The probe reads the supplied S(Q) and modified transform integrand at a single Q." :
         detector ? "The rays use the validated radius-to-angle results. 2θ = atan2(R, L), q = 4π sin(θ)/λ. The probe selects a calculated point. The numerical inputs above accept distances beyond the slider range." :
         "T = (sample − dark)/(flat − dark). The projection is −ln(T). The displayed values come from the current calculation. Above-flat counts retain T greater than one and a negative projection.";
       host.hidden = false;
-      host.innerHTML = '<div class="sg-heading"><h3>Live experiment view</h3><button type="button" class="button outline small" data-sg-export>Save diagram SVG</button></div>' +
+      const heading = {detector:"Detector geometry", projection:"Tomography signal", optics:"Grazing incidence", pdf:"Q space to real space"};
+      host.innerHTML = '<div class="sg-heading"><h3>' + heading[tool] + '</h3><button type="button" class="button outline small" data-sg-export>Save diagram SVG</button></div>' +
+        (detector ? '<div class="sg-view segmented" role="group" aria-label="Detector view"><button type="button" data-sg-view="spatial">3D view</button><button type="button" data-sg-view="side">Side view</button></div>' : '') +
         '<p class="sg-state"></p><figure class="sg-figure"><div class="sg-drawing"></div>' +
         '<figcaption>' + caption + '</figcaption></figure>' +
         '<div class="sg-values"></div><div class="sg-controls">' +
@@ -92,7 +94,8 @@
           detector ? '<label for="sg-distance">Move detector (mm)<input id="sg-distance" type="range" data-sg-field="distance_mm" min="10" max="5000" step="1"></label>' +
           '<label for="sg-probe">Probe detector radius<input id="sg-probe" type="range" min="0" max="200" step="1" value="100"></label>' :
           '<label for="sg-sample">Explore sample counts<input id="sg-sample" type="range" data-sg-field="sample_counts" min="51" max="2100" step="1"></label>') +
-        '</div><details class="sg-equations"><summary>Model and exact values</summary><p>' +
+        '</div>' + (detector ? '<div class="sg-orbit sg-controls"><label for="sg-azimuth">Rotate view <span id="sg-azimuth-value" aria-hidden="true"></span><input id="sg-azimuth" type="range" min="15" max="165" step="1"></label><label for="sg-elevation">Tilt view <span id="sg-elevation-value" aria-hidden="true"></span><input id="sg-elevation" type="range" min="-45" max="55" step="1"></label></div>' : '') +
+        '<details class="sg-equations"><summary>Model and exact values</summary><p>' +
         model +
         '</p><pre class="sg-exact"></pre></details>';
     }
@@ -103,7 +106,22 @@
       const scene = tool === "optics" ? window.OpticsSchematic.opticsScene(current, probe) :
         tool === "pdf" ? window.PdfSchematic.pdfScene(current, probe) :
         detector ? detectorScene(data, probe) : projectionScene(data);
-      host.querySelector(".sg-drawing").innerHTML = scene.markup;
+      const drawing = host.querySelector(".sg-drawing");
+      drawing.toggleAttribute("data-sg-spatial", detector && spatial);
+      drawing.innerHTML = detector && spatial ?
+        svg(window.DetectorSpatial.detectorSpatial(data, scene.radius, azimuth, elevation), "Rotatable 3D detector geometry",
+          scene.summary + " Circular outlines show radial limits, not the outline of a physical detector. The camera uses orthographic projection.") : scene.markup;
+      if (detector) {
+        setText(".sg-view-description", spatial ? "Radial limits on an ideal plane. Drag to rotate, or use the view controls below." : "Side view with a common distance scale.");
+        host.querySelector(".sg-orbit").hidden = !spatial;
+        host.querySelectorAll("[data-sg-view]").forEach(button => button.setAttribute("aria-pressed", String(spatial === (button.dataset.sgView === "spatial"))));
+        for (const [id, angle] of [["azimuth", azimuth], ["elevation", elevation]]) {
+          const control = host.querySelector("#sg-" + id);
+          control.value = String(angle);
+          control.setAttribute("aria-valuetext", angle + " degrees");
+          setText("#sg-" + id + "-value", angle + "°");
+        }
+      }
       const values = extended ? scene.values : detector ? [
         ["Distance", data.distance_mm, "mm"], ["Probe radius", scene.radius, "mm"],
         ["Scattering angle 2θ", scene.angle, "°"], ["Probe q", scene.q, "Å⁻¹"],
@@ -145,10 +163,14 @@
     }
     host.addEventListener("input", event => {
       const input = event.target;
+      if (input.id === "sg-azimuth") { azimuth = Number(input.value); draw(); }
+      if (input.id === "sg-elevation") { elevation = Number(input.value); draw(); }
       if (input.id === "sg-probe") { probe = Number(input.value); draw(); }
       if (input.dataset.sgField) changeInput(input.dataset.sgField, input.value);
     });
     host.addEventListener("click", event => {
+      const view = event.target.closest("[data-sg-view]");
+      if (view && current) { spatial = view.dataset.sgView === "spatial"; draw(); }
       if (event.target.closest("[data-sg-export]") && current) {
         const graphic = host.querySelector("svg").cloneNode(true);
         const original = host.querySelectorAll("svg, svg *");
@@ -156,10 +178,27 @@
           const style = getComputedStyle(original[i]);
           ["fill", "fill-opacity", "stroke", "stroke-width", "stroke-dasharray", "opacity"].forEach(key => element.style.setProperty(key, style.getPropertyValue(key)));
         });
+        const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        background.setAttribute("width", "100%"); background.setAttribute("height", "100%");
+        background.setAttribute("fill", getComputedStyle(host.querySelector(".sg-drawing")).backgroundColor);
+        graphic.insertBefore(background, graphic.querySelector("desc")?.nextSibling ?? null);
         const source = new XMLSerializer().serializeToString(graphic);
         window.AttenuationWorkbench.download(source, "technique-diagram.svg", "image/svg+xml;charset=utf-8");
       }
     });
+    host.addEventListener("pointerdown", event => {
+      const drawing = event.target.closest("[data-sg-spatial]");
+      if (!drawing || !current || event.button !== 0) return;
+      drawing.setPointerCapture(event.pointerId);
+      drag = {id:event.pointerId, x:event.clientX, y:event.clientY, azimuth, elevation};
+    });
+    host.addEventListener("pointermove", event => {
+      if (drag?.id !== event.pointerId) return;
+      azimuth = Math.round(Math.max(15, Math.min(165, drag.azimuth + (event.clientX - drag.x) / 2)));
+      elevation = Math.round(Math.max(-45, Math.min(55, drag.elevation - (event.clientY - drag.y) / 2)));
+      draw();
+    });
+    host.addEventListener("lostpointercapture", () => { drag = null; });
     return {clear, update};
   }
   const api = {detectorScene, projectionScene, create};

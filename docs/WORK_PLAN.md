@@ -382,3 +382,13 @@ closed before implementation and the coordinator completed their disjoint
 modules. All three task limits and worktree isolation were retained.
 The regular preview remains the tested detached copy in outputs/preview-1.1.0.
 S4–S6 are the next eligible tasks. Publishing remains unapproved.
+
+## D4 — Workbench design and 3D detector
+
+Branch: codex/workbench-design. Source scope: static styles, shell, plots
+and schematics, plus browser checks and scientific interface documentation.
+The detector uses an orthographic projection of ideal detector coordinates.
+Camera movement preserves the selected physical ray, calculated quantities
+and original side view. The PDF preview draws existing transform data.
+Checks cover the full test gate, native digest, browser interaction and
+accessible contrast on desktop, tablet and phones in both themes.

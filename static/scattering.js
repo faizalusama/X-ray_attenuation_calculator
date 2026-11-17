@@ -83,7 +83,7 @@
 
   function layout(title, yTitle) {
     const dark = document.documentElement.dataset.theme === "dark";
-    const ink = dark ? "#dbe5ee" : "#253647", grid = dark ? "#2c3b49" : "#e3eaee", panel = dark ? "#18222c" : "#fff";
+    const ink = dark ? "#eef6fa" : "#112b3b", grid = dark ? "#334b59" : "#d6e1e6", panel = dark ? "#15252f" : "#fff";
     return {margin: {l: 66, r: 16, t: 34, b: 52}, title: {text: title, font: {size: 15}}, font: {family: "Segoe UI, Arial, sans-serif", size: 13, color: ink},
       xaxis: {title: {text: "Q (Å⁻¹)"}, gridcolor: grid, zeroline: false}, yaxis: {title: {text: yTitle}, gridcolor: grid, zeroline: false},
       legend: {font: {size: 12}}, paper_bgcolor: panel, plot_bgcolor: panel, hovermode: "x unified"};

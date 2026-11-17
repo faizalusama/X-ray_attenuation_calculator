@@ -92,6 +92,7 @@ jobs:
           node --check static/comparison.js
           node --check static/scattering.js
           node --check static/technique-schematics.js
+          node --check static/detector-spatial.js
           node --check static/optics-schematic.js
           node --check static/pdf-schematic.js
           node --check static/app.js

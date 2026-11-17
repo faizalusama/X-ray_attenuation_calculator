@@ -41,7 +41,7 @@
   // Library plots are only ever on screen, so unlike exported figures they follow the theme.
   function themed(layout) {
     if (!isDark()) return layout;
-    const ink = "#dbe5ee", grid = "#2c3b49", panel = "#18222c";
+    const ink = "#eef6fa", grid = "#334b59", panel = "#15252f";
     layout.font.color = ink;
     layout.xaxis.gridcolor = layout.yaxis.gridcolor = grid;
     layout.xaxis.linecolor = layout.yaxis.linecolor = "#4a5d6e";
