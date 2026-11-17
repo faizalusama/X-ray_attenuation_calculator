@@ -4,6 +4,8 @@
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
+- Codex, codex/workbench-design, 2026-11-17: unified light and dark
+  workbench styling, rotatable 3D detector, and clearer technique diagrams.
 - Codex, 2026-11-17: D2 optics angle/depth probe and D3 PDF interval/sample
   diagram with shared keyboard controls and exports (I2).
 - Codex, codex/live-technique-schematics, 2026-11-17: detector and tomography

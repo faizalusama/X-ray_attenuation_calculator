@@ -22,12 +22,15 @@
       answer.tables.map(t => '<div class="ts-table-wrap" tabindex="0" role="region" aria-label="' + esc(t.caption) + '"><table class="ts-table"><caption>' + esc(t.caption) + '</caption><thead><tr>' + t.headers.map(h => '<th scope="col">' + esc(h) + '</th>').join("") + '</tr></thead><tbody>' + t.rows.map(row => '<tr>' + row.map((v,i) => (i ? '<td>' : '<th scope="row">') + esc(number(v)) + (i ? '</td>' : '</th>')).join("") + '</tr>').join("") + '</tbody></table></div>').join("") +
       '<div class="ts-plots">' + answer.plots.map((p,i) => '<div id="st-plot-' + i + '" class="ts-plot" role="img" aria-label="' + esc(p.title) + '"></div>').join("") + '</div>';
     if (!window.Plotly) return;
-    const dark = document.documentElement.dataset.theme === "dark";
+    const theme = getComputedStyle(document.documentElement);
+    const panel = theme.getPropertyValue("--wb-panel").trim();
+    const grid = theme.getPropertyValue("--wb-border").trim();
+    const ink = theme.getPropertyValue("--wb-ink").trim();
     answer.plots.forEach((p,i) => window.Plotly.react("st-plot-" + i,
       p.traces.map((t,j) => ({type: "scatter", mode: "lines", name: t.name, x: p.x, y: t.y, line: {width: 2.5, color: colors[j % colors.length]}})),
-      {title: {text: p.title, font: {size: 15}}, margin: {l: 72, r: 18, t: 48, b: 62}, xaxis: {title: {text: p.xlabel}},
-        yaxis: {title: {text: p.ylabel}, type: p.log_y ? "log" : "linear"}, font: {size: 13, color: dark ? "#dbe5ee" : "#253647"},
-        paper_bgcolor: dark ? "#18222c" : "#fff", plot_bgcolor: dark ? "#18222c" : "#fff", legend: {orientation: "h"}},
+      {title: {text: p.title, font: {size: 15}}, margin: {l: 72, r: 18, t: 48, b: 62}, xaxis: {title: {text: p.xlabel}, gridcolor: grid, automargin:true},
+        yaxis: {title: {text: p.ylabel}, type: p.log_y ? "log" : "linear", gridcolor: grid, automargin:true}, font: {size: 13, color: ink},
+        paper_bgcolor: panel, plot_bgcolor: panel, legend: {orientation: "h"}},
       {responsive: true, displayModeBar: false}));
   }
   async function run() {

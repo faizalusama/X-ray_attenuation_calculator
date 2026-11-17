@@ -220,6 +220,19 @@ def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], N
     page.locator("#st-tool").select_option("detector")
     page.locator("#sg-probe").wait_for(state="visible")
     page.wait_for_function("() => document.querySelector('#st-schematic').getAttribute('aria-busy') === 'false'")
+    face = page.locator(".sg-detector-face").get_attribute("points")
+    original_probe = page.locator("#sg-probe").get_attribute("aria-valuetext")
+    page.locator("#sg-azimuth").focus()
+    page.locator("#sg-azimuth").press("ArrowRight")
+    record(checks, "spatial-camera-preserves-probe",
+           page.locator(".sg-detector-face").get_attribute("points") != face and
+           page.locator("#sg-probe").get_attribute("aria-valuetext") == original_probe)
+    capture("detector-spatial")
+    overflow(page, checks, "detector-spatial")
+    page.get_by_role("button", name="Side view", exact=True).click()
+    record(checks, "detector-side-view-fallback", not page.locator(".sg-orbit").is_visible() and
+           page.get_by_role("button", name="Side view", exact=True).get_attribute("aria-pressed") == "true" and
+           page.locator("#sg-probe").get_attribute("aria-valuetext") == original_probe)
     before_ray = page.locator(".sg-probe").get_attribute("y2")
     page.locator("#sg-probe").focus()
     page.locator("#sg-probe").press("End")

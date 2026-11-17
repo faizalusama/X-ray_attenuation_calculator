@@ -306,7 +306,7 @@
       }
       const layout = {height: exporting ? 760 : settings.layout === "grid" ? 500 : 560,
         margin: {l: 78, r: secondary || isMap ? 85 : 20, t: 42, b: 65},
-        paper_bgcolor: "#ffffff", plot_bgcolor: "#f8fbfd", font: {family: FONT, size: p.font, color: "#263f55"},
+        paper_bgcolor: "#ffffff", plot_bgcolor: exporting ? "#f8fbfd" : "#f3f7f9", font: {family: FONT, size: p.font, color: "#263f55"},
         hovermode: isMap ? "closest" : "x unified", hoverdistance: 70, spikedistance: 70, hoverlabel: {bgcolor: "rgba(255,255,255,.97)", bordercolor: "#93aabd", align: "left", namelength: -1, font: {family: FONT, size: p.font, color: "#1f3448"}},
         dragmode: settings.gesture === "locked" ? false : settings.gesture,
         uirevision: `${p.id}-${p.primary}-${p.secondary}-${unit}-${settings.revision}`,
@@ -344,12 +344,12 @@
     }
     // Screen only: exported figures stay light, for papers and slides.
     function darken(layout, traces, isMap) {
-      const ink = "#dbe5ee", muted = "#a9bac8", line = "#4a5d6e", panel = "#18222c";
-      Object.assign(layout, {paper_bgcolor: panel, plot_bgcolor: "#141c24"});
+      const ink = "#eef6fa", muted = "#bbced8", line = "#466070", panel = "#15252f";
+      Object.assign(layout, {paper_bgcolor: panel, plot_bgcolor: "#0f1e27"});
       layout.font.color = ink;
-      Object.assign(layout.legend, {bgcolor: "rgba(24,34,44,.92)", bordercolor: line});
+      Object.assign(layout.legend, {bgcolor: panel, bordercolor: line});
       layout.legend.font.color = ink;
-      Object.assign(layout.hoverlabel, {bgcolor: "rgba(24,34,44,.97)", bordercolor: muted});
+      Object.assign(layout.hoverlabel, {bgcolor: panel, bordercolor: muted});
       layout.hoverlabel.font.color = ink;
       for (const name of ["xaxis", "yaxis", "yaxis2"]) {
         const a = layout[name]; if (!a) continue;
