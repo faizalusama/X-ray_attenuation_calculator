@@ -70,6 +70,8 @@ def test_analytic_fit_selection_and_export() -> None:
     assert data["qmax_rg"] == pytest.approx(0.45)
     assert data["ln_intensity_residuals"] == pytest.approx([0.0, 0.0, 0.0], abs=1e-14)
     assert answer["plots"][0]["x"] == pytest.approx([q * q for q in expected_q])
+    assert answer["plots"][0]["traces"][0]["mode"] == "markers"
+    assert any("Fitted q range is 0.01–0.03 Å⁻¹" in note for note in answer["notes"])
     assert answer["plots"][1]["traces"][0]["y"] == data["ln_intensity_residuals"]
     assert "10.1107/S205225252400486X" in answer["provenance"]["method_reference"]
     assert "background-corrected" in answer["provenance"]["input_data"]

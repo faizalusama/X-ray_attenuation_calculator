@@ -22,7 +22,7 @@
   <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
   <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
-  <script src="/static/scattering-tools.js?v=4a5bc7c86669" defer></script>
+  <script src="/static/scattering-tools.js?v=30024f15c5aa" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
   <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
   <script src="/static/materials.js?v=4ff756081d4f" defer></script>
@@ -166,7 +166,7 @@
                 <li>Attenuation and edges: Elam, Ravel &amp; Sieber, <em>Radiat. Phys. Chem.</em> 63, 121–128 (2002). <a href="https://doi.org/10.1016/S0969-806X(01)00227-4" target="_blank" rel="noopener noreferrer">doi:10.1016/S0969-806X(01)00227-4</a></li></ul></section>
           </section>
           <section id="view-tools" role="tabpanel" aria-labelledby="tab-tools" hidden><div class="view-intro"><h2>Scattering and tomography tools</h2>
-            <p>Choose a technique and enter your beamline settings. Scattering calculations use the reference energy in the configuration panel.</p>
+            <p>Choose a technique and enter your beamline settings. Tools that need an energy use the reference energy in the configuration panel.</p>
             <details class="technique-guide"><summary>Choose a technique for your experiment</summary>
               <dl>
                 <dt>Total scattering and pair distributions</dt><dd>Use the Total scattering tab to examine X-ray and neutron pair weights for a layer. With corrected, normalized S(Q), use the Fourier transform here to see G(r). The measured Q range and chosen window affect the peaks.</dd>
@@ -182,7 +182,7 @@
               <optgroup label="Grazing-incidence optics"><option value="reflectivity">Multilayer reflectivity</option><option value="optics" selected>Optical constants and penetration depth</option></optgroup>
             </select></label><label id="st-layer-label">Material layer<select id="st-layer"></select></label></div>
             <div data-st-tool="pdf_window" class="ts-controls technique-inputs" hidden>
-<p>Compare two upper cutoffs for the same normalized S(Q). Each cutoff uses supplied samples only. Both transforms use the chosen window and one r grid.</p>
+<p>Compare two upper cutoffs for the same normalized S(Q). Each cutoff uses supplied samples only. Both transforms use the chosen window and one r grid. The starting data are illustrative.</p>
 <label>Normalized data (q in Å⁻¹, S)<textarea data-arg="sq_data" rows="7">q,S
 0,1.8
 0.1,1.4

@@ -132,7 +132,8 @@ def guinier(payload: JsonObject) -> JsonObject:
     }
     notes = [
         "Supply background-corrected intensity I(q) with q in Å⁻¹. I(0) uses the input intensity units.",
-        "The fit uses every row inside the inclusive q interval. Inspect the log-intensity residuals for curvature.",
+        f"Fitted q range is {q[0]:.6g}–{q[-1]:.6g} Å⁻¹ (qRg {qmin_rg:.6g}–{qmax_rg:.6g})."
+        " Inspect the log-intensity residuals for curvature.",
         "A common upper guide for compact globular particles is qmax Rg ≈ 1.3. Other shapes can require a smaller limit.",
     ]
     if sigma is not None:
@@ -141,10 +142,12 @@ def guinier(payload: JsonObject) -> JsonObject:
         notes.append("All points have equal weight in log space.")
     if qmax_rg > _GLOBULAR_QRG_LIMIT:
         notes.append(f"The last fitted point has qRg = {qmax_rg:.6g}, above the usual globular guide of 1.3.")
+    fit_plot = plot("Guinier fit", "q² (Å⁻²)", "ln I(q)", x, {"Measured": log_i, "Fit": fitted})
+    fit_plot["traces"][0]["mode"] = "markers"
     answer = result("guinier", data,
                     [("Radius of gyration (Rg)", rg, "Å"), ("Forward intensity I(0)", i0, "input units"),
                      ("Fitted rows", len(q), ""), ("Maximum fitted qRg", qmax_rg, "")],
-                    [plot("Guinier fit", "q² (Å⁻²)", "ln I(q)", x, {"Measured": log_i, "Fit": fitted}),
+                    [fit_plot,
                      plot("Guinier residuals", "q² (Å⁻²)", "Measured ln I(q) − fitted ln I(q)", x,
                           {"Residual": residuals})],
                     notes)

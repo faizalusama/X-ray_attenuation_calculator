@@ -28,7 +28,11 @@
     const grid = theme.getPropertyValue("--wb-border").trim();
     const ink = theme.getPropertyValue("--wb-ink").trim();
     answer.plots.forEach((p,i) => window.Plotly.react("st-plot-" + i,
-      p.traces.map((t,j) => ({type: "scatter", mode: "lines", name: t.name, x: p.x, y: t.y, line: {width: 2.5, color: colors[j % colors.length]}})),
+      p.traces.map((t, j) => {
+        const color = colors[j % colors.length];
+        return {type: "scatter", mode: t.mode ?? "lines", name: t.name, x: p.x, y: t.y,
+          marker: {color, size: 8, symbol: "circle-open", line: {width: 1.5}}, line: {width: 2.5, color}};
+      }),
       {title: {text: p.title, font: {size: 15}}, margin: {l: 72, r: 18, t: 48, b: 62}, xaxis: {title: {text: p.xlabel}, gridcolor: grid, automargin:true},
         yaxis: {title: {text: p.ylabel}, type: p.log_y ? "log" : "linear", gridcolor: grid, automargin:true}, font: {size: 13, color: ink},
         paper_bgcolor: panel, plot_bgcolor: panel, legend: {orientation: "h"}},

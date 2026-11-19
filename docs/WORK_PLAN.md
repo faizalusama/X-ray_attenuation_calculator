@@ -440,6 +440,14 @@ will integrate them serially after independent validation.
   for the live CI of the combined revision. The latest local preview uses
   the tested candidate revision and serves only on the loopback address.
 
+- The three-tool integration at 2d7a3fc passed all 11 CI jobs in
+  [run 44587632754](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/runs/44587632754).
+  Visual review found that the Guinier fit line covered the measured trace.
+  Accepted S5 follow-up 7ff007a shows observations as open markers, keeps
+  the fit as a line, and displays the actual q and qRg bounds. The numeric
+  fits are unchanged. All 924 Python and 82 Node tests, Ruff, strict mypy,
+  the manifest, the native digest and the updated interface audit passed.
+
 ### Next eligible research
 
 - S7, READY, codex/live-synchrotron-evidence. Define reference cases for
