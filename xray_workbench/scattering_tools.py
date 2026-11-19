@@ -378,6 +378,9 @@ def scattering_tools(payload: Any) -> JsonObject:
     if payload.get("tool") == "pdf_window":
         from .pdf_window_study import pdf_window_study
         return pdf_window_study(payload)
+    if payload.get("tool") == "guinier":
+        from .guinier import guinier
+        return guinier(payload)
     if payload.get("tool") == "detector":
         from .detector_coverage import detector_coverage
         return detector_coverage(payload)

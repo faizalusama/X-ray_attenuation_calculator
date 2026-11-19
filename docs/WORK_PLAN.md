@@ -305,7 +305,7 @@ below in order of dependency once an independent benchmark has been identified.
   the same normalized S(Q) with the existing window choice, reporting both
   effective endpoints. Own a new pdf_window_study module and tests. Validate
   finite-range transforms against analytic integrals before UI integration.
-- S5, IN_PROGRESS, codex/saxs-guinier. Fit a user-selected low-q interval of
+- S5, MERGED, codex/saxs-guinier. Fit a user-selected low-q interval of
   background-corrected I(q), report Rg, I(0), selected range and qRg bounds.
   Own a new guinier module and tests. Verify a published benchmark and the
   assumptions on shape, aggregation and uncertainty before enabling the fit.
@@ -413,3 +413,8 @@ will integrate them serially after independent validation.
   with and without Lorch to Wang et al. (DOI verified). 883 Python and 82
   Node tests, Ruff, strict mypy, manifest and native digest passed. Shared UI
   and browser parity checks cover the comparison and both exports.
+- S5 9283d8a accepted. Weighted and unweighted fits match independent
+  regressions on the licensed, attributed SASDUE4 consensus curve. Crossref
+  confirmed the paper DOI and the report distinguishes the fixed test window
+  from the published AUTORG result. 905 Python and 82 Node tests, Ruff, strict
+  mypy, manifest and native digest passed.

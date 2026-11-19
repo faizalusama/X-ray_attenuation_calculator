@@ -124,6 +124,26 @@ curves. The starter data are synthetic. Finite-Q changes in peak shape
 and ripples can be compared directly using the method of
 [Wang et al. (2025), equations (3) and (21)](https://doi.org/10.1107/S1600576725004340).
 
+## SAXS Guinier fit
+
+Paste background-corrected q,I or q,I,sigma CSV and choose an inclusive
+fit interval. Use Å⁻¹ for q and the same units for I and its optional
+standard deviation. The selected positive intensities are fit to
+ln I(q) = ln I(0) − q² Rg²/3. With sigma, independent first-order log
+errors give weights (I/sigma)². Without sigma, the log-space weights
+are equal. The output includes the fitted interval, Rg, I(0), a
+residual plot and the last fitted qRg. For compact globular particles,
+qRg below approximately 1.3 is a guide. Choose the fit interval
+after checking residuals, aggregation and shape.
+
+The offline benchmark uses the measured [SASDUE4 lysozyme consensus
+curve](https://www.sasbdb.org/data/SASDUE4/) credited to Trewhella,
+Vachette and Larsen under [SASBDB reuse terms](https://www.sasbdb.org/about/).
+The fixed-window regression uses an independently computed fit over
+0.0103382–0.08249249 Å⁻¹. The published AUTORG result uses a different
+interval and method. See [Trewhella et al. (2024), §2.2 and Table
+2](https://doi.org/10.1107/S205225252400486X).
+
 ## References
 
 - [XrayDB optical and atomic data](https://xraypy.github.io/XrayDB/python.html).
