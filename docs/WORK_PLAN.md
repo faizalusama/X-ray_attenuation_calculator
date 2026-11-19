@@ -1,6 +1,6 @@
 # PR7 coordinated work plan
 
-Updated: 16 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Updated: 19 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
 Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
 release, Pages enablement, public deployment or repository setting changes.
 
@@ -301,15 +301,15 @@ below in order of dependency once an independent benchmark has been identified.
   static/scattering-tools.js, static/scattering.css, tools/ui_audit.py,
   tools/web_parity.py and docs/SCATTERING_TOOLS.md. Exercise populated tools,
   both themes, phone widths and native/browser entry points.
-- S4, READY, codex/pdf-q-window-study. Compare two selected Qmax cutoffs on
+- S4, MERGED, codex/pdf-q-window-study. Compare two selected Qmax cutoffs on
   the same normalized S(Q) with the existing window choice, reporting both
   effective endpoints. Own a new pdf_window_study module and tests. Validate
   finite-range transforms against analytic integrals before UI integration.
-- S5, READY, codex/saxs-guinier. Fit a user-selected low-q interval of
+- S5, IN_PROGRESS, codex/saxs-guinier. Fit a user-selected low-q interval of
   background-corrected I(q), report Rg, I(0), selected range and qRg bounds.
   Own a new guinier module and tests. Verify a published benchmark and the
   assumptions on shape, aggregation and uncertainty before enabling the fit.
-- S6, READY, codex/tomo-sampling. Estimate angular sampling for parallel-beam
+- S6, IN_PROGRESS, codex/tomo-sampling. Estimate angular sampling for parallel-beam
   tomography from object support and requested resolution. Own a new
   tomo_sampling module and tests. Verify the original sampling convention
   and an independent example, distinguishing detector pitch and resolution.
@@ -398,3 +398,18 @@ manifest and the reference native digest. Both interface audits pass, with
 camera and keyboard checks down to 320 px. Corrected the first audit's
 contrast findings in target values, camera labels and the materials list.
 The 3D view and PDF previews read the existing calculations.
+
+## Daily run - 19 November 2026
+
+Clean starting revision ef66328. CI run 44161471923 passed. The open PRs
+remain #2, #3, #4 and draft #7. There are no worker branches awaiting review.
+The three tasks for this run are S4 on codex/pdf-q-window-study, S5 on
+codex/saxs-guinier and S6 on codex/tomo-sampling. Each owns only its new
+Python module and namesake test; S5 may also own its benchmark fixture.
+The coordinator owns dispatch, web controls, documentation and audits, and
+will integrate them serially after independent validation.
+
+- S4 ec36476 accepted. Tests independently compare both finite sine integrals
+  with and without Lorch to Wang et al. (DOI verified). 883 Python and 82
+  Node tests, Ruff, strict mypy, manifest and native digest passed. Shared UI
+  and browser parity checks cover the comparison and both exports.

@@ -1,6 +1,8 @@
 # Improvement backlog
 
 ## In progress
+- Codex, 2026-11-19: S4 PDF Q-window comparison, S5 SAXS Guinier fit and
+  S6 tomography sampling in separate worktrees. See WORK_PLAN.md.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed

@@ -375,6 +375,9 @@ def pdf_transform(payload: JsonObject) -> JsonObject:
 
 def scattering_tools(payload: Any) -> JsonObject:
     payload = _object(payload, "Scattering tools request")
+    if payload.get("tool") == "pdf_window":
+        from .pdf_window_study import pdf_window_study
+        return pdf_window_study(payload)
     if payload.get("tool") == "detector":
         from .detector_coverage import detector_coverage
         return detector_coverage(payload)
