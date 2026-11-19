@@ -160,6 +160,7 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                         assert page.locator("#st-export").is_enabled()
                         assert page.locator("#st-export-csv").is_enabled()
                     if tool == "guinier":
+                        page.locator("#st-plot-0 .scatterlayer .points .point").first.wait_for(state="visible")
                         assert page.locator("#st-export").is_enabled()
                         assert page.locator("#st-export-csv").is_enabled()
                     if tool == "tomo_sampling":
