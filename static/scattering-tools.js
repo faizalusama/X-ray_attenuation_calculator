@@ -4,6 +4,7 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const number = value => value == null ? "undefined" : typeof value === "number" ? (value !== 0 && (Math.abs(value) < 0.001 || Math.abs(value) >= 100000) ? value.toExponential(5) : value.toLocaleString("en-US", {maximumSignificantDigits: 6, useGrouping: false})) : String(value);
   const colors = ["#0072B2", "#D55E00", "#009E73", "#CC79A7"];
+  const standaloneTools = ["pdf_window", "projection"];
   let latest = null, revision = 0, timer, schematics = null;
   function invalidate() {
     schematics?.clear($("#st-tool").value);
@@ -37,12 +38,12 @@
     if ($("#view-tools").hidden) return;
     const api = window.AttenuationWorkbench, layers = api.layers();
     const tool = $("#st-tool").value;
-    const needsLayer = !["projection", "detector"].includes(tool);
+    const needsLayer = !standaloneTools.includes(tool) && tool !== "detector";
     $("#st-layer-label").hidden = !needsLayer;
     document.querySelectorAll("[data-st-tool]").forEach(panel => { panel.hidden = panel.dataset.stTool !== tool; });
     invalidate(); const id = revision;
     const energy = api.referenceEnergy();
-    if ((needsLayer && !layers.length) || (tool !== "projection" && !energy)) return;
+    if ((needsLayer && !layers.length) || (!standaloneTools.includes(tool) && !energy)) return;
     const select = $("#st-layer"), kept = Math.min(Number(select.value) || 0, layers.length - 1);
     select.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); select.value = String(kept);
     document.querySelectorAll("[data-layer-choice]").forEach(s => {
@@ -50,7 +51,7 @@
       s.innerHTML = layers.map((layer,i) => '<option value="' + i + '">' + esc(layer.name) + '</option>').join(""); s.value = String(value);
     });
     const payload = {tool};
-    if (tool !== "projection") payload.energy_keV = energy;
+    if (!standaloneTools.includes(tool)) payload.energy_keV = energy;
     if (needsLayer) Object.assign(payload, {layer: layers[kept], layers});
     document.querySelectorAll('[data-st-tool="' + tool + '"] [data-arg]').forEach(input => {
       payload[input.dataset.arg] = input.type === "checkbox" ? input.checked : (input.type === "number" || input.hasAttribute("data-number")) ? (input.value.trim() === "" ? null : Number(input.value)) : input.value;
@@ -61,7 +62,7 @@
       const answer = await response.json(); if (id !== revision) return;
       if (!response.ok) throw new Error(answer.detail || "Scattering calculation failed.");
       latest = {...answer, configuration: payload}; draw(answer); $("#st-export").disabled = false; $("#st-export-csv").disabled = !answer.plots.length;
-      $("#st-status").textContent = tool === "projection" ? "Projection calculated. Inputs and results are ready to export." :
+      $("#st-status").textContent = standaloneTools.includes(tool) ? "Calculation complete. Inputs and results are ready to export." :
         "Calculated at " + energy + " keV. Export includes inputs and data provenance.";
     } catch (exception) { if (id === revision) $("#st-status").textContent = exception.message; }
   }

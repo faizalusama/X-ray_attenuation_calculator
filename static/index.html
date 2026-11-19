@@ -22,7 +22,7 @@
   <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
   <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
-  <script src="/static/scattering-tools.js?v=e2dfe16d962e" defer></script>
+  <script src="/static/scattering-tools.js?v=5d6c67cb6b7a" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
   <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
   <script src="/static/materials.js?v=4ff756081d4f" defer></script>
@@ -177,10 +177,25 @@
             </details></div>
             <section class="panel ts-section"><div id="st-controls"><div class="ts-controls"><label>Technique and tool<select id="st-tool">
               <optgroup label="SAXS and WAXS"><option value="detector">Detector Q coverage</option><option value="contrast">SLD contrast and Porod invariant</option></optgroup>
-              <optgroup label="Diffraction and total scattering"><option value="pdf">S(Q) to G(r) Fourier transform</option><option value="powder">Powder peaks from a unit cell</option><option value="converter">2θ, Q, d, s and Scherrer</option></optgroup>
+              <optgroup label="Diffraction and total scattering"><option value="pdf">S(Q) to G(r) Fourier transform</option><option value="pdf_window">PDF Qmax comparison</option><option value="powder">Powder peaks from a unit cell</option><option value="converter">2θ, Q, d, s and Scherrer</option></optgroup>
               <optgroup label="Transmission tomography"><option value="projection">Flat-field correction and ray integral</option></optgroup>
               <optgroup label="Grazing-incidence optics"><option value="reflectivity">Multilayer reflectivity</option><option value="optics" selected>Optical constants and penetration depth</option></optgroup>
             </select></label><label id="st-layer-label">Material layer<select id="st-layer"></select></label></div>
+            <div data-st-tool="pdf_window" class="ts-controls technique-inputs" hidden>
+<p>Compare two upper cutoffs for the same normalized S(Q). Each cutoff uses supplied samples only. Both transforms use the chosen window and one r grid.</p>
+<label>Normalized data (q in Å⁻¹, S)<textarea data-arg="sq_data" rows="7">q,S
+0,1.8
+0.1,1.4
+0.2,1.15
+0.3,1.05
+0.4,1.02
+0.5,1.01</textarea></label>
+<label>First Qmax (Å⁻¹)<input data-arg="qmax_a_inv_angstrom" type="number" value="0.3" step="any" min="0"></label>
+<label>Second Qmax (Å⁻¹)<input data-arg="qmax_b_inv_angstrom" type="number" value="0.5" step="any" min="0"></label>
+<label>Window<select data-arg="window"><option value="none">None</option><option value="lorch">Lorch</option></select></label>
+<label>Maximum r (Å)<input data-arg="r_max_angstrom" type="number" value="10" step="any" min="0.01"></label>
+<label>r grid points<input data-arg="r_points" type="number" value="201" step="1" min="3" max="4000"></label>
+            </div>
             <div data-st-tool="detector" class="ts-controls technique-inputs" hidden>
               <p>Measure radii from the direct-beam centre along the detector direction of interest. Account for the beamstop shadow and masked edges when choosing the usable interval.</p>
               <label>Sample–detector distance (mm)<input type="number" data-arg="distance_mm" value="1000" min="0" step="any"></label>

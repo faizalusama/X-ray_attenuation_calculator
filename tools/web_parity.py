@@ -149,6 +149,7 @@ def main() -> int:
         for tool in ("detector", "projection", "optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
             cases.append(("scattering-tools", {"tool": tool, "layer": sample, "layers": [sample], "energy_keV": 8.048,
                                                "q": [0, .1, .2], "sq": [1, 1.1, 1], "r_max_angstrom": 2}))
+        cases.append(("scattering-tools", {"tool": "pdf_window", **{"q": [0, .1, .2, .3, .4, .5], "sq": [1.8, 1.4, 1.15, 1.05, 1.02, 1.01], "qmax_a_inv_angstrom": .3, "qmax_b_inv_angstrom": .5, "r_max_angstrom": 10, "r_points": 201, "window": "lorch"}}))
         for route, payload in cases:
             answer = page.evaluate("([route,body]) => AttenuationWeb.request(route, body)",
                                    [route, json.dumps(payload) if payload is not None else None])
@@ -158,10 +159,15 @@ def main() -> int:
                 decoded = json.loads(answer["text"])
                 if payload and "tool" in payload and decoded.get("tool") != payload["tool"]:
                     structural.append(f"{route}: wrong tool response")
-                if payload and payload.get("tool") in ("detector", "projection"):
+                if payload and payload.get("tool") in ("detector", "pdf_window", "projection"):
                     native_data = scattering_tools(payload)["data"]
+                    browser_data = decoded.get("data")
+                    if payload["tool"] == "pdf_window" and isinstance(browser_data, dict):
+                        # CSV formats the same numeric curves, checked independently by export tests.
+                        native_data.pop("csv")
+                        browser_data.pop("csv", None)
                     total += count_numbers(native_data)
-                    for path, difference in differences(decoded.get("data"), native_data, str(payload["tool"])):
+                    for path, difference in differences(browser_data, native_data, str(payload["tool"])):
                         if difference is None:
                             structural.append(path)
                         else:

@@ -114,6 +114,16 @@ The labelled analytic demo is F(Q)=exp(-Q) sin(3Q). Its known infinite-range
 transform is [1/(1+(3-r)²)-1/(1+(3+r)²)]/pi.
 See [VALIDATION.md](VALIDATION.md) for numerical reference checks.
 
+## PDF Qmax comparison
+
+Supply the same normalized q,S data for both transforms. Qmax A must be
+less than Qmax B. A requested cutoff between samples uses the last measured
+Q at or below it. Each curve uses its own effective Qmax in the Lorch
+window and both curves share the same r grid. CSV exports include both
+curves. The starter data are synthetic. Finite-Q changes in peak shape
+and ripples can be compared directly using the method of
+[Wang et al. (2025), equations (3) and (21)](https://doi.org/10.1107/S1600576725004340).
+
 ## References
 
 - [XrayDB optical and atomic data](https://xraypy.github.io/XrayDB/python.html).
