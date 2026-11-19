@@ -381,6 +381,9 @@ def scattering_tools(payload: Any) -> JsonObject:
     if payload.get("tool") == "guinier":
         from .guinier import guinier
         return guinier(payload)
+    if payload.get("tool") == "tomo_sampling":
+        from .tomo_sampling import tomo_sampling
+        return tomo_sampling(payload)
     if payload.get("tool") == "detector":
         from .detector_coverage import detector_coverage
         return detector_coverage(payload)

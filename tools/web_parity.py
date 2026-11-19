@@ -151,6 +151,7 @@ def main() -> int:
                                                "q": [0, .1, .2], "sq": [1, 1.1, 1], "r_max_angstrom": 2}))
         cases.append(("scattering-tools", {"tool": "pdf_window", **{"q": [0, .1, .2, .3, .4, .5], "sq": [1.8, 1.4, 1.15, 1.05, 1.02, 1.01], "qmax_a_inv_angstrom": .3, "qmax_b_inv_angstrom": .5, "r_max_angstrom": 10, "r_points": 201, "window": "lorch"}}))
         cases.append(("scattering-tools", {"tool": "guinier", **{"intensity_data": "q,I,sigma\n0.01,0.992,0.01\n0.02,0.980,0.02\n0.03,0.920,0.025\n0.04,0.897,0.015\n0.05,0.811,0.02", "qmin_inv_angstrom": .01, "qmax_inv_angstrom": .05}}))
+        cases.append(("scattering-tools", {"tool": "tomo_sampling", **{"diameter_um": 100, "resolution_um": 2, "pixel_pitch_um": 1, "planned_views": 160}}))
         for route, payload in cases:
             answer = page.evaluate("([route,body]) => AttenuationWeb.request(route, body)",
                                    [route, json.dumps(payload) if payload is not None else None])
@@ -160,7 +161,7 @@ def main() -> int:
                 decoded = json.loads(answer["text"])
                 if payload and "tool" in payload and decoded.get("tool") != payload["tool"]:
                     structural.append(f"{route}: wrong tool response")
-                if payload and payload.get("tool") in ("detector", "guinier", "pdf_window", "projection"):
+                if payload and payload.get("tool") in ("detector", "tomo_sampling", "guinier", "pdf_window", "projection"):
                     native_data = scattering_tools(payload)["data"]
                     browser_data = decoded.get("data")
                     if payload["tool"] == "pdf_window" and isinstance(browser_data, dict):
