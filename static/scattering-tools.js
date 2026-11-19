@@ -4,7 +4,7 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const number = value => value == null ? "undefined" : typeof value === "number" ? (value !== 0 && (Math.abs(value) < 0.001 || Math.abs(value) >= 100000) ? value.toExponential(5) : value.toLocaleString("en-US", {maximumSignificantDigits: 6, useGrouping: false})) : String(value);
   const colors = ["#0072B2", "#D55E00", "#009E73", "#CC79A7"];
-  const standaloneTools = ["pdf_window", "projection"];
+  const standaloneTools = ["guinier", "pdf_window", "projection"];
   let latest = null, revision = 0, timer, schematics = null;
   function invalidate() {
     schematics?.clear($("#st-tool").value);
