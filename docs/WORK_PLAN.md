@@ -309,7 +309,7 @@ below in order of dependency once an independent benchmark has been identified.
   background-corrected I(q), report Rg, I(0), selected range and qRg bounds.
   Own a new guinier module and tests. Verify a published benchmark and the
   assumptions on shape, aggregation and uncertainty before enabling the fit.
-- S6, IN_PROGRESS, codex/tomo-sampling. Estimate angular sampling for parallel-beam
+- S6, MERGED, codex/tomo-sampling. Estimate angular sampling for parallel-beam
   tomography from object support and requested resolution. Own a new
   tomo_sampling module and tests. Verify the original sampling convention
   and an independent example, distinguishing detector pitch and resolution.
@@ -418,3 +418,33 @@ will integrate them serially after independent validation.
   confirmed the paper DOI and the report distinguishes the fixed test window
   from the published AUTORG result. 905 Python and 82 Node tests, Ruff, strict
   mypy, manifest and native digest passed.
+- S6 1e21025 accepted. The Crowther estimate follows the verified Du and
+  Crowther references. The independent ForMAX example checks the exact
+  ceiling at the reported pixel count. Pixel support and angular shortfall
+  are separate. All Python and Node suites, Ruff, strict mypy, manifest
+  and native digest passed.
+- All three worker branches passed. No rejected or waiting branches.
+  Fixed a lint error in the coordinator's export audit assertions before
+  sealing the branches. On a 375 px page, edits recalculated all three
+  tools and keyboard-triggered downloads carried the new settings.
+- Combined tests passed: 924 Python tests, 82 Node tests, Ruff, strict mypy,
+  asset stamps and file manifest. Native attenuation digest is unchanged.
+  The Pyodide check compared 249,206 values across native and browser builds
+  at a maximum comparison metric of 5.46e-16. The HTML accessibility
+  audit and all eight populated workspace scenarios passed in light and dark,
+  including keyboard use, modes, panel collapse/reopen, four plots/Show all,
+  and the materials library. The accessibility report measures automated
+  coverage and lists remaining HTML/SVG elements for visual review.
+- CI: the first push (29b3803, run 44586249744) was superseded after ten
+  successful jobs. See [draft PR7 checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+  for the live CI of the combined revision. The latest local preview uses
+  the tested candidate revision and serves only on the loopback address.
+
+### Next eligible research
+
+- S7, READY, codex/live-synchrotron-evidence. Define reference cases for
+  interactive explanations of the Guinier fit interval and tomography view
+  spacing. Touch only new docs/RESEARCH_LIVE_SCHEMATICS.md. Verify primary
+  paper metadata and reusable data, record exact inputs and expected plot
+  or geometry values, and distinguish model output from display geometry.
+  Propose keyboard and narrow-screen checks before implementation.

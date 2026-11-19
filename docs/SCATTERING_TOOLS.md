@@ -144,6 +144,21 @@ The fixed-window regression uses an independently computed fit over
 interval and method. See [Trewhella et al. (2024), §2.2 and Table
 2](https://doi.org/10.1107/S205225252400486X).
 
+## Parallel-beam angular sampling
+
+Enter the centered circular support diameter D, the desired full
+spatial period d and the effective object-space pixel pitch p, all in
+µm. The Crowther estimate is ceil(πD/d) uniformly spaced views over
+[0°, 180°). Pixel sampling requires d ≥ 2p. An optional view count
+reports the angular shortfall independently of pixel sampling.
+Blur, noise, motion and reconstruction also affect achieved resolution.
+
+[Du et al. (2021), §3.2, equations (6) and (7)](https://doi.org/10.1107/S1600576721000194)
+derive the angular relationship from the
+[original Crowther criterion](https://doi.org/10.1098/rspa.1970.0119).
+The test checks the rounded-up view count from
+[Rogalinski et al. (2026), §2.3, equation (1)](https://doi.org/10.1107/S1600577525011038).
+
 ## References
 
 - [XrayDB optical and atomic data](https://xraypy.github.io/XrayDB/python.html).

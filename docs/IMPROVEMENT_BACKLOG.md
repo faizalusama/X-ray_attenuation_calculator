@@ -1,11 +1,11 @@
 # Improvement backlog
 
 ## In progress
-- Codex, 2026-11-19: S4 PDF Q-window comparison, S5 SAXS Guinier fit and
-  S6 tomography sampling in separate worktrees. See WORK_PLAN.md.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
+- Codex, 2026-11-19: PDF Qmax comparison, SAXS Guinier fit and parallel-beam
+  tomography sampling in the unpublished PR7 workspace. See WORK_PLAN.md.
 - Codex, codex/workbench-design, 2026-11-17: unified light and dark
   workbench styling, rotatable 3D detector, and clearer technique diagrams.
 - Codex, 2026-11-17: D2 optics angle/depth probe and D3 PDF interval/sample

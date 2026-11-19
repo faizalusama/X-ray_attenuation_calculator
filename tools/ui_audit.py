@@ -149,7 +149,7 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                 page.locator(".technique-guide dd").first.wait_for(state="visible")
                 views[f"{theme}_technique_guide"] = page.evaluate(AUDIT_SCRIPT)
                 guide.press("Enter")
-                for tool in ("detector", "guinier", "pdf_window", "projection", "optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
+                for tool in ("detector", "tomo_sampling", "guinier", "pdf_window", "projection", "optics", "reflectivity", "contrast", "converter", "powder", "pdf"):
                     page.locator("#st-tool").select_option(tool)
                     if tool == "pdf":
                         page.locator("#st-demo-pdf").wait_for(state="visible")
@@ -162,6 +162,9 @@ def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:
                     if tool == "guinier":
                         assert page.locator("#st-export").is_enabled()
                         assert page.locator("#st-export-csv").is_enabled()
+                    if tool == "tomo_sampling":
+                        assert page.locator("#st-export").is_enabled()
+                        assert not page.locator("#st-export-csv").is_enabled()
                     if tool in ("detector", "projection", "optics", "pdf"):
                         page.locator("#st-schematic svg").wait_for(state="visible")
                         page.locator(".sg-equations summary").click()

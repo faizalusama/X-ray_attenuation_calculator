@@ -22,7 +22,7 @@
   <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
   <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
-  <script src="/static/scattering-tools.js?v=4f98232af0f4" defer></script>
+  <script src="/static/scattering-tools.js?v=4a5bc7c86669" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
   <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
   <script src="/static/materials.js?v=4ff756081d4f" defer></script>
@@ -178,7 +178,7 @@
             <section class="panel ts-section"><div id="st-controls"><div class="ts-controls"><label>Technique and tool<select id="st-tool">
               <optgroup label="SAXS and WAXS"><option value="detector">Detector Q coverage</option><option value="guinier">SAXS Guinier fit</option><option value="contrast">SLD contrast and Porod invariant</option></optgroup>
               <optgroup label="Diffraction and total scattering"><option value="pdf">S(Q) to G(r) Fourier transform</option><option value="pdf_window">PDF Qmax comparison</option><option value="powder">Powder peaks from a unit cell</option><option value="converter">2θ, Q, d, s and Scherrer</option></optgroup>
-              <optgroup label="Transmission tomography"><option value="projection">Flat-field correction and ray integral</option></optgroup>
+              <optgroup label="Transmission tomography"><option value="projection">Flat-field correction and ray integral</option><option value="tomo_sampling">Parallel-beam angular sampling</option></optgroup>
               <optgroup label="Grazing-incidence optics"><option value="reflectivity">Multilayer reflectivity</option><option value="optics" selected>Optical constants and penetration depth</option></optgroup>
             </select></label><label id="st-layer-label">Material layer<select id="st-layer"></select></label></div>
             <div data-st-tool="pdf_window" class="ts-controls technique-inputs" hidden>
@@ -206,6 +206,13 @@
 0.05,0.828</textarea></label>
 <label>Fit qmin (Å⁻¹)<input data-arg="qmin_inv_angstrom" type="number" value="0.01" step="any" min="0"></label>
 <label>Fit qmax (Å⁻¹)<input data-arg="qmax_inv_angstrom" type="number" value="0.05" step="any" min="0"></label>
+            </div>
+            <div data-st-tool="tomo_sampling" class="ts-controls technique-inputs" hidden>
+<p>Estimate distinct angles for evenly spaced parallel-beam views over 180°. Resolution means the full spatial period. Use the object-space pixel pitch after accounting for magnification.</p>
+<label>Object diameter (µm)<input data-arg="diameter_um" type="number" value="100" step="any" min="0"></label>
+<label>Target spatial period (µm)<input data-arg="resolution_um" type="number" value="2" step="any" min="0"></label>
+<label>Object-space pixel pitch (µm)<input data-arg="pixel_pitch_um" type="number" value="1" step="any" min="0"></label>
+<label>Planned views (optional)<input data-arg="planned_views" type="number" value="160" step="1" min="1"></label>
             </div>
             <div data-st-tool="detector" class="ts-controls technique-inputs" hidden>
               <p>Measure radii from the direct-beam centre along the detector direction of interest. Account for the beamstop shadow and masked edges when choosing the usable interval.</p>
