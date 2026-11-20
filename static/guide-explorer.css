@@ -1,0 +1,148 @@
+/* Technique guide inside the Tools introduction. */
+#technique-explorer {
+  container-type: inline-size;
+  min-width: 0;
+  margin-block-start: .65rem;
+  color: var(--wb-ink);
+  overflow-wrap: anywhere;
+}
+
+.guide-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 3fr) minmax(0, 2fr);
+  gap: .75rem;
+  padding: 1rem;
+  background: var(--wb-soft);
+  border: 1px solid var(--wb-border);
+  border-radius: var(--wb-radius);
+}
+.guide-filters > div {
+  display: grid;
+  gap: .25rem;
+  min-width: 0;
+  color: var(--wb-ink);
+  font-size: 14px;
+  font-weight: 650;
+}
+.guide-filters :is(input, select), #guide-reset, .guide-topic-actions button {
+  min-height: 2.75rem;
+  max-width: 100%;
+  padding: .45rem .7rem;
+  background: var(--wb-panel);
+  border: 1px solid var(--wb-muted);
+  border-radius: 6px;
+  color: var(--wb-ink);
+}
+.guide-filters :is(input, select) {
+  min-width: 0;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 400;
+}
+.guide-status, .guide-topic-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+}
+.guide-status { padding: .65rem 0; }
+#guide-count { color: var(--wb-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+#guide-reset, .guide-topic-actions button {
+  color: var(--wb-accent);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  white-space: normal;
+}
+#guide-results { display: grid; gap: 1rem; }
+#guide-empty, [data-guide-family] {
+  min-width: 0;
+  max-width: none;
+  border: 1px solid var(--wb-border);
+  border-radius: var(--wb-radius);
+  background: var(--wb-panel);
+}
+#guide-empty { margin: 0; padding: 1rem; color: var(--wb-ink); font-size: 15px; }
+[data-guide-family] > header {
+  display: grid;
+  gap: .45rem;
+  padding: 1rem;
+  border-radius: var(--wb-radius) var(--wb-radius) 0 0;
+  background: var(--wb-soft);
+}
+[data-guide-family] > header h3 {
+  margin: 0;
+  color: var(--wb-ink);
+  font-size: clamp(18px, 1.4vw, 22px);
+  line-height: 1.3;
+}
+#technique-explorer [data-guide-family] > header > p, #technique-explorer .guide-topic-body p {
+  margin: 0;
+  max-width: 75ch;
+  color: var(--wb-ink);
+  font-size: 15px;
+  line-height: 1.55;
+}
+[data-guide-stage] { border-block-start: 1px solid var(--wb-border); }
+[data-guide-stage] > summary {
+  padding: .75rem 1rem;
+  color: var(--wb-ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+[data-guide-stage] > summary::marker { color: var(--wb-accent); }
+.guide-stage-label {
+  display: inline-block;
+  margin-inline-start: .35rem;
+  padding: .05rem .5rem;
+  border-radius: .4rem;
+  background: var(--wb-accent-soft);
+  color: var(--wb-accent);
+  font-size: 12px;
+  vertical-align: .08em;
+}
+[data-guide-stage][open] > summary { color: var(--wb-accent); }
+.guide-topic-body {
+  display: grid;
+  gap: .7rem;
+  padding: 0 1rem 1rem;
+}
+.guide-topic-body p strong { display: block; }
+.guide-topic-actions {
+  align-items: baseline;
+  color: var(--wb-muted);
+  font-size: 14px;
+}
+.guide-topic-actions a {
+  display: inline-block;
+  max-width: 100%;
+  padding-block: .35rem;
+  color: var(--wb-accent);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+#technique-explorer :is(a, button, input, select, summary):focus-visible {
+  outline: 3px solid var(--wb-accent);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  #guide-reset:hover, .guide-topic-actions button:hover, [data-guide-stage] > summary:hover {
+    background: var(--wb-accent-soft);
+    color: var(--wb-accent);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #guide-reset, .guide-topic-actions button, [data-guide-stage] > summary {
+    transition: background-color .15s ease, color .15s ease;
+  }
+}
+@container (max-width: 35rem) {
+  .guide-filters { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .guide-filters > div:first-child { grid-column: 1 / -1; }
+}
+@container (max-width: 23rem) {
+  .guide-filters { grid-template-columns: minmax(0, 1fr); gap: .45rem; padding: .75rem; }
+  [data-guide-family] > header, [data-guide-stage] > summary { padding: .75rem; }
+  .guide-topic-body { padding: 0 .75rem .75rem; }
+}
