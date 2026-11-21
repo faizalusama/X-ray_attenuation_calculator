@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "verification_date": "2026-11-13",
+  "verification_timezone": "Europe/Copenhagen",
+  "task": "PR7 R1",
+  "integration_base": {
+    "branch": "claude/web-version",
+    "commit": "2de66a63a78ddc6c4f7cec3cb4a27ae7049625ee"
+  },
+  "scope": "Research metadata, primary locators and existing-check mappings only.",
+  "registry_verification": {
+    "status": "VERIFIED_BY_COORDINATOR",
+    "registry": "Crossref",
+    "verified_on": "2026-11-13",
+    "timezone": "Europe/Copenhagen",
+    "supplied_record_path": "outputs/xray-crossref-review.json",
+    "worker_action": "Read and parsed coordinator-supplied records; checked five DOIs, author counts, volumes, issues and pages.",
+    "worker_personally_fetched_registry_records": false,
+    "datacite_status": "NOT_QUERIED",
+    "limitations": [
+      "Worker web-tool registry requests were inaccessible.",
+      "Worker local DOI verifier failed with getaddrinfo failed.",
+      "The requested unrestricted retry was interrupted.",
+      "Registry resolution verifies bibliographic identity, not scientific values or transcription."
+    ]
+  },
+  "human_data_verification": {
+    "status": "NOT_ESTABLISHED_BY_THIS_REVIEW",
+    "values_checked_by": null,
+    "values_checked_on": null,
+    "experimental_validation_performed": false,
+    "new_scientific_values_added": false
+  },
+  "standards": [
+    {
+      "id": "wcag22",
+      "title": "Web Content Accessibility Guidelines (WCAG) 2.2",
+      "doi": null,
+      "doi_status": "NO_DOI_SUPPLIED_BY_STANDARD",
+      "status": "OFFICIAL_VERSIONED_PAGE_VERIFIED",
+      "url": "https://www.w3.org/TR/2024/REC-WCAG22-20241212/",
+      "publication_date": "2024-12-12",
+      "authority": "W3C Recommendation",
+      "locators": [
+        "1.3.1 Info and Relationships",
+        "1.4.1 Use of Color",
+        "1.4.3 Contrast (Minimum)",
+        "1.4.10 Reflow",
+        "1.4.11 Non-text Contrast",
+        "2.1.1 Keyboard",
+        "2.4.3 Focus Order",
+        "2.4.7 Focus Visible",
+        "2.4.11 Focus Not Obscured (Minimum)",
+        "2.5.8 Target Size (Minimum)",
+        "3.3.1 Error Identification",
+        "3.3.2 Labels or Instructions",
+        "4.1.2 Name, Role, Value",
+        "4.1.3 Status Messages"
+      ],
+      "existing_checks": [
+        "tools/ui_audit.py"
+      ],
+      "limitations": [
+        "Selected criteria and automated checks do not establish complete conformance.",
+        "375-pixel checks alone do not establish the 320-CSS-pixel reflow requirement.",
+        "The repository's 12-pixel font floor is project policy.",
+        "Target-size and reflow criteria have exceptions."
+      ]
+    },
+    {
+      "id": "apg-tabs",
+      "title": "Tabs Pattern",
+      "doi": null,
+      "doi_status": "NO_DOI_SUPPLIED_BY_GUIDANCE",
+      "status": "OFFICIAL_PAGE_VERIFIED",
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
+      "authority": "W3C WAI ARIA Authoring Practices Guide",
+      "locators": [
+        "Keyboard Interaction",
+        "Keyboard Interaction: Note",
+        "WAI-ARIA Roles, States, and Properties"
+      ],
+      "application": [
+        "Preserve active-tab focus, arrow navigation and tab/panel relationships.",
+        "Keep selected state and accessible labels synchronized.",
+        "Automatic activation depends on panel latency; Home and End are optional."
+      ],
+      "existing_checks": [
+        "tools/ui_audit.py"
+      ],
+      "limitations": [
+        "APG is implementation guidance, not a WCAG success criterion.",
+        "Final grouped-tab behavior and assistive-technology operation remain to be reviewed."
+      ]
+    },
+    {
+      "id": "apg-disclosure",
+      "title": "Disclosure (Show/Hide) Pattern",
+      "doi": null,
+      "doi_status": "NO_DOI_SUPPLIED_BY_GUIDANCE",
+      "status": "OFFICIAL_PAGE_VERIFIED",
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
+      "authority": "W3C WAI ARIA Authoring Practices Guide",
+      "locators": [
+        "About This Pattern",
+        "Keyboard Interaction",
+        "WAI-ARIA Roles, States, and Properties"
+      ],
+      "application": [
+        "Use a keyboard-operable visibility control with synchronized expanded state.",
+        "Provide a discoverable way to reopen collapsed content."
+      ],
+      "existing_checks": [
+        "tools/ui_audit.py: reference disclosure keyboard and focus checks"
+      ],
+      "limitations": [
+        "Preserving scientific settings and exposing hidden errors are project safeguards.",
+        "The guidance does not establish an optimal sidebar position, category count, mode name or initial plot count."
+      ]
+    }
+  ],
+  "scientific_references": [
+    {
+      "id": "elam2002",
+      "doi": "10.1016/S0969-806X(01)00227-4",
+      "doi_url": "https://doi.org/10.1016/S0969-806X(01)00227-4",
+      "registry_status": "VERIFIED_BY_COORDINATOR",
+      "crossref_api_url": "https://api.crossref.org/works/10.1016/S0969-806X(01)00227-4",
+      "title": "A new atomic database for X-ray spectroscopic calculations",
+      "authors": [
+        "W.T. Elam",
+        "B.D. Ravel",
+        "J.R. Sieber"
+      ],
+      "journal": "Radiation Physics and Chemistry",
+      "year": 2002,
+      "volume": "63",
+      "issue": "2",
+      "pages": "121-128",
+      "primary_evidence": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/abs/pii/S0969806X01002274",
+          "status": "PUBLISHER_SEARCH_EXTRACT_VERIFIED_DIRECT_OPEN_403",
+          "locators": [
+            "Article header",
+            "Abstract",
+            "Introduction",
+            "Discussion",
+            "Acknowledgements: XCOM machine-readable cross-section input"
+          ]
+        }
+      ],
+      "existing_checks": [
+        "tests/test_backend_equivalence.py::test_elam_and_xraylib_evaluate_the_same_data",
+        "tests/test_backend_equivalence.py::test_the_two_backends_are_not_offered_as_a_cross_check",
+        "tests/test_sources.py::test_lines_agree_with_the_elam_tables"
+      ],
+      "supports": "Attenuation and atomic-parameter provenance; shared-source consistency checks.",
+      "independence": "xraylib/Elam attenuation agreement is not independent cross-database validation.",
+      "limitations": [
+        "Full article and exact numerical table locators were not verified.",
+        "No named human comparison of original rows, upstream data versions or interpolation conventions was established."
+      ]
+    },
+    {
+      "id": "hubbell1975",
+      "doi": "10.1063/1.555523",
+      "doi_url": "https://doi.org/10.1063/1.555523",
+      "registry_status": "VERIFIED_BY_COORDINATOR",
+      "crossref_api_url": "https://api.crossref.org/works/10.1063/1.555523",
+      "title": "Atomic form factors, incoherent scattering functions, and photon scattering cross sections",
+      "authors": [
+        "J. H. Hubbell",
+        "Wm. J. Veigele",
+        "E. A. Briggs",
+        "R. T. Brown",
+        "D. T. Cromer",
+        "R. J. Howerton"
+      ],
+      "journal": "Journal of Physical and Chemical Reference Data",
+      "year": 1975,
+      "volume": "4",
+      "issue": "3",
+      "pages": "471-538",
+      "primary_evidence": [
+        {
+          "url": "https://srd.nist.gov/jpcrdreprint/1.555523.pdf",
+          "status": "NIST_REPRINT_TEXT_INSPECTED",
+          "locators": [
+            "Publisher cover and original article first page",
+            "Section 1.2",
+            "Section 3",
+            "Section 5.1",
+            "Table I, beginning at PDF page 26 including publisher cover"
+          ]
+        },
+        {
+          "url": "https://github.com/tschoonj/xraylib/wiki/The-xraylib-API-list-of-all-functions#scattering-factors",
+          "status": "UPSTREAM_API_PAGE_VERIFIED",
+          "locators": [
+            "Scattering factors",
+            "SF_Compt",
+            "Momentum-transfer convention"
+          ]
+        }
+      ],
+      "existing_checks": [
+        "tests/test_scattering.py::test_differential_scattering_limits_and_integral"
+      ],
+      "implementation_locator": "tools/build_scattering_tables.py::incoherent_table",
+      "supports": "Source and conventions for incoherent scattering functions used through xraylib.",
+      "independence": "The existing Elam integral comparison is not experimental validation; provenance is function-specific.",
+      "limitations": [
+        "The 2009 online reprint date is distinct from the 1975 article year.",
+        "Selected Table I entries were not independently checked against bundled samples by a named human.",
+        "Interpolation, rounding and applicability of the linked 1977 erratum remain to be reviewed.",
+        "Hubbell provenance must not be assigned to every xraylib function."
+      ]
+    },
+    {
+      "id": "sears1992",
+      "doi": "10.1080/10448639208218770",
+      "doi_url": "https://doi.org/10.1080/10448639208218770",
+      "registry_status": "VERIFIED_BY_COORDINATOR",
+      "crossref_api_url": "https://api.crossref.org/works/10.1080/10448639208218770",
+      "title": "Neutron scattering lengths and cross sections",
+      "authors": [
+        "Varley F. Sears"
+      ],
+      "journal": "Neutron News",
+      "year": 1992,
+      "volume": "3",
+      "issue": "3",
+      "pages": "26-37",
+      "primary_evidence": [
+        {
+          "url": "https://www.ncnr.nist.gov/resources/n-lengths/list.html",
+          "status": "OFFICIAL_REPRODUCTION_VERIFIED",
+          "locators": [
+            "Opening attribution: Special Feature, pages 29-37",
+            "Column definitions",
+            "Natural-element H and O rows"
+          ]
+        },
+        {
+          "url": "https://www.tandfonline.com/doi/abs/10.1080/10448639208218770",
+          "status": "DIRECT_OPEN_403",
+          "locators": []
+        }
+      ],
+      "existing_checks": [
+        "tests/test_scattering.py::test_neutron_negative_weights_and_zero_mean_guard"
+      ],
+      "implementation_locator": "tools/build_scattering_tables.py::neutron_table",
+      "supports": "Bound neutron-length and cross-section provenance and interpretation.",
+      "independence": "NIST reproduces Sears data; it is not a second independent dataset.",
+      "limitations": [
+        "Article pages 26-37 and NIST's data-section pages 29-37 are separate locators.",
+        "Absorption is specified for 2200 m/s neutrons, not a general neutron transport model.",
+        "Natural-abundance row selection, complex signs, uncertainties and missing entries need named human review.",
+        "The mapped test is not an exhaustive source-table comparison."
+      ]
+    },
+    {
+      "id": "chantler2000",
+      "doi": "10.1063/1.1321055",
+      "doi_url": "https://doi.org/10.1063/1.1321055",
+      "registry_status": "VERIFIED_BY_COORDINATOR",
+      "crossref_api_url": "https://api.crossref.org/works/10.1063/1.1321055",
+      "title": "Detailed Tabulation of Atomic Form Factors, Photoelectric Absorption and Scattering Cross Section, and Mass Attenuation Coefficients in the Vicinity of Absorption Edges in the Soft X-Ray (Z=30–36, Z=60–89, E=0.1 keV–10 keV), Addressing Convergence Issues of Earlier Work",
+      "authors": [
+        "C. T. Chantler"
+      ],
+      "journal": "Journal of Physical and Chemical Reference Data",
+      "year": 2000,
+      "volume": "29",
+      "issue": "4",
+      "pages": "597-1056",
+      "primary_evidence": [
+        {
+          "url": "https://www.nist.gov/pml/x-ray-form-factor-attenuation-and-scattering-tables",
+          "status": "OFFICIAL_DATABASE_PAGE_VERIFIED",
+          "locators": [
+            "NIST Standard Reference Database 66",
+            "Database description and data-content update statement"
+          ]
+        },
+        {
+          "url": "https://xraypy.github.io/XrayDB/python.html",
+          "status": "UPSTREAM_API_PAGE_VERIFIED",
+          "locators": [
+            "chantler_energies",
+            "f1_chantler",
+            "f2_chantler"
+          ]
+        },
+        {
+          "url": "https://xraypy.github.io/XrayDB/biblio.html",
+          "status": "UPSTREAM_BIBLIOGRAPHY_VERIFIED",
+          "locators": [
+            "Chantler (2000)",
+            "Chantler (2016)"
+          ]
+        },
+        {
+          "url": "https://srd.nist.gov/jpcrdreprint/1.1321055.pdf",
+          "status": "INACCESSIBLE_VIA_WORKER_WEB_TOOL",
+          "locators": []
+        }
+      ],
+      "existing_checks": [
+        "tests/test_scattering.py::test_chantler_edge_scan_has_absorption_jump_and_explicit_selection",
+        "tests/test_scattering.py::test_anomalous_terms_agree_with_xraylib",
+        "tests/test_scattering_tools.py::test_silicon_optics_matches_reference_and_normal_absorption_limit"
+      ],
+      "supports": "Provenance of anomalous factors, edge scans and optical calculations.",
+      "independence": "Behavior and library agreement do not establish independent experimental accuracy.",
+      "discrepancies": [
+        {
+          "field": "pages",
+          "crossref_value": "597-1056",
+          "xraydb_bibliography_value": "597-1048",
+          "status": "UNRESOLVED",
+          "required_action": "Check publisher version of record; preserve both attributed claims until resolved."
+        }
+      ],
+      "limitations": [
+        "The NIST database has broader scope than this individual article.",
+        "XrayDB also cites a 2016 finer-grid personal communication; the installed dataset is not pinned by the 2000 citation alone.",
+        "Exact original numerical table and row locators remain unverified.",
+        "Selected values, data versions, units, signs and edge interpolation need named human verification."
+      ]
+    },
+    {
+      "id": "waasmaier-kirfel1995",
+      "doi": "10.1107/S0108767394013292",
+      "doi_url": "https://doi.org/10.1107/S0108767394013292",
+      "registry_status": "VERIFIED_BY_COORDINATOR",
+      "crossref_api_url": "https://api.crossref.org/works/10.1107/S0108767394013292",
+      "title": "New analytical scattering-factor functions for free atoms and ions",
+      "authors": [
+        "D. Waasmaier",
+        "A. Kirfel"
+      ],
+      "journal": "Acta Crystallographica Section A",
+      "year": 1995,
+      "volume": "51",
+      "issue": "3",
+      "pages": "416-431",
+      "primary_evidence": [
+        {
+          "url": "https://journals.iucr.org/paper?S0108767394013292",
+          "status": "PUBLISHER_ABSTRACT_VERIFIED",
+          "locators": [
+            "Article header",
+            "Abstract: five-Gaussian neutral and ionic representations",
+            "Abstract: sin(theta)/lambda fit domain"
+          ]
+        },
+        {
+          "url": "https://journals.iucr.org/a/issues/1995/03/00/sh0059/sh0059.pdf",
+          "status": "DIRECT_OPEN_401",
+          "locators": []
+        },
+        {
+          "url": "https://xraypy.github.io/XrayDB/python.html",
+          "status": "UPSTREAM_API_PAGE_VERIFIED",
+          "locators": [
+            "Elastic Scattering Factors",
+            "f0",
+            "f0_ions",
+            "f0 notes: input differs from Q by 4*pi"
+          ]
+        }
+      ],
+      "existing_checks": [
+        "tests/test_scattering.py::test_form_factors_start_at_the_atomic_number",
+        "tests/test_scattering.py::test_ionic_electron_counts_and_neutral_attenuation",
+        "tests/test_scattering.py::test_curves_stop_at_the_limit_of_the_form_factor_fits",
+        "tests/test_scattering.py::test_form_factors_agree_with_epdl97_in_xraylib"
+      ],
+      "supports": "Neutral and ionic form-factor provenance, fit-domain guards and electron-count checks.",
+      "independence": "The form-factor comparison is distinct from shared Elam attenuation data; the existing test's EPDL97 provenance chain was not independently audited in this round.",
+      "limitations": [
+        "Original coefficient-table locators were not verified.",
+        "Selected neutral and ionic coefficients and fit errors need named human review.",
+        "No new numerical or experimental validation was performed."
+      ]
+    }
+  ],
+  "existing_nist_benchmark": {
+    "status": "PRIMARY_HEADERS_AND_RELEVANT_ROWS_INSPECTED",
+    "primary_urls": [
+      "https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z13.html",
+      "https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z26.html",
+      "https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z82.html",
+      "https://physics.nist.gov/PhysRefData/XrayMassCoef/ComTab/water.html"
+    ],
+    "locators": [
+      "mu/rho column, not mu_en/rho",
+      "Energy rows 2.00000E-02, 5.00000E-02 and 1.00000E-01 MeV",
+      "Iron: two edge rows at 7.11200E-03 MeV"
+    ],
+    "existing_checks": [
+      "tests/test_nist.py::NistBenchmarks::test_independent_pure_material_coefficients",
+      "tests/test_nist.py::NistBenchmarks::test_fe_k_edge_one_sided_nist_limits",
+      "tests/test_nist.py::NistBenchmarks::test_nist_equal_mass_mixture_prevents_squared_fraction_regression"
+    ],
+    "supports": "External reference-table regression for selected attenuation and mixture calculations.",
+    "limitations": [
+      "An external table can share theoretical or tabulated inputs with Elam.",
+      "Agreement is not experimental validation or a domain-wide accuracy certificate.",
+      "No new reference values or tolerances were introduced.",
+      "Named human transcription and provenance sign-off remain unestablished by this review."
+    ]
+  },
+  "worker_checks": {
+    "coordinator_json_parse": "PASSED",
+    "five_dois_author_counts_volume_issue_pages": "PASSED",
+    "mapped_test_function_existence": {
+      "status": "PASSED",
+      "count": 15,
+      "method": "Read-only Python AST inspection"
+    },
+    "existing_ui_audit_file": "CONFIRMED",
+    "numerical_tests": "NOT_RUN",
+    "ui_audit_execution": "NOT_RUN",
+    "full_integration_checks": "COORDINATOR_OWNED_NOT_RUN",
+    "saved_deliverable_json_parse": "COORDINATOR_TO_RUN_AFTER_WRITING",
+    "git_status": "FAILED_IN_RESTRICTED_ENVIRONMENT",
+    "files_changed": [],
+    "commits_created": [],
+    "delivery": "Complete file contents returned in chat for coordinator writing."
+  }
+}

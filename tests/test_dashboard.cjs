@@ -1,16 +1,86 @@
 "use strict";
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {LENGTH_UNITS, toMM, fromMM, valuesFor, traceData, thicknessMap, cleanPreferences} = require('../static/dashboard.js');
+const {LENGTH_UNITS, toMM, fromMM, valuesFor, traceData, thicknessMap, cleanPreferences, plotHeight} = require('../static/dashboard.js');
 const {initial, cleanProject} = require('../static/app.js');
 const near = (a,b) => assert.ok(Math.abs(a-b) <= 1e-12 * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
 const result = {energy_keV:[10,20,40], optical_depth:[2,1,.5], transmission:[Math.exp(-2),Math.exp(-1),Math.exp(-.5)], removed_fraction:[1-Math.exp(-2),1-Math.exp(-1),1-Math.exp(-.5)], layers:[{name:'Sample', path_length_mm:10, mu_linear_cm_inv:[2,1,.5], mu_mass_cm2_g:[1,.5,.25], photoelectric_cm2_g:[.8,.3,.1], coherent_cm2_g:[.1,.1,.05], incoherent_cm2_g:[.1,.1,.1]}]};
 const config = {layers:[{thickness_mm:10}], target_transmission:.1};
+const {plotReadout, readableNumber, allPanels} = require('../static/dashboard.js');
+const referenceResult = {...result, reference:{energy_keV:30, transmission:.456789123, removed_fraction:.543210877, optical_depth:.783533429, target_transmission:.1, target_thickness_scale:2.938719}, layers:result.layers.map(l=>({...l, reference:{mu_mass_cm2_g:.3917667145, mu_linear_cm_inv:.783533429, transmission:.456789123, hvl_mm:8.84642, tvl_mm:29.38719, attenuation_length_mm:12.76269}}))};
+
+test('every default plot has a text readout with named quantities and explicit units',()=>{
+  for(const p of allPanels()){
+    const readout=plotReadout(referenceResult,config,p);
+    assert.match(readout.text,/Reference 30 keV/);
+    assert.ok(readout.rows.length>0,p.primary);
+    for(const row of readout.rows){assert.ok(row.name);assert.ok(row.unit);assert.ok(Number.isFinite(row.value));}
+  }
+});
+
+test('text readouts use direct reference values instead of nearest sweep transmission',()=>{
+  const p=allPanels()[0], readout=plotReadout(referenceResult,config,p);
+  assert.equal(readout.rows[0].value,100*referenceResult.reference.transmission);
+  assert.notEqual(readout.rows[0].value,100*result.transmission[1]);
+  const offSweep=plotReadout({...referenceResult,reference:{...referenceResult.reference,energy_keV:80}},config,p);
+  assert.match(offSweep.text,/outside the plotted sweep/);
+  assert.equal(offSweep.rows[0].value,readout.rows[0].value);
+});
+
+test('reference readouts respect hidden series, layer controls and independent axes',()=>{
+  const p={...allPanels()[0],secondary:'mass',logY2:true};
+  const r={...referenceResult,layers:[...referenceResult.layers,{...referenceResult.layers[0],name:'Second layer'}]};
+  assert.equal(plotReadout(r,config,p).rows.length,5);
+  assert.equal(plotReadout(r,config,{...p,layers:false}).rows.length,3);
+  const hidden=plotReadout(r,config,{...p,layers:false,visibility:{'y-transmission-stack':'legendonly','y2-mass-mass-1':false}});
+  assert.equal(hidden.rows.length,1);assert.equal(hidden.rows[0].axis,'Right');assert.equal(hidden.rows[0].unit,'cm²/g');
+  assert.match(plotReadout(referenceResult,config,{...allPanels()[0],visibility:{'y-transmission-stack':'legendonly'}}).text,/All series are hidden/);
+});
+
+test('reference readouts preserve zero and very small values on log plots',()=>{
+  const r={...referenceResult,reference:{...referenceResult.reference,transmission:0}};
+  const zero=plotReadout(r,config,{...allPanels()[0],logY:true});
+  assert.equal(zero.rows[0].value,0);assert.match(zero.rows[0].note,/Zero is omitted/);
+  assert.equal(readableNumber(1e-200),'1.00000e-200');assert.equal(readableNumber(null),'Unavailable');
+  assert.equal(readableNumber(Infinity),'Unavailable');assert.equal(readableNumber(0),'0');
+});
+
+test('channel readout discloses the exact evaluated sample and direct reference total',()=>{
+  const p=allPanels().find(p=>p.primary==='channels');
+  const readout=plotReadout(referenceResult,config,p);
+  assert.equal(readout.rows[0].energy,20);assert.equal(readout.rows[0].value,.3);
+  assert.match(readout.notes[0],/total mass attenuation at the reference is 0.391767/);
+  assert.match(readout.notes[0],/sample at 20 keV; no interpolation/);
+  assert.match(readout.text,/sampled at 20 keV/);
+});
+
+test('path length and target readouts convert the exact API values to display units',()=>{
+  const p=allPanels().find(p=>p.primary==='hvl');
+  assert.equal(plotReadout(referenceResult,config,p,'µm').rows[0].value,referenceResult.layers[0].reference.hvl_mm*1000);
+  const design={...p,primary:'design'};
+  assert.equal(plotReadout(referenceResult,config,design,'cm').rows[0].value,referenceResult.reference.target_thickness_scale);
+  assert.equal(plotReadout({...referenceResult,reference:{...referenceResult.reference,target_thickness_scale:null}},config,design).rows[0].value,null);
+});
+
+test('map readout labels scaling and uses the reference optical depth',()=>{
+  const p=allPanels().find(p=>p.primary==='map');
+  const rows=plotReadout(referenceResult,config,p,'mm',.5).rows;
+  assert.equal(rows.length,2);assert.equal(rows[0].value,100);
+  assert.equal(rows[1].value,100*Math.exp(-referenceResult.reference.optical_depth*.5));
+  assert.equal(rows[1].name,'0.5× thickness');
+  assert.match(plotReadout(referenceResult,config,p,'mm',.5).text,/0.5× thickness/);
+  assert.match(plotReadout(referenceResult,config,p).text,/1× thickness/);
+});
 
 test('unit changes preserve physical thickness over nm to metres',()=>{
   for (const unit of Object.keys(LENGTH_UNITS)) for (const mm of [0, 1e-6, .03, 1, 250, 1e9]) near(toMM(fromMM(mm, unit),unit),mm);
   assert.equal(fromMM(1,'µm'),1000);assert.equal(fromMM(1,'cm'),.1);assert.equal(toMM(1000,'nm'),.001);
   assert.equal(toMM(null,'µm'),null);
+});
+test('plot height grows with available screen space and remains readable',()=>{
+  assert.equal(plotHeight(500,700),430);
+  assert.equal(plotHeight(900,900),594);
+  assert.equal(plotHeight(1800,1400),720);
 });
 test('HVL, TVL and attenuation lengths use ray-path coefficients and selected units',()=>{
   const hvl=valuesFor(result,config,'hvl',0,'µm')[0].values;
@@ -54,7 +124,7 @@ test('imported v2 backend selection is never silently dropped',()=>{
 });
 
 
-test('every available quantity has an open default plot and existing settings survive expansion',()=>{
+test('every available quantity can be opened and existing settings survive expansion',()=>{
   const {allPanels,QUANTITIES,MAX_PLOTS}=require('../static/dashboard.js');
   const panels=allPanels();
   assert.equal(panels.length,11);assert.equal(MAX_PLOTS,11);
@@ -79,4 +149,113 @@ test('linked energy ranges convert between linear and log coordinates safely',()
   assert.deepEqual(energyRange([10,100],false,false),[10,100]);
   assert.equal(energyRange([-10,100],false,true),undefined);
   assert.equal(energyRange(undefined,true,false),undefined);
+});
+
+const {plotTable, allCurvesTable, HC_KEV_ANGSTROM} = require('../static/dashboard.js');
+const twoLayers = {...result, reference:{target_transmission:.1}, layers:[0,1].map(i=>({name:`L${i}`, thickness_mm:i+1, path_length_mm:i+1, mu_mass_cm2_g:[3,2,1], mu_linear_cm_inv:[6,4,2], photoelectric_cm2_g:[2,1,.5], coherent_cm2_g:[.5,.5,.25], incoherent_cm2_g:[.5,.5,.25]}))};
+test('all-curves export names every column with a unit and keeps full precision',()=>{
+  const table=allCurvesTable(twoLayers), column=name=>table.headers.indexOf(name);
+  assert.equal(table.columns.length,table.headers.length);
+  for(const c of table.columns){assert.ok(c.unit,c.name);assert.ok(c.description,c.name);}
+  assert.equal(table.rows.length,3);
+  for(const row of table.rows) assert.equal(row.length,table.headers.length);
+  near(table.rows[0][column('wavelength_angstrom')],HC_KEV_ANGSTROM/10);
+  assert.equal(table.rows[1][column('transmission')],result.transmission[1]);
+  near(table.rows[0][column('layer_2_optical_depth')],6*2/10);
+  near(table.rows[0][column('layer_2_hvl_mm')],10*Math.LN2/6);
+  near(table.rows[0][column('target_total_thickness_mm')],3*-Math.log(.1)/2);
+  assert.equal(column('transmission_p025'),-1);
+});
+test('all-curves export adds the uncertainty interval only when it was calculated',()=>{
+  const table=allCurvesTable({...twoLayers,uncertainty:{transmission_p025:[.1,.2,.3],transmission_p975:[.2,.3,.4]}});
+  assert.equal(table.rows[2][table.headers.indexOf('transmission_p975')],.4);
+});
+test('plot data follows the plot: primary and secondary series, display units, and the thickness map',()=>{
+  const table=plotTable(twoLayers,{layers:[{thickness_mm:1},{thickness_mm:2}],target_transmission:.1},{primary:'transmission',secondary:'optical_depth',layer:'all'},'mm',3);
+  assert.equal(table.headers[0],'energy_keV');
+  assert.ok(table.headers.length>=3);
+  assert.deepEqual(table.rows.map(row=>row[0]),result.energy_keV);
+  const map=plotTable(twoLayers,{layers:[{thickness_mm:1},{thickness_mm:2}],target_transmission:.1},{primary:'map',secondary:'none',layer:'all'},'mm',3);
+  assert.deepEqual(map.headers.slice(1),result.energy_keV);
+  assert.equal(map.rows[0].length,result.energy_keV.length+1);
+});
+
+function dashboardHarness() {
+  const nodes=new Map(), handlers=[];
+  const document={querySelector(selector) {
+    if(!nodes.has(selector)) nodes.set(selector,{
+      classList:{toggle(){}},setAttribute(){},
+      addEventListener(type,listener){handlers.push({selector,type,listener});}
+    });
+    return nodes.get(selector);
+  },querySelectorAll(){return [];}};
+  const dashboard=require('../static/dashboard.js').create(document,null,{onError(message){throw new Error(message);}});
+  return {dashboard,async showAll(){
+    const button={id:'show-all-plots',dataset:{}};
+    handlers.find(h=>h.selector==='.chart-panel'&&h.type==='click').listener({target:{closest(){return button;}}});
+    await dashboard.redraw();
+  }};
+}
+
+test('fresh and empty preferences retain the four useful startup plots',()=>{
+  for(const value of [undefined,null,{}, {dashboard:{}}, {dashboard:{panels:[]}}, {dashboard:{layoutVersion:2,panels:[]}}]){
+    const {dashboard}=dashboardHarness();
+    dashboard.restore(value);
+    assert.deepEqual(dashboard.preferences().dashboard.panels.map(p=>p.primary),['transmission','removed','mass','linear']);
+    const reload=dashboardHarness().dashboard;
+    reload.restore(dashboard.preferences());
+    assert.deepEqual(reload.preferences(),dashboard.preferences());
+  }
+});
+
+test('saved custom layouts retain order, duplicates and settings across layout versions and reload',()=>{
+  for(const layoutVersion of [undefined,1,2,3,4]){
+    const panels=[{...allPanels().find(p=>p.primary==='hvl'),id:1,secondary:'mass',logX:false,logY:false,logY2:true,
+      font:12,bold:false,edges:false,layers:false,grid:false,layer:2,
+      ranges:{xaxis:[10,40],yaxis:[2,8],yaxis2:[-1,1]},visibility:{'y-hvl-hvl-0':'legendonly','y2-mass-mass-0':false}},
+      {...allPanels()[0],id:2},{...allPanels()[0],id:3,font:15}];
+    const saved={lengthUnit:'µm',dashboard:{layoutVersion,panels,active:2,layout:'stack',linked:false,gesture:'pan',
+      wheel:true,clickReference:true,maxScale:8,secondaryOpen:true,controlsOpen:true,inputLayoutVersion:1,wide:true}};
+    const original=structuredClone(saved), {dashboard}=dashboardHarness();
+    dashboard.restore(saved);
+    const restored=dashboard.preferences();
+    assert.deepEqual(restored.dashboard.panels,panels);
+    assert.equal(restored.lengthUnit,'µm');
+    for(const key of ['active','layout','linked','gesture','wheel','clickReference','maxScale','secondaryOpen','controlsOpen','wide'])
+      assert.equal(restored.dashboard[key],saved.dashboard[key],key);
+    assert.deepEqual(saved,original);
+    const reload=dashboardHarness().dashboard;
+    reload.restore(restored);
+    assert.deepEqual(reload.preferences(),restored);
+  }
+});
+
+test('explicit eleven-plot layouts survive restore even without a layout version',()=>{
+  for(const layoutVersion of [undefined,2,3]){
+    const {dashboard}=dashboardHarness(), panels=allPanels();
+    dashboard.restore({dashboard:{layoutVersion,panels,active:10,layout:'stack'}});
+    assert.deepEqual(dashboard.preferences().dashboard.panels,panels);
+    assert.equal(dashboard.preferences().dashboard.active,10);
+    assert.equal(dashboard.preferences().dashboard.layout,'stack');
+  }
+});
+
+test('Show all expands to eleven quantities, retains plot settings and survives reload',async()=>{
+  const {dashboard,showAll}=dashboardHarness();
+  const saved=dashboard.preferences();
+  Object.assign(saved.dashboard.panels[2],{secondary:'hvl',logX:false,logY2:true,font:12,
+    ranges:{xaxis:[10,40],yaxis:[-2,1]},visibility:{'y-mass-mass-0':'legendonly'}});
+  saved.lengthUnit='cm';
+  dashboard.restore(saved);
+  await showAll();
+  const expanded=dashboard.preferences();
+  assert.deepEqual(expanded.dashboard.panels.map(p=>p.primary),Object.keys(require('../static/dashboard.js').QUANTITIES));
+  assert.equal(new Set(expanded.dashboard.panels.map(p=>p.id)).size,11);
+  assert.deepEqual(expanded.dashboard.panels[2],saved.dashboard.panels[2]);
+  assert.equal(expanded.lengthUnit,'cm');
+  const reload=dashboardHarness().dashboard;
+  reload.restore(expanded);
+  assert.deepEqual(reload.preferences(),expanded);
+  await showAll();
+  assert.deepEqual(dashboard.preferences(),expanded);
 });

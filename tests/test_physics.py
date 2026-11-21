@@ -188,11 +188,14 @@ def test_edge_brackets_cover_actual_elam_knots_for_all_supported_elements():
     # straddles nominal metadata while missing the actual tabulated jump.
     # Repeated log-energy knots represent the two sides of each Elam edge.
     database = xraydb.get_xraydb()
+    # XrayDB 4.6 stores array columns lzma-compressed and decodes them with
+    # XrayDB.unpack; 4.5.x stores plain JSON and has no unpack method.
+    unpack = getattr(database, "unpack", lambda value: np.array(json.loads(value)))
     checked = 0
     for atomic_number in range(1, 99):
         symbol = xraydb.atomic_symbol(atomic_number)
         row = database.get_cache("photoabsorption", column="element", value=symbol)[0]
-        log_energy = np.array(json.loads(row.log_energy))
+        log_energy = np.asarray(unpack(row.log_energy))
         steps = np.exp(log_energy[np.flatnonzero(np.diff(log_energy) == 0)])
         for edge in xraydb.xray_edges(symbol).values():
             if not 1000 <= edge.energy <= 800000:
@@ -315,7 +318,7 @@ def test_invalid_energy_requests(key, value, message):
     ("angle_deg", -90, "angle"),
     ("porosity", 1, "porosity must be less than 1"),
     ("density_mode", "guess", "density_mode must be bulk, solid, or ideal"),
-    ("basis", "atom", "basis must be mass, mole, or volume"),
+    ("basis", "atom", "basis must be mass, mole, atomic, or volume"),
     ("density_uncertainty_pct", -2, "density uncertainty"),
 ])
 def test_invalid_layer_inputs(key, value, message):
@@ -453,3 +456,44 @@ def test_presets_are_independent_fresh_objects_and_all_calculate():
         result = calculate(request([preset["layer"]]))
         json.dumps(result, allow_nan=False)
         assert 0 <= result["reference"]["transmission"] <= 1
+
+
+def single(components, basis, **fields):
+    return calculate(request([{"name": "x", "basis": basis, "components": components, "density_g_cm3": 2.84,
+                               "thickness_mm": 0.1, **fields}]))
+
+
+def test_atomic_percent_equals_mole_fractions_of_elements():
+    components = [{"formula": e, "fraction": x} for e, x in (("Ca", 10), ("Al", 18.6), ("Si", 11.9), ("O", 52.3), ("N", 7.2))]
+    atomic, mole = single(components, "atomic"), single(components, "mole")
+    assert atomic["layers"][0]["mu_mass_cm2_g"] == mole["layers"][0]["mu_mass_cm2_g"]
+    weights = {"Ca": 10 * 40.078, "Al": 18.6 * 26.9815, "Si": 11.9 * 28.0855, "O": 52.3 * 15.999, "N": 7.2 * 14.007}
+    fractions = {c["formula"]: c["mass_fraction"] for c in atomic["layers"][0]["components"]}
+    for element, weight in weights.items():
+        assert fractions[element] == pytest.approx(weight / sum(weights.values()), rel=1e-3)
+
+
+@pytest.mark.parametrize("formula", ["SiO2", "O2", "Si0.5Al0.5"])
+def test_atomic_percent_refuses_anything_but_single_elements(formula):
+    with pytest.raises(ValueError, match="atomic percent needs one element per component"):
+        single([{"formula": formula, "fraction": 1}], "atomic")
+
+
+def test_areal_density_fixes_optical_depth_whatever_the_density():
+    components = [{"formula": "Al", "fraction": 1}]
+    low = calculate(request([{"name": "a", "basis": "mass", "components": components, "density_g_cm3": 2.0,
+                              "areal_density_mg_cm2": 27.0, "thickness_mm": 99}]))
+    high = calculate(request([{"name": "a", "basis": "mass", "components": components, "density_g_cm3": 2.7,
+                               "areal_density_mg_cm2": 27.0, "thickness_mm": 99}]))
+    assert low["reference"]["optical_depth"] == pytest.approx(high["reference"]["optical_depth"], rel=1e-14)
+    # 27 mg/cm² of Al at 2.7 g/cm³ is exactly 0.1 mm.
+    assert high["layers"][0]["thickness_mm"] == pytest.approx(0.1, rel=1e-14)
+    expected = float(xraydb.mu_elam("Al", 30000)) * 27.0e-3
+    assert high["reference"]["optical_depth"] == pytest.approx(expected, rel=1e-12)
+
+
+def test_areal_density_is_validated_and_notes_ignored_density_uncertainty():
+    with pytest.raises(ValueError, match="areal density"):
+        single([{"formula": "Al", "fraction": 1}], "mass", areal_density_mg_cm2=-1)
+    result = single([{"formula": "Al", "fraction": 1}], "mass", areal_density_mg_cm2=5, density_uncertainty_pct=2)
+    assert any("ignore density uncertainty" in warning for warning in result["warnings"])

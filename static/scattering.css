@@ -1,0 +1,94 @@
+/* Total scattering tab. */
+.ts-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;align-items:end}
+.ts-controls input,.ts-controls select{width:100%}
+.ts-status{margin:10px 0 0;color:#42586a;font-size:14px}
+.ts-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+.ts-card{padding:14px 16px;background:#fff;border:1px solid #d9e3ea;border-radius:10px}
+.ts-card-label{color:#42586a;font-size:13px;font-weight:600}
+.ts-card-value{margin:4px 0;color:#203951;font-size:24px;font-weight:700}
+.ts-card-value span{color:#42586a;font-size:14px;font-weight:500}
+.ts-card-note{color:#42586a;font-size:13px;line-height:1.4}
+.ts-plots{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin:16px 0}
+.ts-plot{height:340px;min-width:0;background:#fff;border:1px solid #d9e3ea;border-radius:10px;overflow:hidden}
+.ts-section{margin:16px 0}
+.ts-section h3{margin:0 0 8px}
+.ts-section h4{margin:16px 0 6px;font-size:15px}
+.ts-section p,.ts-section li{font-size:14px;line-height:1.55}
+.ts-table-wrap{overflow-x:auto;margin:8px 0}
+.ts-table{width:100%;border-collapse:collapse;font-size:14px}
+.ts-table caption{padding:0 0 6px;color:#203951;font-weight:700;text-align:left}
+.ts-table th,.ts-table td{padding:6px 10px;border-bottom:1px solid #d9e3ea;text-align:right;white-space:nowrap}
+.ts-table thead th{color:#42586a;font-weight:600}
+.ts-table th:first-child{text-align:left}
+.ts-formula{white-space:normal;font-family:Cambria,"Times New Roman",serif;font-size:15px}
+.ts-table td.ts-formula,.ts-table td.ts-text{text-align:left;white-space:normal}
+.ts-copy code{display:inline-block;padding:3px 8px;background:#eef3f6;border-radius:6px;color:#203951;font-size:14px;overflow-wrap:anywhere}
+.ts-warnings{margin:12px 0;padding:12px 16px;background:#fff4dd;border:1px solid #e5cf9d;border-radius:10px;color:#5b4310;font-size:14px}
+.ts-warnings ul{margin:6px 0 0;padding-left:20px}
+.ts-refs{padding-left:20px}
+.ts-refs li{margin-bottom:6px}
+[data-ts-result][hidden]{display:none}
+.ts-section sub{font-size:12px}
+@media (max-width:720px){.results-topline .tabs{flex:1 1 100%;min-width:0}}
+
+.utility-dialog{width:min(700px,94vw);max-height:90vh;overflow:auto;padding:24px;border:1px solid #becdd9;border-radius:12px;background:#fff;color:#203951}
+.utility-dialog::backdrop{background:rgba(17,31,47,.55)}
+.utility-dialog textarea{width:100%;box-sizing:border-box;overflow-wrap:anywhere;font-size:14px}
+.utility-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+@media(max-width:440px){.ts-plots{grid-template-columns:minmax(0,1fr)}}
+
+.ts-section label,.ts-controls label,.utility-dialog label{font-size:14px;color:#42586a}
+.ts-section textarea{width:100%;box-sizing:border-box;font-size:14px}
+.ts-section summary{font-size:15px;min-height:24px;cursor:pointer}
+[data-st-tool][hidden]{display:none}
+
+.panel.ts-section{padding:20px}
+.ts-controls>p{grid-column:1/-1;margin:8px 0;line-height:1.5}
+.ts-controls label{min-width:0}
+.ts-controls label:has(textarea){grid-column:1/-1}
+.ts-controls textarea{min-height:140px}
+.ts-controls button{min-width:0;max-width:100%;white-space:normal;min-height:36px;align-self:end}
+.results-topline{flex-wrap:wrap}
+.results-topline .tabs{flex:1 1 100%;min-width:0}
+#st-layer-label[hidden]{display:none}
+.technique-inputs{border-inline-start:3px solid currentColor;padding-inline-start:1rem;margin-block:1rem}
+.technique-guide{margin-block-start:.75rem}
+.technique-guide summary{cursor:pointer;min-height:32px;font-weight:650}
+.technique-guide dl{display:grid;gap:.35rem 1rem;margin:.5rem 0;line-height:1.5}
+.technique-guide dt{font-weight:700}
+.technique-guide dd{margin:0 0 .5rem}
+@media(min-width:800px){.technique-guide dl{grid-template-columns:minmax(10rem,1fr) 3fr}}
+
+.sg-panel{--sg-accent:#087f80;--sg-ray:#865600;--sg-probe:#7642a3;--sg-muted:#607485;--sg-back:#f3f8fb;padding:20px;margin-block:16px;border:1px solid #cbd9e2;border-radius:12px;background:#fff}
+.sg-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.sg-heading h3{font-size:18px}
+.sg-state,.sg-figure figcaption,.sg-equations p{font-size:14px;line-height:1.55;margin-block:12px}
+.sg-figure{margin:0}
+.sg-drawing{border-radius:10px;background:var(--sg-back)}
+.sg-drawing svg{width:100%;height:auto;max-height:340px}
+.sg-drawing line{stroke:currentColor;stroke-width:2}
+.sg-drawing .sg-axis{stroke:var(--sg-muted);stroke-dasharray:6 6}
+.sg-drawing .sg-incident{stroke:var(--sg-accent);stroke-width:5}
+.sg-drawing .sg-boundary{stroke:var(--sg-ray);stroke-dasharray:8 4}
+.sg-drawing .sg-detector{stroke:var(--sg-accent);stroke-width:7}
+.sg-drawing .sg-blocked{stroke:var(--sg-muted);stroke-width:12}
+.sg-drawing .sg-probe{stroke:var(--sg-probe);stroke-width:3}
+.sg-drawing .sg-envelope{fill:var(--sg-accent);fill-opacity:.1;stroke:none}
+.sg-drawing .sg-sample{fill:currentColor}
+.sg-drawing .sg-point{fill:var(--sg-probe)}
+.sg-drawing .sg-flat{fill:var(--sg-accent)}
+.sg-drawing .sg-transmitted{fill:var(--sg-probe)}
+.sg-drawing .sg-dark-counts{fill:var(--sg-muted)}
+.sg-drawing .sg-dark-marker{stroke:currentColor;stroke-dasharray:4 4}
+.sg-drawing .sg-dimension{stroke:currentColor}
+.sg-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-block:16px}
+.sg-values>div{padding:12px;background:var(--sg-back);border-radius:8px;min-width:0}
+.sg-values span{display:block;font-size:13px;margin-bottom:4px}
+.sg-values strong{font-size:17px;overflow-wrap:anywhere}
+.sg-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sg-controls label{font-size:14px;line-height:1.5;min-width:0}
+.sg-controls input[type=range]{width:100%;height:36px;accent-color:var(--sg-probe);cursor:pointer}
+.sg-equations summary{cursor:pointer;min-height:32px;margin-top:12px}
+.sg-exact{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.5}
+[data-theme=dark] .sg-panel{--sg-accent:#61d6ce;--sg-ray:#ffc67a;--sg-probe:#d0aff4;--sg-muted:#718a9f;--sg-back:#1e2f40;background:#18222c;border-color:#4b6378;color:#dbe5ee}
+@media(max-width:600px){.sg-panel{padding:14px}.sg-controls{grid-template-columns:minmax(0,1fr)}.sg-values strong{font-size:15px}}

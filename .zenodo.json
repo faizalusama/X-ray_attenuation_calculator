@@ -1,7 +1,7 @@
 {
   "title": "X-ray Attenuation Calculator for Multicomponent Materials",
   "upload_type": "software",
-  "description": "<p>A local graphical and programmable calculator for narrow-beam X-ray attenuation in multicomponent materials and planar multilayers: glasses, ceramics, composites and filters.</p><p>From chemical composition (mass, mole or volume fractions) and density, it computes energy-dependent mass and linear attenuation coefficients, transmission and removed fraction, photoelectric, coherent and incoherent contributions, half- and tenth-value layers, attenuation lengths and the thickness needed for a target transmission, over 1–800 keV with sampling around absorption edges. It also evaluates user-supplied photon spectra and propagates density and thickness uncertainty by Monte Carlo.</p><p>Cross-sections are the Elam, Ravel &amp; Sieber (2002) data via XrayDB; please cite that work as well.</p><p>Version 1.0.1 corrects the documentation and metadata of 1.0.0 and adds warnings for mistyped chemical formulas; calculated numbers are unchanged. The 0.1.x versions applied each mass fraction twice, so their multicomponent results understate attenuation; they are superseded.</p>",
+  "description": "<p>A graphical and programmable calculator, used in a web browser or installed locally, for narrow-beam X-ray attenuation in multicomponent materials and planar multilayers: glasses, ceramics, composites and filters.</p><p>From chemical composition (mass, mole or volume fractions) and density, it computes energy-dependent mass and linear attenuation coefficients, transmission and removed fraction, photoelectric, coherent and incoherent contributions, half- and tenth-value layers, attenuation lengths and the thickness needed for a target transmission, over 1–800 keV with sampling around absorption edges. It also evaluates user-supplied photon spectra and propagates density and thickness uncertainty by Monte Carlo.</p><p>Cross-sections are the Elam, Ravel &amp; Sieber (2002) data via XrayDB; please cite that work as well.</p><p>Version 1.1.0 adds a browser version, at https://faizalusama.github.io/X-ray_attenuation_calculator/, that runs the same engine with nothing to install. Calculated numbers are unchanged from 1.0.0. The 0.1.x versions applied each mass fraction twice, so their multicomponent results understate attenuation; they are superseded.</p>",
   "creators": [
     {
       "name": "Jalaludeen, Mohamed Faizal Ussama",
@@ -25,6 +25,6 @@
   ],
   "related_identifiers": [
     {"identifier": "10.1016/S0969-806X(01)00227-4", "relation": "references", "scheme": "doi", "resource_type": "publication-article"},
-    {"identifier": "10.5281/zenodo.22878495", "relation": "isNewVersionOf", "scheme": "doi", "resource_type": "software"}
+    {"identifier": "10.5281/zenodo.23843930", "relation": "isNewVersionOf", "scheme": "doi", "resource_type": "software"}
   ]
 }
