@@ -1,0 +1,75 @@
+.guide-volume {
+  min-width: 0;
+  margin-block: 1rem;
+  border: 1px solid var(--wb-border);
+  border-radius: var(--wb-radius);
+  background: var(--wb-panel);
+  color: var(--wb-ink);
+}
+.guide-volume > summary {
+  padding: .8rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 650;
+}
+.guide-volume .gv-body {
+  padding: 0 1rem 1rem;
+}
+.guide-volume .gv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem 1rem;
+}
+.guide-volume label {
+  display: grid;
+  flex: 1 1 12rem;
+  min-width: 0;
+  gap: .25rem;
+  font-size: .875rem;
+  color: var(--wb-muted);
+}
+.guide-volume select {
+  width: 100%;
+  min-height: 2.5rem;
+  font: inherit;
+  background: var(--wb-panel);
+  color: var(--wb-ink);
+  border: 1px solid var(--wb-muted);
+  border-radius: .4rem;
+  padding-inline: .5rem;
+}
+.guide-volume :is(select, summary):focus-visible {
+  outline: 3px solid var(--wb-accent);
+  outline-offset: 2px;
+}
+.guide-volume figure { margin: .8rem 0 0; }
+.guide-volume svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 18rem;
+  background: var(--wb-soft);
+  border-radius: .5rem;
+}
+.guide-volume svg > * {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.guide-volume .gv-detector { fill: var(--wb-panel); stroke: var(--wb-ink); stroke-width: 3; }
+.guide-volume .gv-grid { stroke: var(--wb-muted); stroke-width: 1.4; }
+.guide-volume :is(.gv-ray, .gv-arrow) { fill: none; stroke: var(--wb-accent); stroke-width: 2.5; }
+.guide-volume :is(.gv-side, .gv-lid) { stroke: var(--wb-ink); stroke-width: 2.5; }
+.guide-volume .gv-side { fill: var(--wb-accent-soft); }
+.guide-volume .gv-lid { fill: var(--wb-panel); }
+.guide-volume .gv-axis { stroke: var(--wb-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+.guide-volume .gv-pivot { fill: var(--wb-ink); }
+.guide-volume figcaption, .guide-volume .gv-state {
+  margin: .6rem 0 0;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: var(--wb-muted);
+}
+.guide-volume .gv-state { color: var(--wb-ink); font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) {
+  .guide-volume select { transition: border-color 120ms ease; }
+}
