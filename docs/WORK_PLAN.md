@@ -1,6 +1,6 @@
 # PR7 coordinated work plan
 
-Updated: 19 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Updated: 21 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
 Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
 release, Pages enablement, public deployment or repository setting changes.
 
@@ -456,3 +456,26 @@ will integrate them serially after independent validation.
   paper metadata and reusable data, record exact inputs and expected plot
   or geometry values, and distinguish model output from display geometry.
   Propose keyboard and narrow-screen checks before implementation.
+
+## 21 November 2026 - three branches waiting for integration review
+
+The daily run reached its three-branch stop threshold before dispatch. The
+integration checkout, fetched draft PR7 and clean preview started at bac0d3b.
+All 11 CI jobs passed on that application revision, including the interface
+audit and browser/native comparison. [CI run](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/runs/44588575993)
+
+- `codex/guide-explorer` has a local commit, 0417d46. The explorer awaits
+  integration review with the guide shell, topic catalogs and keyboard flows.
+- `codex/guide-scattering` has 24 topic entries in its worktree's uncommitted
+  `static/guide-scattering.js`. Scientific sources, links and tool targets
+  still need coordinator review.
+- `codex/guide-imaging` has 25 topic entries in its worktree's uncommitted
+  `static/guide-imaging.js`. The same source, link and target checks are pending.
+
+No worker started and no feature was merged or rejected in this run.
+The coordinator's previously parked guide shell and diagrams are in stash
+34f6a73. The live-results, guide-quality and S7 evidence worktrees
+have no changes against the starting revision and are outside the review
+count. PRs #2, #3 and #4 are separate. A review session can clear the queue
+by checking the explorer, then each catalog, before starting further tasks.
+The tested application preview is in `outputs/preview-1.1.0`.
