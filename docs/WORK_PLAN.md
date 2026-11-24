@@ -553,3 +553,36 @@ Topics are grouped under Plan the experiment, Collect data and Interpret
 results. The combined browser audit tests keyboard endpoints, input recovery,
 schedule changes, 3D geometry, and narrow layouts in both themes.
 [Draft PR7 checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+
+## Daily review - 24 November 2026
+
+The coordinator and clean preview started at cd70cd5. S7, S8, S9 and G1
+are complete. The local queue has no submitted branches awaiting review.
+PRs #2, #3 and #4 have separate scopes. No task was eligible at the start
+of this run, and no worker branch was started, integrated or rejected.
+
+On cd70cd5, all 11 [PR workflow checks](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/runs/45420901907)
+passed, including macOS and the interface audit. In the separate
+[push workflow](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/runs/45420881691),
+10 jobs passed and the macOS job was cancelled before any steps ran.
+The prior local audits passed on desktop, tablet and 320/375 px phones in
+both themes. [Current draft checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+
+### Ready for a future run
+
+- I3, READY, `codex/guinier-file-import`. The Guinier tool currently needs
+  pasted text. Add a local file input for intensity data using the existing
+  Guinier CSV contract and the same calculation path as pasted text.
+  Worker owns new `static/guinier-file-import.js` and
+  `tests/test_guinier_file_import.cjs`. Check the project size limit, file
+  read errors, repeat selection, and parity for the same valid text entered
+  by both routes. Keep data in the current workbench session.
+- G2, READY, `codex/guide-family-links`. The current guide link opens the
+  entire guide. Add shareable links that also select a technique family.
+  Worker owns new `static/guide-family-links.js` and
+  `tests/test_guide_family_links.cjs`. Check direct entry, unknown families,
+  Back/Forward behavior, keyboard focus, and coexistence with saved project
+  links. Use the six existing family IDs.
+
+The coordinator owns the shared HTML, application wiring, generated assets
+and populated browser audits for both tasks.

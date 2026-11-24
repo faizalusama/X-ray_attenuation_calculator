@@ -5,7 +5,7 @@
 
 ## Completed
 - Codex, 2026-11-24: S8 Guinier observation probe, S9 tomography view probe and G1 technique field checks. See WORK_PLAN.md.
-- Codex, 2026-11-24: validated guide accessibility and S7 reference cases. S8 and S9 are ready in WORK_PLAN.md.
+- Codex, 2026-11-24: validated guide accessibility and S7 reference cases.
 - Codex, 2026-11-21: searchable technique guide, six interactive diagrams and orthographic tomography views. See WORK_PLAN.md.
 - Codex, 2026-11-19: PDF Qmax comparison, SAXS Guinier fit and parallel-beam
   tomography sampling in the unpublished PR7 workspace. See WORK_PLAN.md.
