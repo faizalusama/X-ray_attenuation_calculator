@@ -1,6 +1,6 @@
 # PR7 coordinated work plan
 
-Updated: 21 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
+Updated: 24 November 2026. Integration branch: claude/web-version. PR: #7 (draft).
 Coordinator: Codex. Worker limit: three active at a time. No main merge, tag,
 release, Pages enablement, public deployment or repository setting changes.
 
@@ -503,3 +503,38 @@ waiting branches passed review. The queue is clear.
 - S7 reference-case research remains available. The earlier queue record above
   describes the scheduled stop before this review. The live review status
   for the integrated guide is on [PR7](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks).
+
+## 24 November 2026 - guide accessibility and schematic reference cases
+
+- Finished the guide integration at 261bebf. The browser audit found three
+  filter labels at 10 px with insufficient contrast in both themes. They now
+  render at 14 px in the theme text colour. The automated interface audit
+  passed and all eight populated workspace scenarios passed, including 375 px
+  and 320 px keyboard checks in light and dark. The manual Run control also
+  cancels a pending automatic calculation before it can invalidate an export.
+- Accepted S7 from `codex/live-synchrotron-evidence` (e87ae64).
+  [The reference cases](RESEARCH_LIVE_SCHEMATICS.md) give reproducible
+  inputs and expected values for the existing Guinier fit and tomography
+  sampling tools. Four paper DOIs resolved, the public SAXS data matched
+  the fixture, and the focused scientific tests passed. The ForMAX geometry
+  example requires no projection images. Their archive reuse terms are unconfirmed.
+- The research branch passed the full Python, lint, strict type, Node,
+  manifest and native-digest checks. The review queue is empty. No branch
+  was rejected. The separate accessibility, paper and citation PRs remain
+  outside this work. [Draft PR7 CI](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+
+### Next eligible implementation tasks
+
+- S8, READY, `codex/guinier-sample-probe`: show the selected measured point,
+  fitted intensity in log space, and signed residual. Worker owns only new
+  `static/guinier-probe.js` and `tests/test_guinier_probe.cjs`. Check the
+  weighted and unweighted SASDUE4 probe values, keyboard endpoints and
+  invalid interval recovery against S7.
+- S9, READY, `codex/tomography-view-probe`: let users step through the minimum
+  or planned half-turn schedule while reading the selected view number and
+  angle. Worker owns only new `static/tomo-view-probe.js` and
+  `tests/test_tomo_view_probe.cjs`. Check the ForMAX first/last angles,
+  omitted plan and separate pixel-pitch status against S7.
+
+The coordinator owns common UI wiring, styling and the combined keyboard
+and phone audits for both probes. The tested preview is in `outputs/preview-1.1.0`.
