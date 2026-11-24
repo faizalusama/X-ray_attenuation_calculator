@@ -87,7 +87,7 @@
         <figure>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220" role="img"
             aria-label="Parallel rays travel from the left through a clipped block to a flat detector on the right. A dot marks the sample’s vertical rotation axis."></svg>
-          <figcaption>The arrows follow the beam from left to right. Change the camera to look around the apparatus. Rotate the sample to change the view recorded by the fixed detector.</figcaption>
+          <figcaption>The arrows trace parallel rays through the sample block to the detector plate on the right. Change the camera to look around the apparatus. Rotate the sample to change the view recorded by the fixed detector.</figcaption>
         </figure>
         <p class="gv-state" role="status" aria-atomic="true"></p>
       </div>`;

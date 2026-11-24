@@ -100,6 +100,59 @@ def tab_check(page: Any, checks: list[dict[str, Any]], view: str, key: str) -> N
            page.locator('[role="tab"][tabindex="0"]').count() == 1)
 
 
+def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
+    page.locator("#open-technique-guide").press("Enter")
+    guide = page.locator("#technique-guide")
+    record(checks, "guide-entry-focus", guide.locator(":scope > summary").evaluate(
+        "el => el === document.activeElement"))
+    cards = guide.locator("[data-guide-family]")
+    topics = guide.locator("[data-guide-stage]")
+    total = topics.count()
+    record(checks, "guide-catalogs", cards.count() == 6 and total >= 49, total)
+    for family in cards.all():
+        diagram = family.locator(".guide-diagram")
+        diagram.locator("summary").press("Enter")
+        before = diagram.locator("svg").get_attribute("aria-label")
+        choice = diagram.locator("button").last
+        choice.press("Enter")
+        record(checks, f"guide-geometry:{family.get_attribute('data-guide-family')}",
+               choice.get_attribute("aria-pressed") == "true" and
+               diagram.locator("svg").get_attribute("aria-label") != before)
+        diagram.locator("summary").press("Enter")
+    volume = guide.locator(".guide-volume")
+    volume.locator("summary").press("Enter")
+    detector = volume.locator(".gv-detector")
+    original_face = detector.get_attribute("points")
+    original_scene = volume.locator("svg").inner_html()
+    volume.locator(".gv-pose").press("ArrowDown")
+    record(checks, "guide-rotate-sample", volume.locator("svg").inner_html() != original_scene and
+           detector.get_attribute("points") == original_face)
+    volume.locator(".gv-camera").press("ArrowDown")
+    record(checks, "guide-camera", detector.get_attribute("points") != original_face and
+           "Overhead" in volume.locator(".gv-state").inner_text())
+    overflow(page, checks, "guide:3d")
+    volume.locator("summary").press("Enter")
+    guide.locator("#guide-family").select_option("saxs")
+    guide.locator("#guide-stage").select_option("Interpret")
+    visible = guide.locator("[data-guide-stage]:visible")
+    record(checks, "guide-combined-filters", 0 < visible.count() < total and
+           visible.evaluate_all("rows => rows.every(r => r.dataset.guideStage === 'Interpret' && "
+                                "r.closest('[data-guide-family]').dataset.guideFamily === 'saxs')"))
+    guide.locator("#guide-search").fill("no-such-technique-topic")
+    record(checks, "guide-empty-state", guide.locator("#guide-empty").is_visible() and visible.count() == 0)
+    guide.locator("#guide-reset").press("Enter")
+    record(checks, "guide-reset", visible.count() == total and
+           guide.locator("#guide-search").evaluate("el => el === document.activeElement"))
+    overflow(page, checks, "guide:expanded")
+    jump = guide.locator("button[data-guide-target^='tool:']").first
+    jump.locator("xpath=ancestor::details[1]/summary").press("Enter")
+    target = str(jump.get_attribute("data-guide-target")).split(":", 1)[1]
+    jump.press("Enter")
+    record(checks, "guide-tool-navigation", page.locator("#st-tool").input_value() == target and
+           page.locator("#st-tool").evaluate("el => el === document.activeElement"))
+    guide.locator(":scope > summary").press("Enter")
+
+
 def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], None]) -> None:
     ready(page)
     count = page.locator(PLOTS).count()
@@ -214,6 +267,8 @@ def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], N
     tab_check(page, checks, "overview", "Home")
     tab_check(page, checks, "methods", "End")
     tab_check(page, checks, "overview", "Home")
+
+    exercise_technique_guide(page, checks)
 
     # Diagrams use actual tool results; sliders must update their numerical inputs.
     page.locator("#tab-tools").click()

@@ -14,18 +14,26 @@
   <link rel="stylesheet" href="/static/workspace.css?v=f95db9edbdf3">
   <link rel="stylesheet" href="/static/dark.css?v=2548d84d7642">
   <link rel="stylesheet" href="/static/studio.css?v=5ede311df293">
+  <link rel="stylesheet" href="/static/guide-explorer.css?v=512a30c8d1d5">
+  <link rel="stylesheet" href="/static/guide-diagrams.css?v=4bbd51e3215e">
+  <link rel="stylesheet" href="/static/guide-volume.css?v=d0f735f300ab">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
   <script src="/static/dashboard.js?v=85300851f9b8" defer></script>
   <script src="/static/workspace.js?v=3fedbdc9908f" defer></script>
-  <script src="/static/app.js?v=b6733743971c" defer></script>
+  <script src="/static/app.js?v=1347df2ef8dd" defer></script>
   <script src="/static/detector-spatial.js?v=d8938470bf3c" defer></script>
   <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
   <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
-  <script src="/static/scattering-tools.js?v=30024f15c5aa" defer></script>
+  <script src="/static/scattering-tools.js?v=5bbc8da24162" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
   <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
   <script src="/static/materials.js?v=4ff756081d4f" defer></script>
+  <script src="/static/guide-scattering.js?v=ece3076a9235" defer></script>
+  <script src="/static/guide-imaging.js?v=267f2490bf45" defer></script>
+  <script src="/static/guide-diagrams.js?v=f23213cb7d42" defer></script>
+  <script src="/static/guide-volume.js?v=93711d673d9e" defer></script>
+  <script src="/static/guide-explorer.js?v=8dcf62359f68" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to the calculator</a>
@@ -49,6 +57,7 @@
             <button type="button" data-workspace-mode="advanced" aria-pressed="false" aria-describedby="workspace-mode-help">Advanced</button>
           </div>
           <div id="workspace-library-slot"></div>
+          <button type="button" class="button outline" id="open-technique-guide" aria-controls="technique-guide">Technique guide</button>
           <button type="button" id="workspace-invalid" class="button outline" hidden>Review incomplete input</button>
         </div>
         <p id="workspace-mode-help">Simple shows essential and active advanced controls. Advanced shows all configuration controls. Switching modes preserves calculation settings.</p>
@@ -167,8 +176,9 @@
           </section>
           <section id="view-tools" role="tabpanel" aria-labelledby="tab-tools" hidden><div class="view-intro"><h2>Scattering and tomography tools</h2>
             <p>Choose a technique and enter your beamline settings. Tools that need an energy use the reference energy in the configuration panel.</p>
-            <details class="technique-guide"><summary>Choose a technique for your experiment</summary>
-              <dl>
+            <details class="technique-guide" id="technique-guide"><summary>Explore techniques and beamline workflows</summary>
+              <div id="technique-explorer"></div>
+              <dl id="technique-guide-fallback">
                 <dt>Total scattering and pair distributions</dt><dd>Use the Total scattering tab to examine X-ray and neutron pair weights for a layer. With corrected, normalized S(Q), use the Fourier transform here to see G(r). The measured Q range and chosen window affect the peaks.</dd>
                 <dt>SAXS</dt><dd>Use the beamstop shadow and first usable pixels to set the inner radius for detector Q coverage. For a two-phase sample, use SLD contrast and the Porod invariant to explore the effect of composition and volume fraction.</dd>
                 <dt>WAXS and powder diffraction</dt><dd>Find the accessible Q at the outer detector edge, convert between Q, d and scattering angle, then compare accessible peaks with a unit-cell calculation.</dd>

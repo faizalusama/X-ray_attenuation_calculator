@@ -39,6 +39,7 @@
       {responsive: true, displayModeBar: false}));
   }
   async function run() {
+    clearTimeout(timer); // A manual run also consumes the pending input update.
     if ($("#view-tools").hidden) return;
     const api = window.AttenuationWorkbench, layers = api.layers();
     const tool = $("#st-tool").value;

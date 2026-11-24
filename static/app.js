@@ -901,6 +901,18 @@
     if (!open) try { localStorage.setItem(GUIDE_KEY, "1"); } catch { /* Shown again next visit. */ }
   }
   $("#close-guide").addEventListener("click", () => showGuide(false));
+  function openTechniqueGuide() {
+    activateTab("tools");
+    const guide = $("#technique-guide");
+    guide.open = true;
+    const summary = guide.querySelector("summary");
+    summary.focus({preventScroll: true});
+    summary.scrollIntoView({block: "center"});
+  }
+  $("#open-technique-guide").addEventListener("click", openTechniqueGuide);
+  window.addEventListener("hashchange", () => {
+    if (location.hash === "#technique-guide") openTechniqueGuide();
+  });
   $("#show-guide").addEventListener("click", () => { showGuide(true); $("#first-run").scrollIntoView({behavior: "smooth", block: "center"}); });
   try { showGuide(!localStorage.getItem(GUIDE_KEY)); } catch { showGuide(true); }
   async function initialize() {
@@ -932,6 +944,7 @@
       if (shared) { state.configuration = shared; state.savedConfiguration = clone(shared); restored = false; }
     } catch (exception) { shareError = exception.message; }
     syncControls(); activateTab(state.tab); renderResults();
+    if (location.hash === "#technique-guide") openTechniqueGuide();
     if (shareError) error("Could not open shared project: " + shareError);
     if (restored) toast("Restored saved controls and the last valid system from this browser.");
     try {

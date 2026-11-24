@@ -1,9 +1,11 @@
 # Improvement backlog
 
 ## In progress
+- Codex, 24 November 2026, codex/live-synchrotron-evidence: S7 reference cases for Guinier and tomography diagrams.
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
+- Codex, 2026-11-21: searchable technique guide, six interactive diagrams and orthographic tomography views. See WORK_PLAN.md.
 - Codex, 2026-11-19: PDF Qmax comparison, SAXS Guinier fit and parallel-beam
   tomography sampling in the unpublished PR7 workspace. See WORK_PLAN.md.
 - Codex, codex/workbench-design, 2026-11-17: unified light and dark

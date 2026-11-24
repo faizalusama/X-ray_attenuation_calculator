@@ -479,3 +479,27 @@ have no changes against the starting revision and are outside the review
 count. PRs #2, #3 and #4 are separate. A review session can clear the queue
 by checking the explorer, then each catalog, before starting further tasks.
 The tested application preview is in `outputs/preview-1.1.0`.
+
+## 21 November 2026 - technique guide review and integration
+
+The owner requested continued work after the daily queue stop. All three
+waiting branches passed review. The queue is clear.
+
+- Explorer (0417d46) adds keyboard search and filters by technique and
+  workflow stage. The shared entry point is **Technique guide** in the toolbar.
+- Imaging (a22cb1b) covers tomography, grazing-incidence optics and
+  attenuation in 25 topics. Review verified 11 distinct DOIs, checked linked
+  controls, and revised guidance on sample motion and spectral weighting.
+- Scattering (4099cff) covers total scattering/PDF, SAXS and WAXS in 24
+  topics. Review verified 13 distinct DOIs and corrected PDF cutoff selection,
+  Guinier input requirements and the treatment of powder peak areas.
+- Tomography geometry (c5257cf) adds three camera views and three specimen
+  orientations. Camera changes move the observer. Sample rotation preserves
+  the positions of the beam and detector. The figure is illustrative.
+- All four integrations passed pytest, Ruff, strict mypy, frontend tests,
+  manifest verification and the pinned native digest. No branch was rejected.
+  Shared UI checks exercise topic discovery, keyboard navigation, diagram
+  changes, camera and specimen controls, and narrow viewports in both themes.
+- S7 reference-case research remains available. The earlier queue record above
+  describes the scheduled stop before this review. The live review status
+  for the integrated guide is on [PR7](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks).

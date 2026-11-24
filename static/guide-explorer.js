@@ -83,6 +83,7 @@
     header.append(title, element("p", family.intro));
     const diagram = globalThis.WorkbenchGuideDiagram?.(family.id);
     if (diagram instanceof Node) header.append(diagram);
+    if (family.id === "tomo") header.append(globalThis.WorkbenchGuideVolume());
     section.append(header);
 
     const topics = family.topics.map(topic => {

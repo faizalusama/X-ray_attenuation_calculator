@@ -1,4 +1,10 @@
-/* Technique guide inside the Tools introduction. */
+/* Keep the suggestions control accessible below the guide while reading its figures. */
+body:has(#view-tools:not([hidden]) #technique-guide[open]) .ideas-trigger {
+  position: static;
+  margin: .75rem 1rem;
+}
+/* Filtered sections and the static fallback share the native hidden state. */
+.technique-guide [hidden] { display: none !important; }
 #technique-explorer {
   container-type: inline-size;
   min-width: 0;
@@ -23,6 +29,10 @@
   color: var(--wb-ink);
   font-size: 14px;
   font-weight: 650;
+}
+#technique-explorer .guide-filters label {
+  font-size: 14px;
+  color: var(--wb-ink);
 }
 .guide-filters :is(input, select), #guide-reset, .guide-topic-actions button {
   min-height: 2.75rem;
@@ -133,6 +143,13 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
+  [data-guide-stage][open] > .guide-topic-body {
+    animation: reveal-guide-topic .16s ease-out;
+  }
+  @keyframes reveal-guide-topic {
+    from { opacity: 0; transform: translateY(-.2rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   #guide-reset, .guide-topic-actions button, [data-guide-stage] > summary {
     transition: background-color .15s ease, color .15s ease;
   }
