@@ -108,7 +108,7 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     cards = guide.locator("[data-guide-family]")
     topics = guide.locator("[data-guide-stage]")
     total = topics.count()
-    record(checks, "guide-catalogs", cards.count() == 6 and total >= 49, total)
+    record(checks, "guide-catalogs", cards.count() == 6 and total >= 61, total)
     for family in cards.all():
         diagram = family.locator(".guide-diagram")
         diagram.locator("summary").press("Enter")
@@ -138,6 +138,8 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     record(checks, "guide-combined-filters", 0 < visible.count() < total and
            visible.evaluate_all("rows => rows.every(r => r.dataset.guideStage === 'Interpret' && "
                                 "r.closest('[data-guide-family]').dataset.guideFamily === 'saxs')"))
+    headings = guide.locator(".guide-workflow-stage h4:visible")
+    record(checks, "guide-stage-heading-follows-filter", headings.all_text_contents() == ["Interpret results"])
     guide.locator("#guide-search").fill("no-such-technique-topic")
     record(checks, "guide-empty-state", guide.locator("#guide-empty").is_visible() and visible.count() == 0)
     guide.locator("#guide-reset").press("Enter")
@@ -151,6 +153,48 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     record(checks, "guide-tool-navigation", page.locator("#st-tool").input_value() == target and
            page.locator("#st-tool").evaluate("el => el === document.activeElement"))
     guide.locator(":scope > summary").press("Enter")
+
+
+def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], None]) -> None:
+    tool = page.locator("#st-tool")
+    tool.select_option("guinier")
+    guinier = page.locator("#guinier-observation")
+    guinier.wait_for(state="visible")
+    guinier.press("End")
+    fit_readout = page.locator("#st-output .technique-probe [role=status]")
+    last = fit_readout.inner_text()
+    record(checks, "guinier-probe-end", guinier.input_value() == guinier.get_attribute("max") and bool(last))
+    guinier.press("Home")
+    record(checks, "guinier-probe-home", guinier.input_value() == guinier.get_attribute("min") and
+           fit_readout.inner_text() != last and guinier.evaluate("el => el === document.activeElement"))
+    capture("guinier-probe")
+    overflow(page, checks, "guinier-probe")
+    maximum = page.locator('[data-st-tool=guinier] [data-arg=qmax_inv_angstrom]')
+    old_maximum = maximum.input_value()
+    maximum.fill("0.025")
+    page.wait_for_function("() => document.querySelector('#st-status').textContent.includes('at least three')")
+    record(checks, "guinier-probe-clears-after-error", guinier.count() == 0 and
+           page.locator("#st-export").is_disabled())
+    maximum.fill(old_maximum)
+    guinier.wait_for(state="visible")
+
+    tool.select_option("tomo_sampling")
+    view = page.locator("#tomo-view-index")
+    view.wait_for(state="visible")
+    schedule = page.locator("#tomo-view-schedule")
+    schedule.select_option(index=1)
+    view.press("End")
+    view_readout = page.locator("#st-output .technique-probe [role=status]")
+    last = view_readout.inner_text()
+    record(checks, "tomo-view-end", view.input_value() == view.get_attribute("max") and bool(last))
+    view.press("Home")
+    record(checks, "tomo-view-home", view.input_value() == view.get_attribute("min") and
+           view_readout.inner_text() != last and view.evaluate("el => el === document.activeElement"))
+    capture("tomography-view-probe")
+    overflow(page, checks, "tomography-view-probe")
+    page.locator('[data-st-tool=tomo_sampling] [data-arg=planned_views]').fill("")
+    page.wait_for_function("() => document.querySelector('#st-output')?.dataset.tool === 'tomo_sampling'")
+    record(checks, "tomo-view-optional-plan", view.is_visible() and schedule.locator("option").count() <= 1)
 
 
 def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], None]) -> None:
@@ -269,6 +313,7 @@ def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], N
     tab_check(page, checks, "overview", "Home")
 
     exercise_technique_guide(page, checks)
+    exercise_live_probes(page, checks, capture)
 
     # Diagrams use actual tool results; sliders must update their numerical inputs.
     page.locator("#tab-tools").click()

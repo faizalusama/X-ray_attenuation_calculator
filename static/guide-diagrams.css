@@ -16,3 +16,9 @@
 .gd-spot {fill:var(--wb-accent);}
 .gd-unused {fill:var(--wb-panel);stroke:var(--wb-muted);stroke-width:1.5;}
 
+
+@media (prefers-reduced-motion: no-preference) {
+  .gd-choices button { transition: background-color .15s ease, color .15s ease; }
+  .guide-diagram svg > * { animation: guide-geometry-appear .14s ease-out; }
+  @keyframes guide-geometry-appear { from { opacity: .68; } to { opacity: 1; } }
+}

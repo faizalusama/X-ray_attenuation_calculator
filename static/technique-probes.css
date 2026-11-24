@@ -1,0 +1,67 @@
+#st-output .technique-probe {
+  margin-block: 1rem;
+  padding: clamp(.75rem, 2vw, 1.25rem);
+  border: 1px solid var(--wb-border);
+  border-radius: var(--wb-radius);
+  background: var(--wb-panel);
+  color: var(--wb-ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.technique-probe h3 {
+  margin: 0 0 .75rem;
+  color: var(--wb-ink);
+  font-size: 17px;
+}
+.technique-probe :is(.technique-probe-control, .technique-probe-controls, .technique-probe-controls > label) {
+  display: grid;
+  gap: .25rem;
+}
+.technique-probe .technique-probe-controls {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: .75rem;
+}
+.technique-probe .technique-probe-readout {
+  display: block;
+  margin-block: .7rem;
+  padding: .55rem .75rem;
+  border-inline-start: 3px solid var(--wb-accent);
+  background: var(--wb-soft);
+}
+#st-output .technique-probe :is(label, output, figcaption, p) {
+  color: var(--wb-ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.technique-probe input[type="range"] {
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
+  accent-color: var(--wb-accent);
+}
+#st-output .technique-probe select {
+  min-height: 36px;
+  max-width: 100%;
+  color: var(--wb-ink);
+  font-size: 14px;
+}
+body:has(#view-tools:not([hidden]) .technique-probe) .ideas-trigger {
+  position: static;
+  margin: .75rem 1rem;
+}
+.technique-probe :is(input, select, button, summary):focus-visible {
+  outline: 3px solid var(--wb-accent);
+  outline-offset: 3px;
+}
+.technique-probe figure { margin: .75rem 0; }
+.technique-probe svg { display: block; width: 100%; height: auto; max-height: 19rem; margin-inline: auto; }
+.technique-probe [role="status"] { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  .tomo-view-sample > * { animation: technique-probe-sample .13s ease-out; }
+  @keyframes technique-probe-sample { from { opacity: .75; } to { opacity: 1; } }
+  .technique-probe { animation: technique-probe-enter .18s ease-out; }
+  @keyframes technique-probe-enter {
+    from { opacity: .65; transform: translateY(.25rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

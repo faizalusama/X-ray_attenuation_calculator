@@ -51,9 +51,7 @@
     const details = element("details");
     details.dataset.guideStage = topic.stage;
     const summary = element("summary");
-    const stage = element("span", topic.stage);
-    stage.className = "guide-stage-label";
-    summary.append(element("span", topic.title), " ", stage);
+    summary.textContent = topic.title;
 
     const body = element("div");
     body.className = "guide-topic-body";
@@ -86,14 +84,22 @@
     if (family.id === "tomo") header.append(globalThis.WorkbenchGuideVolume());
     section.append(header);
 
-    const topics = family.topics.map(topic => {
-      const details = buildTopic(topic);
-      section.append(details);
-      const text = [family.id, family.title, family.intro, topic.title, topic.stage,
-        topic.guidance, topic.check, topic.source.label].join(" ").toLowerCase();
-      return {details, text};
+    const groups = stages.map(stage => {
+      const group = element("div");
+      group.className = "guide-workflow-stage";
+      group.append(element("h4", {Plan: "Plan the experiment", Measure: "Collect data",
+        Interpret: "Interpret results"}[stage]));
+      const topics = family.topics.filter(topic => topic.stage === stage).map(topic => {
+        const details = buildTopic(topic);
+        group.append(details);
+        const text = [family.id, family.title, family.intro, topic.title, topic.stage,
+          topic.guidance, topic.check, topic.source.label].join(" ").toLowerCase();
+        return {details, text};
+      });
+      section.append(group);
+      return {group, stage, topics};
     });
-    return {section, topics};
+    return {section, groups};
   }
 
   function hasText(value) {
@@ -143,20 +149,29 @@
     results.id = "guide-results";
     const empty = element("p", "Try a different search or reset the filters to see all topics.");
     empty.id = "guide-empty";
-    const groups = families.map(buildFamily);
+    const additions = globalThis.WorkbenchGuideFieldChecks;
+    const groups = families.map(family => {
+      const combined = {...family, topics: [...family.topics, ...(additions?.[family.id] || [])]};
+      return buildFamily(validFamily(combined) ? combined : family);
+    });
     results.append(empty, ...groups.map(group => group.section));
 
     function filter() {
       const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
       let topicCount = 0, familyCount = 0;
-      for (const {section, topics} of groups) {
+      for (const {section, groups: workflow} of groups) {
         const matchesFamily = !familySelect.value || section.dataset.guideFamily === familySelect.value;
         let visible = 0;
-        for (const {details, text} of topics) {
-          const matches = matchesFamily && (!stageSelect.value || details.dataset.guideStage === stageSelect.value) &&
-            terms.every(term => text.includes(term));
-          details.hidden = !matches;
-          if (matches) visible++;
+        for (const {group, stage, topics} of workflow) {
+          const matchesStage = matchesFamily && (!stageSelect.value || stage === stageSelect.value);
+          let stageCount = 0;
+          for (const {details, text} of topics) {
+            const matches = matchesStage && terms.every(term => text.includes(term));
+            details.hidden = !matches;
+            if (matches) stageCount++;
+          }
+          group.hidden = stageCount === 0;
+          visible += stageCount;
         }
         section.hidden = visible === 0;
         if (visible) familyCount++;

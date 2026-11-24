@@ -523,14 +523,14 @@ waiting branches passed review. The queue is clear.
   was rejected. The separate accessibility, paper and citation PRs remain
   outside this work. [Draft PR7 CI](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
 
-### Next eligible implementation tasks
+### Interactive tools and guide expansion
 
-- S8, READY, `codex/guinier-sample-probe`: show the selected measured point,
+- S8, ACCEPTED, `codex/guinier-sample-probe`: show the selected measured point,
   fitted intensity in log space, and signed residual. Worker owns only new
   `static/guinier-probe.js` and `tests/test_guinier_probe.cjs`. Check the
   weighted and unweighted SASDUE4 probe values, keyboard endpoints and
   invalid interval recovery against S7.
-- S9, READY, `codex/tomography-view-probe`: let users step through the minimum
+- S9, ACCEPTED, `codex/tomography-view-probe`: let users step through the minimum
   or planned half-turn schedule while reading the selected view number and
   angle. Worker owns only new `static/tomo-view-probe.js` and
   `tests/test_tomo_view_probe.cjs`. Check the ForMAX first/last angles,
@@ -538,3 +538,18 @@ waiting branches passed review. The queue is clear.
 
 The coordinator owns common UI wiring, styling and the combined keyboard
 and phone audits for both probes. The tested preview is in `outputs/preview-1.1.0`.
+
+- G1, ACCEPTED, `codex/technique-field-checks`: add sourced field
+  checks across six techniques. Worker owns only `static/guide-field-checks.js`.
+  Review source claims, linked controls, duplicate topics and search results.
+
+Coordinator review accepted S8 (7c0d267), S9 (b5c57d6) and G1
+(5b3d712). All three branches passed the test, lint, type, manifest and
+native digest gates. The probes use the existing fit and sampling responses.
+When the formatted angle would round to the excluded 180° endpoint, the
+tomography readout shows the distance to that endpoint. The guide gained 12
+field checks with 11 verified DOIs plus the NIST attenuation reference.
+Topics are grouped under Plan the experiment, Collect data and Interpret
+results. The combined browser audit tests keyboard endpoints, input recovery,
+schedule changes, 3D geometry, and narrow layouts in both themes.
+[Draft PR7 checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)

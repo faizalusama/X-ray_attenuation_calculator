@@ -22,6 +22,16 @@
       '<ul>' + answer.notes.map(note => '<li>' + esc(note) + '</li>').join("") + '</ul>' +
       answer.tables.map(t => '<div class="ts-table-wrap" tabindex="0" role="region" aria-label="' + esc(t.caption) + '"><table class="ts-table"><caption>' + esc(t.caption) + '</caption><thead><tr>' + t.headers.map(h => '<th scope="col">' + esc(h) + '</th>').join("") + '</tr></thead><tbody>' + t.rows.map(row => '<tr>' + row.map((v,i) => (i ? '<td>' : '<th scope="row">') + esc(number(v)) + (i ? '</td>' : '</th>')).join("") + '</tr>').join("") + '</tbody></table></div>').join("") +
       '<div class="ts-plots">' + answer.plots.map((p,i) => '<div id="st-plot-' + i + '" class="ts-plot" role="img" aria-label="' + esc(p.title) + '"></div>').join("") + '</div>';
+    const probe = {
+      guinier: globalThis.WorkbenchGuinierProbe,
+      tomo_sampling: globalThis.WorkbenchTomoViewProbe,
+    }[answer.tool]?.create(answer);
+    if (probe) {
+      const heading = document.createElement("h3");
+      heading.textContent = answer.tool === "guinier" ? "Explore fit residuals" : "Explore acquisition angles";
+      probe.prepend(heading);
+      $("#st-output .ts-plots").before(probe);
+    }
     if (!window.Plotly) return;
     const theme = getComputedStyle(document.documentElement);
     const panel = theme.getPropertyValue("--wb-panel").trim();

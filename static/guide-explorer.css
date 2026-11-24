@@ -94,6 +94,15 @@ body:has(#view-tools:not([hidden]) #technique-guide[open]) .ideas-trigger {
   font-size: 15px;
   line-height: 1.55;
 }
+.guide-workflow-stage h4 {
+  margin: 0;
+  padding: .65rem 1rem;
+  border-block-start: 1px solid var(--wb-border);
+  background: var(--wb-soft);
+  color: var(--wb-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
 [data-guide-stage] { border-block-start: 1px solid var(--wb-border); }
 [data-guide-stage] > summary {
   padding: .75rem 1rem;
@@ -102,17 +111,7 @@ body:has(#view-tools:not([hidden]) #technique-guide[open]) .ideas-trigger {
   line-height: 1.5;
 }
 [data-guide-stage] > summary::marker { color: var(--wb-accent); }
-.guide-stage-label {
-  display: inline-block;
-  margin-inline-start: .35rem;
-  padding: .05rem .5rem;
-  border-radius: .4rem;
-  background: var(--wb-accent-soft);
-  color: var(--wb-accent);
-  font-size: 12px;
-  vertical-align: .08em;
-}
-[data-guide-stage][open] > summary { color: var(--wb-accent); }
+data-guide-stage][open] > summary { color: var(--wb-accent); }
 .guide-topic-body {
   display: grid;
   gap: .7rem;
