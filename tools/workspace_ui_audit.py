@@ -150,11 +150,14 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     family = guide.locator("#guide-family")
     family.select_option("saxs")
     record(checks, "guide-shareable-family", link.get_attribute("href") == "#technique-guide/saxs")
-    link.press("Enter")
-    page.wait_for_function("location.hash === '#technique-guide/saxs'")
-    family.select_option("tomo")
-    link.press("Enter")
-    page.wait_for_function("location.hash === '#technique-guide/tomo'")
+    for name in ("saxs", "tomo"):
+        family.select_option(name)
+        link.press("Enter")
+        page.wait_for_function(
+            """name => location.hash === '#technique-guide/' + name &&
+                document.activeElement === document.querySelector('#technique-guide > summary')""",
+            arg=name,
+        )
     page.go_back()
     page.wait_for_function("document.querySelector('#guide-family').value === 'saxs'")
     page.go_forward()
