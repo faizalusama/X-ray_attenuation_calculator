@@ -14,21 +14,23 @@
   <link rel="stylesheet" href="/static/workspace.css?v=f95db9edbdf3">
   <link rel="stylesheet" href="/static/dark.css?v=2548d84d7642">
   <link rel="stylesheet" href="/static/studio.css?v=5ede311df293">
-  <link rel="stylesheet" href="/static/guide-explorer.css?v=8d995ef1b86e">
+  <link rel="stylesheet" href="/static/guide-explorer.css?v=4d42a03adef9">
   <link rel="stylesheet" href="/static/guide-diagrams.css?v=09e520e969ff">
   <link rel="stylesheet" href="/static/guide-volume.css?v=d0f735f300ab">
-  <link rel="stylesheet" href="/static/technique-probes.css?v=5780bd367038">
+  <link rel="stylesheet" href="/static/technique-probes.css?v=6ee9f7f5f54e">
   <script src="/static/vendor/plotly-4.0.0.min.js" defer></script>
   <script src="/static/dashboard.js?v=85300851f9b8" defer></script>
   <script src="/static/workspace.js?v=3fedbdc9908f" defer></script>
-  <script src="/static/app.js?v=1347df2ef8dd" defer></script>
+  <script src="/static/guide-family-links.js?v=77726d57c572" defer></script>
+  <script src="/static/app.js?v=e0c5673ae309" defer></script>
   <script src="/static/detector-spatial.js?v=d8938470bf3c" defer></script>
   <script src="/static/technique-schematics.js?v=d8c36a35de6f" defer></script>
   <script src="/static/optics-schematic.js?v=5e382cfe661c" defer></script>
   <script src="/static/pdf-schematic.js?v=d4e505cd81d2" defer></script>
+  <script src="/static/guinier-file-import.js?v=1359e0aab897" defer></script>
   <script src="/static/guinier-probe.js?v=219fd85e0f1c" defer></script>
   <script src="/static/tomo-view-probe.js?v=f56dd0ee63c6" defer></script>
-  <script src="/static/scattering-tools.js?v=0f2c2ca9cd52" defer></script>
+  <script src="/static/scattering-tools.js?v=78873c0f84c2" defer></script>
   <script src="/static/comparison.js?v=8682d5162348" defer></script>
   <script src="/static/scattering.js?v=5fd0dcbc74dc" defer></script>
   <script src="/static/materials.js?v=4ff756081d4f" defer></script>
@@ -37,7 +39,7 @@
   <script src="/static/guide-diagrams.js?v=f23213cb7d42" defer></script>
   <script src="/static/guide-volume.js?v=93711d673d9e" defer></script>
   <script src="/static/guide-field-checks.js?v=6dca6619bd4b" defer></script>
-  <script src="/static/guide-explorer.js?v=dc96a64ba629" defer></script>
+  <script src="/static/guide-explorer.js?v=3635472350e0" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to the calculator</a>
@@ -211,7 +213,11 @@
 <label>r grid points<input data-arg="r_points" type="number" value="201" step="1" min="3" max="4000"></label>
             </div>
             <div data-st-tool="guinier" class="ts-controls technique-inputs" hidden>
-<p>Paste background-corrected data and choose a low-q interval. An optional sigma column supplies intensity uncertainties. Replace the illustrative inputs with your measurements.</p>
+<p>Import a CSV or paste background-corrected data, then choose a low-q interval. An optional sigma column supplies intensity uncertainties. Replace the illustrative inputs with your measurements.</p>
+<div class="guinier-file-field">
+<label>Import Guinier CSV<input type="file" id="st-guinier-file" accept=".csv,.txt,text/csv,text/plain"></label>
+<p id="st-guinier-import-status" role="status" aria-atomic="true"></p>
+</div>
 <label>Intensity data (q in Å⁻¹, I, optional sigma)<textarea data-arg="intensity_data" rows="7">q,I
 0.01,0.992
 0.02,0.970

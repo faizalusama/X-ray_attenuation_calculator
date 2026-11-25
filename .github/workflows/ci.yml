@@ -106,6 +106,8 @@ jobs:
           node --check static/guinier-probe.js
           node --check static/tomo-view-probe.js
           node --check static/guide-field-checks.js
+          node --check static/guide-family-links.js
+          node --check static/guinier-file-import.js
           node --check static/app.js
           node --check static/dashboard.js
           node --check static/workspace.js
@@ -123,6 +125,8 @@ jobs:
           node tests/test_pdf_schematic.cjs
           node tests/test_guinier_probe.cjs
           node tests/test_tomo_view_probe.cjs
+          node tests/test_guide_family_links.cjs
+          node tests/test_guinier_file_import.cjs
 
   interface:
     name: Interface audit (WCAG 2.2 AA checks)

@@ -144,7 +144,9 @@
     reset.type = "button";
     const status = element("div");
     status.className = "guide-status";
-    status.append(count, reset);
+    const permalink = element("a", "Link to this guide");
+    permalink.id = "guide-permalink";
+    status.append(count, permalink, reset);
     const results = element("div");
     results.id = "guide-results";
     const empty = element("p", "Try a different search or reset the filters to see all topics.");
@@ -156,7 +158,10 @@
     });
     results.append(empty, ...groups.map(group => group.section));
 
+    const familyLinks = globalThis.WorkbenchGuideFamilyLinks;
     function filter() {
+      permalink.href = familyLinks.hashFor(familySelect.value);
+      permalink.textContent = familySelect.value ? "Link to this technique" : "Link to the guide";
       const terms = search.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
       let topicCount = 0, familyCount = 0;
       for (const {section, groups: workflow} of groups) {
@@ -189,8 +194,17 @@
       filter();
       search.focus();
     });
-    filter();
+    function followFamilyLink() {
+      const target = familyLinks.parse(location.hash);
+      if (!target) return;
+      search.value = stageSelect.value = "";
+      familySelect.value = target.family;
+      filter();
+    }
+    window.addEventListener("hashchange", followFamilyLink);
     root.replaceChildren(filters, status, results);
+    filter();
+    followFamilyLink();
     root.hidden = false;
     const fallback = root.closest(".technique-guide").querySelector("#technique-guide-fallback");
     if (fallback) fallback.hidden = true;

@@ -56,6 +56,15 @@ body:has(#view-tools:not([hidden]) #technique-guide[open]) .ideas-trigger {
   justify-content: space-between;
   gap: .5rem 1rem;
 }
+#guide-permalink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--wb-accent);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
 .guide-status { padding: .65rem 0; }
 #guide-count { color: var(--wb-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 #guide-reset, .guide-topic-actions button {

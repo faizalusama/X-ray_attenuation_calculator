@@ -1,3 +1,18 @@
+#view-tools .guinier-file-field {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+#view-tools #st-guinier-file {
+  max-width: 100%;
+  min-height: 36px;
+  font-size: 14px;
+}
+#view-tools #st-guinier-import-status {
+  color: var(--wb-ink);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 #st-output .technique-probe {
   margin-block: 1rem;
   padding: clamp(.75rem, 2vw, 1.25rem);

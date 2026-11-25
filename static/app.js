@@ -911,7 +911,7 @@
   }
   $("#open-technique-guide").addEventListener("click", openTechniqueGuide);
   window.addEventListener("hashchange", () => {
-    if (location.hash === "#technique-guide") openTechniqueGuide();
+    if (globalThis.WorkbenchGuideFamilyLinks.parse(location.hash)) openTechniqueGuide();
   });
   $("#show-guide").addEventListener("click", () => { showGuide(true); $("#first-run").scrollIntoView({behavior: "smooth", block: "center"}); });
   try { showGuide(!localStorage.getItem(GUIDE_KEY)); } catch { showGuide(true); }
@@ -944,7 +944,7 @@
       if (shared) { state.configuration = shared; state.savedConfiguration = clone(shared); restored = false; }
     } catch (exception) { shareError = exception.message; }
     syncControls(); activateTab(state.tab); renderResults();
-    if (location.hash === "#technique-guide") openTechniqueGuide();
+    if (globalThis.WorkbenchGuideFamilyLinks.parse(location.hash)) openTechniqueGuide();
     if (shareError) error("Could not open shared project: " + shareError);
     if (restored) toast("Restored saved controls and the last valid system from this browser.");
     try {

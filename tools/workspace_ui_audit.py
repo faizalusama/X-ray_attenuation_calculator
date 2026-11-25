@@ -145,6 +145,24 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     guide.locator("#guide-reset").press("Enter")
     record(checks, "guide-reset", visible.count() == total and
            guide.locator("#guide-search").evaluate("el => el === document.activeElement"))
+    link = guide.locator("#guide-permalink")
+    family = guide.locator("#guide-family")
+    family.select_option("saxs")
+    record(checks, "guide-shareable-family", link.get_attribute("href") == "#technique-guide/saxs")
+    link.press("Enter")
+    page.wait_for_function("location.hash === '#technique-guide/saxs'")
+    family.select_option("tomo")
+    link.press("Enter")
+    page.wait_for_function("location.hash === '#technique-guide/tomo'")
+    page.go_back()
+    page.wait_for_function("document.querySelector('#guide-family').value === 'saxs'")
+    page.go_forward()
+    page.wait_for_function("document.querySelector('#guide-family').value === 'tomo'")
+    record(checks, "guide-link-history-and-focus", guide.locator("[data-guide-family]:visible").count() == 1 and
+           guide.locator(":scope > summary").evaluate("el => el === document.activeElement"))
+    page.evaluate("location.hash = '#technique-guide/unknown'")
+    page.wait_for_function("document.querySelector('#guide-family').value === ''")
+    record(checks, "guide-unknown-family-fallback", guide.locator("[data-guide-family]:visible").count() == 6)
     overflow(page, checks, "guide:expanded")
     jump = guide.locator("button[data-guide-target^='tool:']").first
     jump.locator("xpath=ancestor::details[1]/summary").press("Enter")
@@ -167,6 +185,17 @@ def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Calla
     guinier.press("Home")
     record(checks, "guinier-probe-home", guinier.input_value() == guinier.get_attribute("min") and
            fit_readout.inner_text() != last and guinier.evaluate("el => el === document.activeElement"))
+    intensity = page.locator('[data-st-tool=guinier] [data-arg=intensity_data]')
+    imported = intensity.input_value().replace("0.992", "0.994")
+    chooser = page.locator("#st-guinier-file")
+    with page.expect_response(lambda r: r.url.endswith("/api/scattering-tools") and r.ok) as from_file:
+        chooser.set_input_files({"name": "guinier.csv", "mimeType": "text/csv", "buffer": imported.encode()})
+    record(checks, "guinier-file-import", intensity.input_value() == imported and chooser.input_value() == "")
+    with page.expect_response(lambda r: r.url.endswith("/api/scattering-tools") and r.ok) as from_paste:
+        intensity.evaluate("(el, text) => { el.value = text; el.dispatchEvent(new Event('input', {bubbles:true})); }",
+                           imported)
+    record(checks, "guinier-import-matches-paste", from_file.value.json() == from_paste.value.json())
+    guinier.wait_for(state="visible")
     capture("guinier-probe")
     overflow(page, checks, "guinier-probe")
     maximum = page.locator('[data-st-tool=guinier] [data-arg=qmax_inv_angstrom]')
@@ -467,6 +496,14 @@ def exercise(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], N
     record(checks, "project-file-round-trip", persistent_project(restored) == persistent_project(saved), {"expected": saved, "actual": restored})
     overflow(page, checks, "restored")
     record(checks, "final-inputs-preserved", inputs(page) == before)
+    page.goto(page.url.split("#", 1)[0] + "#technique-guide/optics")
+    page.reload()
+    page.locator("#technique-guide > summary").wait_for(state="visible")
+    page.wait_for_function(
+        "() => document.querySelector('#guide-family')?.value === 'optics' && "
+        "document.querySelector('#technique-guide > summary') === document.activeElement"
+    )
+    record(checks, "guide-direct-family-entry", page.locator("[data-guide-family]:visible").count() == 1)
 
 
 def audit(url: str, screenshots: Path | None = None) -> dict[str, Any]:

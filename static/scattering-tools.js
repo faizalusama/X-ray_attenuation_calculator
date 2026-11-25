@@ -83,6 +83,11 @@
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(run, 250); }
   function install() {
+    globalThis.WorkbenchGuinierFileImport?.install(
+      $("#st-guinier-file"),
+      $('[data-st-tool="guinier"] [data-arg="intensity_data"]'),
+      $("#st-guinier-import-status")
+    );
     schematics = window.TechniqueSchematics.create($("#st-schematic"), (field, value) => {
       const input = document.querySelector('[data-st-tool="' + $("#st-tool").value + '"] [data-arg="' + field + '"]');
       input.value = value;
@@ -101,7 +106,10 @@
       $("#st-sq-data").value = "q,S\n" + rows.join("\n"); invalidate(); schedule();
     });
     $("#st-tool").addEventListener("change", () => { invalidate(); schedule(); });
-    $("#st-controls").addEventListener("input", () => { invalidate(); schedule(); });
+    $("#st-controls").addEventListener("input", event => {
+      if (event.target.type === "file") return; // A successful read dispatches input on the textarea.
+      invalidate(); schedule();
+    });
     $("#st-run").addEventListener("click", run);
     $("#st-export-csv").addEventListener("click", () => { if (latest) window.AttenuationWorkbench.download(curvesCSV(latest), "scattering-tools.csv", "text/csv;charset=utf-8"); });
     $("#st-export").addEventListener("click", () => { if (latest) window.AttenuationWorkbench.download(JSON.stringify(latest,null,2) + "\n", "scattering-tools.json", "application/json"); });

@@ -570,14 +570,14 @@ both themes. [Current draft checks](https://github.com/faizalusama/X-ray_attenua
 
 ### Ready for a future run
 
-- I3, READY, `codex/guinier-file-import`. The Guinier tool currently needs
+- I3, ACCEPTED, `codex/guinier-file-import`. The Guinier tool currently needs
   pasted text. Add a local file input for intensity data using the existing
   Guinier CSV contract and the same calculation path as pasted text.
   Worker owns new `static/guinier-file-import.js` and
   `tests/test_guinier_file_import.cjs`. Check the project size limit, file
   read errors, repeat selection, and parity for the same valid text entered
   by both routes. Keep data in the current workbench session.
-- G2, READY, `codex/guide-family-links`. The current guide link opens the
+- G2, ACCEPTED, `codex/guide-family-links`. The current guide link opens the
   entire guide. Add shareable links that also select a technique family.
   Worker owns new `static/guide-family-links.js` and
   `tests/test_guide_family_links.cjs`. Check direct entry, unknown families,
@@ -586,3 +586,31 @@ both themes. [Current draft checks](https://github.com/faizalusama/X-ray_attenua
 
 The coordinator owns the shared HTML, application wiring, generated assets
 and populated browser audits for both tasks.
+
+## Daily integration - 25 November 2026
+
+- Accepted I3 from `codex/guinier-file-import` (084666a). The local UTF-8
+  reader follows the existing size bound and updates the same textarea and
+  calculation used by pasted data. A newer choice or manual edit takes
+  precedence over an unfinished read. Tests cover retry, errors and equality
+  of native results for identical imported and pasted text.
+- Accepted G2 from `codex/guide-family-links` (51b3489). Each family has a
+  link. It opens the requested family, falls back to the full guide for an
+  unknown family and uses browser history while leaving project links to
+  their existing handler. A direct-entry test caught script order during
+  review. The link helper now loads before application initialization.
+- Both worker branches and serial integrations passed the full Python,
+  strict typing, lint, frontend, stamps, manifest and native digest gates.
+  The queue is clear and no submitted branch was rejected. The macOS jobs
+  on starting revision 0447c85 were cancelled. All other jobs passed there.
+  [Current draft checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+
+### Next eligible task
+
+- S10, READY, `codex/live-probe-figure-export`. The existing detector and
+  PDF diagrams have SVG export. Add the same ability to save the current
+  Guinier residual probe and tomography view for lab notes. Worker owns
+  only new `static/probe-figure-export.js` and
+  `tests/test_probe_figure_export.cjs`. Check keyboard access, a standalone
+  SVG in both themes, title and description, and the selected observation
+  or acquisition angle. Keep the existing scientific JSON exports.
