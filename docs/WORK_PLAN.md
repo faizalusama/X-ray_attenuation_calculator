@@ -599,6 +599,8 @@ and populated browser audits for both tasks.
   unknown family and uses browser history while leaving project links to
   their existing handler. A direct-entry test caught script order during
   review. The link helper now loads before application initialization.
+  The history audit restores its starting address before the unrelated
+  saved-layout reload, which expects to open the dashboard.
 - Both worker branches and serial integrations passed the full Python,
   strict typing, lint, frontend, stamps, manifest and native digest gates.
   The queue is clear and no submitted branch was rejected. The macOS jobs

@@ -101,6 +101,7 @@ def tab_check(page: Any, checks: list[dict[str, Any]], view: str, key: str) -> N
 
 
 def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
+    original_url = page.url
     page.locator("#open-technique-guide").press("Enter")
     guide = page.locator("#technique-guide")
     record(checks, "guide-entry-focus", guide.locator(":scope > summary").evaluate(
@@ -171,6 +172,8 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     record(checks, "guide-tool-navigation", page.locator("#st-tool").input_value() == target and
            page.locator("#st-tool").evaluate("el => el === document.activeElement"))
     guide.locator(":scope > summary").press("Enter")
+    # The layout reload later in this scenario starts from its original address.
+    page.evaluate("(url) => history.replaceState(history.state, '', url)", original_url)
 
 
 def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], None]) -> None:
