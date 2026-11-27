@@ -1,0 +1,165 @@
+/* Workbench surfaces and typography. Theme tokens are explicit for light and dark. */
+:root {
+  --wb-canvas: #eef3f5;
+  --wb-panel: #fff;
+  --wb-soft: #f3f7f9;
+  --wb-ink: #112b3b;
+  --wb-muted: #465f6d;
+  --wb-border: #cbd9e0;
+  --wb-accent: #006b67;
+  --wb-accent-soft: #ddf1ee;
+  --wb-hero: #102a38;
+  --wb-hero-text: #e9f7f5;
+  --wb-hero-muted: #bdd6db;
+  --wb-shadow: 0 2px 5px #1233420b, 0 12px 28px -22px #102f4f66;
+  --wb-radius: 13px;
+}
+html[data-theme="dark"] {
+  --wb-canvas: #0c1820;
+  --wb-panel: #15252f;
+  --wb-soft: #1c303c;
+  --wb-ink: #eef6fa;
+  --wb-muted: #bbced8;
+  --wb-border: #466070;
+  --wb-accent: #8ce3d7;
+  --wb-accent-soft: #234940;
+  --wb-hero: #162d3a;
+  --wb-hero-text: #f1fcfb;
+  --wb-hero-muted: #c5dce4;
+  --wb-shadow: 0 2px 6px #0004, 0 10px 24px -18px #0009;
+}
+html, html[data-theme="dark"] {background:var(--wb-canvas);color:var(--wb-ink)}
+html .topbar {
+  min-height:64px;
+  background:var(--wb-panel);
+  border-color:var(--wb-border);
+  box-shadow:var(--wb-shadow);
+}
+.topbar .brand-name {gap:11px;letter-spacing:-.025em}
+.topbar .studio-brand-text {color:var(--wb-ink);font-weight:700}
+.studio-mark {display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:var(--wb-hero);color:#a5efe3;flex:none}
+.studio-mark svg {width:29px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+html .topbar #save-project {background:var(--wb-accent);color:var(--wb-panel);border-color:var(--wb-accent)}
+html .page-heading {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px 32px;
+  align-items:flex-end;
+  justify-content:space-between;
+  padding:clamp(18px,2.4vw,32px);
+  background:var(--wb-hero);
+  border:1px solid #355963;
+  border-radius:var(--wb-radius);
+  box-shadow:var(--wb-shadow);
+}
+.page-heading::before {
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  content:"";
+  background:
+    radial-gradient(ellipse at 100% 35%,#26756c80,transparent 61%),
+    repeating-linear-gradient(128deg,transparent 0 24px,#a9e4e313 24px 25px);
+}
+.page-heading .studio-intro {max-width:64ch}
+html .page-heading h1 {
+  color:var(--wb-hero-text);
+  font-size:clamp(27px,3vw,42px);
+  line-height:1.12;
+  letter-spacing:-.045em;
+  max-width:28ch;
+  margin:0 0 9px;
+}
+html .page-heading p {display:block;color:var(--wb-hero-muted);font-size:15px;line-height:1.5;margin:0}
+html .page-heading .model-label {padding:8px 12px;color:var(--wb-hero-muted);border:1px solid #50747e;background:#102a38;gap:8px;box-shadow:none}
+.page-heading .model-dot {display:none}
+html .page-heading .model-label strong {color:var(--wb-hero-text)}
+html .page-heading .model-label div span {color:var(--wb-hero-muted)}
+
+html .workspace-tools, html .first-run, html .configuration, html .panel,
+html .plot-card, html .sg-panel, html .utility-dialog, html .ml-dialog {
+  border-radius:var(--wb-radius);
+  border-color:var(--wb-border);
+  background:var(--wb-panel);
+  box-shadow:var(--wb-shadow);
+}
+html .workspace-tools p {color:var(--wb-muted)}
+html .first-run {border-inline-start:4px solid var(--wb-accent)}
+html .results-topline {background:var(--wb-canvas)}
+.results-topline .tab-group-label {color:var(--wb-muted);font-weight:700;letter-spacing:.035em}
+.results-topline .tabs .tab {border-radius:8px;color:var(--wb-muted)}
+html .results-topline .tabs .tab[aria-selected="true"] {background:var(--wb-accent-soft);color:var(--wb-accent);box-shadow:inset 0 -2px 0 var(--wb-accent)}
+html #configuration-panel > .panel-heading, html .dashboard-heading, html .chart-heading {
+  color:var(--wb-hero-text);
+  background:var(--wb-hero);
+  background-image:linear-gradient(100deg,transparent,#32736b3b);
+}
+html .panel-heading h2, html .dashboard-heading h2, html .chart-heading h2 {color:inherit}
+html .panel-heading .small-label, html .dashboard-heading .small-label {color:var(--wb-hero-muted)}
+.layer-card,.plot-card,.ml-chart-card,.ts-card,.detail-metric {min-width:0}
+html .layer-card, html .ml-chart-card, html .ts-card, html .detail-metric {
+  border-color:var(--wb-border);
+  border-radius:10px;
+  background:var(--wb-soft);
+}
+html .insight-panel {background:var(--wb-hero);color:var(--wb-hero-text)}
+html .insight-panel :is(h3, .eyebrow, .target-number, .target-number span, .target-copy, .target-copy strong, .target-note) {color:var(--wb-hero-text)}
+html .view-intro h2 {font-size:clamp(23px,2.4vw,32px);letter-spacing:-.029em;color:var(--wb-ink)}
+html .view-intro p {color:var(--wb-muted);line-height:1.55}
+html .metric-value, html .ts-card-value, html .sg-values strong, html .ml-density-value {
+  color:var(--wb-ink);
+  letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums;
+}
+html .metric-label, html .ts-card-label {color:var(--wb-muted)}
+html .ts-table th, html .ml-table th {background:var(--wb-soft);color:var(--wb-ink)}
+html .ml-header {background:var(--wb-soft);border-color:var(--wb-border)}
+html .ml-header .ml-eyebrow {color:var(--wb-accent)}
+html .ml-item {border-radius:8px}
+html .ml-item[aria-pressed="true"] {background:var(--wb-accent-soft);border-color:var(--wb-accent)}
+html #materials-dialog .ml-item-meta {color:var(--wb-muted)}
+html .ml-tabs {background:var(--wb-soft);border-color:var(--wb-border)}
+html .ml-tabs [role="tab"] {color:var(--wb-muted)}
+html .ml-tabs [aria-selected="true"] {background:var(--wb-panel);color:var(--wb-accent);border-color:var(--wb-border)}
+html :is(button,input,textarea,select,summary):focus-visible {outline:2px solid var(--wb-accent);outline-offset:3px}
+.sg-panel .sg-heading h3 {font-size:clamp(19px,2.1vw,25px);letter-spacing:-.025em;color:var(--wb-ink)}
+html .sg-panel {--sg-back:var(--wb-soft);--sg-accent:var(--wb-accent);color:var(--wb-ink)}
+html[data-theme="dark"] .sg-panel {--sg-back:var(--wb-soft);--sg-accent:var(--wb-accent);color:var(--wb-ink)}
+.sg-view {display:inline-flex;margin-top:12px}
+.sg-view button {min-height:36px}
+.sg-view button[aria-pressed="true"] {background:var(--wb-accent-soft);color:var(--wb-accent);font-weight:700}
+.sg-drawing {
+  border:1px solid var(--wb-border);
+  min-height:110px;
+  background-image:radial-gradient(var(--wb-border) 1px,transparent 1px);
+  background-size:16px 16px;
+}
+.sg-drawing[data-sg-spatial] {cursor:grab;touch-action:pan-y}
+.sg-drawing[data-sg-spatial]:active {cursor:grabbing}
+.sg-drawing .sg-detector-face {fill:var(--sg-accent);fill-opacity:.16;stroke:var(--sg-accent);stroke-width:2}
+.sg-drawing .sg-detector-mask {fill:var(--sg-muted);fill-opacity:.68;stroke:var(--sg-muted);stroke-width:1}
+.sg-drawing .sg-centre {fill:var(--sg-accent)}
+.sg-drawing .sg-mini-input,.sg-drawing .sg-mini-output,.sg-drawing .sg-arrow {fill:none;stroke:var(--sg-accent);stroke-width:2.5;stroke-linejoin:round}
+.sg-drawing .sg-mini-output {stroke:var(--sg-probe)}
+.sg-key {display:inline-flex;align-items:center;gap:6px;margin:0 12px 5px 0;font-weight:650}
+.sg-key::before {content:"";width:17px;border-top:3px solid var(--sg-accent)}
+.sg-key-edge::before {border-top:3px dashed var(--sg-ray)}
+.sg-key-probe::before {border-color:var(--sg-probe)}
+.sg-view-description {display:block;color:var(--wb-muted)}
+.sg-orbit {margin-top:12px;padding:12px;background:var(--wb-soft);border-radius:10px}
+html #st-schematic .sg-orbit label {color:var(--wb-ink)}
+.sg-orbit label span {color:var(--wb-accent);font-weight:700;float:right}
+@media(max-width:600px) {
+  html .page-heading {padding:16px}
+  html .page-heading p {font-size:14px}
+  html .page-heading .model-label {display:none}
+  .studio-mark {width:32px;height:32px}
+}
+@media print {
+  html .page-heading {background:white;color:black;box-shadow:none}
+  html .page-heading::before {display:none}
+  html .page-heading :is(h1,p,.model-label,.model-label strong,.model-label div span) {color:black}
+}

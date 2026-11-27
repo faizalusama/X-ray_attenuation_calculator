@@ -32,3 +32,16 @@ def test_author_identity_is_complete_in_both_files():
     assert f"orcid.org/{creator['orcid']}" in CFF
     assert f"affiliation: {creator['affiliation']}" in CFF
     assert all(f"- {keyword}" in CFF for keyword in ZENODO["keywords"])
+
+def test_bibtex_matches_cff_and_declares_unreleased_status():
+    import re
+
+    from xray_workbench.citation import citation
+
+    data = citation()
+    assert data["title"] == re.search(r'^title: "([^"]+)"', CFF, re.M)[1]
+    assert data["doi"] == re.search(r'^doi: (.+)', CFF, re.M)[1]
+    assert data["version"] == __version__
+    assert data["author"] == re.search(r"family-names: (.+)", CFF)[1] + ", " + re.search(r"given-names: (.+)", CFF)[1]
+    assert "Unreleased" in data["note"]
+    assert "\n  title = {" in data["bibtex"]

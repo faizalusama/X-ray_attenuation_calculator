@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 EXCLUDED_DIRECTORIES = frozenset({
     ".venv", "venv", "env", "__pycache__", ".git", ".github_cache",
     ".pytest_cache", ".mypy_cache", ".ruff_cache",
-    "build", "dist", "htmlcov", "_snapshots", ".idea", ".vscode",
+    "build", "dist", "_site", ".pyodide-cache", "htmlcov", "_snapshots", ".idea", ".vscode",
 })
 
 #: Suffixes and names that are build output rather than source.

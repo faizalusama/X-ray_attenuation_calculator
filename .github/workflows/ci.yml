@@ -86,15 +86,114 @@ jobs:
         with:
           node-version: "22"
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install scientific fixture provider
+        run: python -m pip install -e .
+
       - name: Syntax check
         run: |
+          node --check static/scattering-tools.js
+          node --check static/comparison.js
+          node --check static/scattering.js
+          node --check static/technique-schematics.js
+          node --check static/detector-spatial.js
+          node --check static/optics-schematic.js
+          node --check static/pdf-schematic.js
+          node --check static/guinier-probe.js
+          node --check static/tomo-view-probe.js
+          node --check static/guide-field-checks.js
+          node --check static/guide-family-links.js
+          node --check static/guinier-file-import.js
+          node --check static/probe-figure-export.js
           node --check static/app.js
           node --check static/dashboard.js
+          node --check static/workspace.js
+          node --check web/shim.js
+          node --check web/engine_worker.js
 
       - name: Frontend tests
         run: |
           node tests/test_frontend.cjs
           node tests/test_dashboard.cjs
+          node tests/test_workspace.cjs
+          node tests/test_materials.cjs
+          node tests/test_scattering.cjs
+          node tests/test_optics_schematic.cjs
+          node tests/test_pdf_schematic.cjs
+          node tests/test_guinier_probe.cjs
+          node tests/test_tomo_view_probe.cjs
+          node tests/test_guide_family_links.cjs
+          node tests/test_guinier_file_import.cjs
+          node tests/test_probe_figure_export.cjs
+
+  interface:
+    name: Interface audit (WCAG 2.2 AA checks)
+    # Runs tools/ui_audit.js in headless Chromium at desktop, tablet and phone
+    # widths, on every analysis tab in both themes. Any contrast, text size,
+    # target size, naming, structure or overflow violation fails the job.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Audit
+        run: python tools/ui_audit.py --report ui-audit-report.json
+
+      - name: Workspace interaction audit
+        if: always()
+        run: python tools/workspace_ui_audit.py --report workspace-ui-audit-report.json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ui-audit-report
+          path: |
+            ui-audit-report.json
+            workspace-ui-audit-report.json
+
+  browser-version:
+    name: Browser version matches the native engine
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . playwright
+          python -m playwright install --with-deps chromium
+
+      # The Pyodide release is 340 MB; keep what the site needs between runs.
+      - uses: actions/cache@v4
+        with:
+          path: .pyodide-cache
+          key: pyodide-${{ hashFiles('tools/build_web.py') }}
+
+      - name: Build the site
+        run: python tools/build_web.py
+
+      - name: Compare with the native engine
+        run: python tools/web_parity.py
 
   package:
     name: Build and verify distribution

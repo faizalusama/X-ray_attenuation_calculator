@@ -4,9 +4,17 @@
 [![CI](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faizalusama/X-ray_attenuation_calculator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. Version 1.0.1 gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
+> **Unreleased development candidate.** PR7 remains a draft. Version 1.1.0 and its new tools have not been published or assigned a new version DOI. The public site may show an older version. Preview this branch locally.
+
+A local scientific application for narrow-beam X-ray attenuation in multicomponent glasses, ceramics, composites, filters, and planar multilayers, by Mohamed Faizal Ussama Jalaludeen ([ORCID 0000-0003-0077-691X](https://orcid.org/0000-0003-0077-691X)), Aalborg University. Run this candidate locally as described below. The intended browser distribution runs the same engine without installation. Version 1.1.0 adds the browser version and gives the same calculated numbers as 1.0.0, the first stable release, which supersedes the 0.1.x calculator preserved under `legacy/`. See [How to cite](#how-to-cite).
 
 > **Results differ from 0.1.x.** The original multicomponent script applied each component's mass fraction twice. This version implements the mixture rule correctly, so multi-component results change. Work based on the original script should be rechecked.
+
+## Use it in your browser
+
+After publishing approval, the browser distribution is intended for **https://faizalusama.github.io/X-ray_attenuation_calculator/**. For this branch, run locally or build and serve the site directory for review. There is nothing to install, and nothing you enter is uploaded: the same Python engine runs inside your browser through [Pyodide](https://pyodide.org). The first visit downloads about 30 MB, all of it from this site. Starting the engine usually took 8–18 s when tested on a desktop computer, and can take longer on slower machines or connections. Later visits use your browser's cache but still take several seconds. Use the local version below to work offline.
+
+Results match the local version to within floating-point rounding; see the [validation record](docs/VALIDATION.md). Each exported result records the runtime in its provenance.
 
 ## Start the graphical application
 
@@ -55,22 +63,30 @@ All eleven plots open initially in a responsive grid. Each plot has its own rele
 
 Graphs and active controls lead the page. Reference measurements and expandable scientific limits sit below the plots; suggestions open from the bottom-right Ideas button. The system editor is visible on the right by default, with a calculation-flow schematic and the current layer stack beneath its inputs. On narrow screens the editor stacks above the plots. Hide inputs frees the full width; that choice is remembered. Length units can be changed between nm, µm, mm, cm and m without changing physical dimensions; project/API thicknesses remain in mm. Preferences, plot visibility and the last valid inputs are remembered locally. Existing saved layouts expand once to introduce all eleven plots, then subsequent custom layouts are preserved.
 
-SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG.
+SVG export includes the selected plot, its axes and configuration/provenance metadata. Heatmaps embed a raster colour field within the SVG. PNG export gives the same figure at 4200 × 2280 pixels. Exported figures stay light in the dark theme.
+
+For your own plotting software, **Plot data CSV** saves exactly what the selected plot shows, in the units shown, including the thickness map as a matrix. **All curves CSV** saves every energy-dependent quantity for the stack and for each layer in one table with fixed column names in fixed units, along with `attenuation-all-curves-settings.json` describing each column, the composition, density and provenance, and the transmitted spectrum if one was used.
+
+The interface has automatic, light and dark themes, and removing a layer or component can be undone.
 
 ## What is included
 
-- **Composition:** chemical formula parsing, automatic molecular masses, normalized mass / mole / volume fractions, elemental mass breakdown, and illustrative materials presets.
+- **Composition:** chemical formula parsing, automatic molecular masses, normalized wt% / mol% / at.% / vol% input, elemental mass breakdown, and illustrative materials presets.
+- **Materials library:** searchable compositions from NIST SRD 126 and PNNL-15870 Rev. 2, plus stoichiometric phases whose densities are typical values, clearly marked unverified. Compare curves, view a density-against-attenuation overview, and add any entry to the stack. See [docs/MATERIALS.md](docs/MATERIALS.md).
+- **Scattering tools:** optical constants, penetration depth, Parratt reflectivity, X-ray/neutron SLD contrast, Porod invariant, diffraction conversion, Scherrer size, powder peaks and S(Q) → G(r). See [docs/SCATTERING_TOOLS.md](docs/SCATTERING_TOOLS.md).
+- **Sharing and comparison:** URL-fragment project links, transmission versus thickness, per-row batch CSV comparison and BibTeX export.
+- **Total scattering:** Qmax and r-grid step, number density, form factors, f′ and f″, Faber-Ziman pair weights, capillary μD, Compton shift, likely fluorescence, a source comparison, correlation-function definitions and references. It plans a measurement; it does not reduce data. See [docs/TOTAL_SCATTERING.md](docs/TOTAL_SCATTERING.md).
 - **Density:** measured bulk density, solid density with explicit void porosity, or ideal additive-specific-volume density. Each density assumption is reported. A measured bulk density is never reduced by porosity a second time.
-- **Geometry:** multiple homogeneous planar layers, individual thicknesses in mm, and incidence angles measured from the surface normal.
-- **Energy:** 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.
+- **Geometry:** multiple homogeneous planar layers, individual thicknesses or areal densities, and incidence angles measured from the surface normal.
+- **Energy:** X-ray anode lines, wavelength or energy input, 1–800 keV guarded domain, linear / logarithmic sweeps, additional points at absorption edges, and direct evaluation at the reference energy.
 - **Outputs:** total mass and linear attenuation, photoelectric / coherent / incoherent contributions, primary transmission, removed-primary fraction, optical depth, individual material HVL / TVL / 1/e length, and the thickness multiplier to meet a monoenergetic target transmission.
 - **Spectra:** import a discrete-bin photon-fluence spectrum; calculate photon- or energy-weighted transmission, transmitted spectrum, and mean photon energy before / after the stack.
 - **Uncertainty:** reproducible Monte Carlo propagation of independent density and thickness uncertainties through positive lognormal distributions. The interval excludes composition, database, geometry-angle, and model uncertainty.
-- **Reproducibility:** project JSON, complete calculation JSON with input and provenance, full-precision CSV, SVG charts, a batch command, an example notebook, and automated scientific/API tests.
+- **Reproducibility:** project JSON, complete calculation JSON with input and provenance, full-precision CSV of every curve, per-plot data CSV, SVG and PNG charts, a batch command, an example notebook, and automated scientific/API tests.
 
 ## Scientific scope
 
-This is a **narrow-beam Beer–Lambert calculation** using XrayDB's Elam atomic data. Removed primary photons include scattering; **1 − T is not absorbed energy or dose**. The model does not propagate fluorescent or scattered photons, simulate broad-beam buildup, model diffraction / XANES / EXAFS, or predict detector response. Layer order does not change primary transmission in this model.
+The attenuation engine is a **narrow-beam Beer–Lambert calculation** using XrayDB's Elam atomic data. Removed primary photons include scattering; **1 − T is not absorbed energy or dose**. The attenuation model does not propagate fluorescent or scattered photons, simulate broad-beam buildup, model diffraction / XANES / EXAFS, or predict detector response. Layer order does not change primary transmission in this model.
 
 The allowed 1–800 keV interval avoids the backend's out-of-range clamping. XrayDB describes cross-sections as typically most reliable around 0.25–250 keV; energies above 250 keV produce a warning. A denser grid is not a guarantee of physical accuracy. Measured composition, density, thickness, geometry, and application-specific validation remain essential, especially around absorption edges.
 
@@ -88,9 +104,13 @@ This project currently has **no independent cross-database validation**. The NIS
 
 ## Input conventions
 
-Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Mole fractions refer to **formula units of the entered components**. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point. Two spellings parse validly but rarely mean what was typed, so the result carries a warning: a period before further elements (`CuSO4.5H2O`, `BaO.2TiO2`), and an all-capitals formula that hides a two-letter element (`SIO2` is sulfur + iodine + oxygen). Check the reported mass fractions either way.
+Fractions are nonnegative relative proportions, normalized explicitly by the engine. For example, `80, 15, 5` and `0.8, 0.15, 0.05` represent the same composition. Compositions can be entered in wt% (`mass`), mol% (`mole`), at.% (`atomic`) or vol% (`volume`). Mole percent refers to **formula units of the entered components**, so 20 mol% Na2O is not 20 at.% Na. Atomic percent needs one element per row and is rejected for compounds. Component density is required for volume fractions and for the ideal-density mode. Formulas are case sensitive: use ordinary digits rather than Unicode subscripts, such as `SiO2`, `Al2O3`, or `Ca(OH)2`. Nested parentheses/brackets and decimal occupancies are supported. Hydrates use a middle dot, for example `CuSO4·5H2O`; an ASCII period is always a decimal point. Two spellings parse validly but rarely mean what was typed, so the result carries a warning: a period before further elements (`CuSO4.5H2O`, `BaO.2TiO2`), and an all-capitals formula that hides a two-letter element (`SIO2` is sulfur + iodine + oxygen). Check the reported mass fractions either way.
 
 Angles are from the surface normal, so normal incidence is 0°. The effective path is thickness / cos(angle). HVL, TVL, and attenuation length are distances **along the ray** in an individual homogeneous material, not the thickness of the complete multilayer stack. Target scaling multiplies all layer thicknesses at their existing angles and composition.
+
+A layer can be specified by areal density in mg/cm² instead of thickness. Thickness then follows from the effective density, and optical depth depends only on the areal density, so density uncertainty does not apply to that layer. Thicknesses can be typed with their own unit, such as `500 µm`, `2 mm` or `0.2 cm`.
+
+The reference energy can be chosen from a list of laboratory anode lines (Cr, Fe, Co, Cu, Ga, Mo, Rh, Ag, In, W: Kα, Kα1, Kα2, Kβ1), or typed as an energy or as a wavelength in Å. Line energies are from Table 1-2 of the [X-ray Data Booklet](https://xdb.lbl.gov/Section1/Table_1-2.pdf). Kα is the conventional 2:1 wavelength-weighted mean of Kα1 and Kα2. A source selects a single energy, not a tube spectrum: bremsstrahlung and filtering are not modelled, so use the Spectrum tab for a measured spectrum.
 
 Spectrum CSV files use two columns: `energy_keV,weight`. Each row is **integrated photon fluence in a discrete bin**, not counts per keV. If your measurement is a density per keV, multiply by bin widths before importing. Energy weighting changes the output observable; it does not change the meaning of the input weights. The sample CSV is illustrative and is not a calibrated tube-spectrum model.
 
@@ -135,19 +155,23 @@ node --check static/app.js
 node tests/test_frontend.cjs
 ```
 
+`python tools/build_web.py` builds the browser version into `_site/`. `python tools/web_parity.py` then compares it with the native engine, number by number; it needs Playwright. CI runs both.
+
 `tools/manifest.py` maintains `MANIFEST.sha256`, the record of what a release actually contained. Run `python tools/manifest.py write` after an intentional change and commit the result. `tools/snapshot.py` takes timestamped copies of the authored files into a git-ignored `_snapshots/` directory; it is a safety net for working without version control, not a replacement for it. All of these run in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) across Python 3.12–3.14 on Linux, Windows and macOS.
 
 ## Original project and publication
 
 `legacy/` preserves the supplied archive for attribution and reproducibility. **Do not use its old script or stored notebook results for new calculations.** The original script applied each component's mass fraction twice; this version fixes the mixture rule. The archived notebook also contains exploratory density and attenuation-length averaging that must not be used as the new calculation method.
 
-Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* ([10.5281/zenodo.17602371](https://doi.org/10.5281/zenodo.17602371)). Version 1.0.0 was published as *X-ray Attenuation Workbench for Multicomponent Materials and Multilayers* ([10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495)); this release gives the same calculated numbers. The original citation is retained under `legacy/`.
+Version 0.1.1 was published as *X-ray Attenuation Calculator for Oxide glasses* ([10.5281/zenodo.17602371](https://doi.org/10.5281/zenodo.17602371)). Version 1.0.0 was published as *X-ray Attenuation Workbench for Multicomponent Materials and Multilayers* ([10.5281/zenodo.22878495](https://doi.org/10.5281/zenodo.22878495)); this release gives the same calculated numbers. Version 1.0.1 ([10.5281/zenodo.23843930](https://doi.org/10.5281/zenodo.23843930)) introduced the current title. The original citation is retained under `legacy/`.
 
 ## How to cite
 
 Cite the exact version you used, so that your numbers can be traced to the code that produced them. Each version has its own DOI, listed on the [Zenodo page](https://doi.org/10.5281/zenodo.17602370). The concept DOI 10.5281/zenodo.17602370 covers all versions and always resolves to the newest.
 
-> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.0.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23843930
+> Development-candidate citation only; cite the published version actually used.
+>
+> Jalaludeen, M. F. U. (2026). *X-ray Attenuation Calculator for Multicomponent Materials* (Version 1.1.0) [Unreleased software candidate]. Concept DOI: https://doi.org/10.5281/zenodo.17602370
 
 Please also cite the atomic data behind every reported number:
 
