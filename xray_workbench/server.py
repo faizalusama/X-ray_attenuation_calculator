@@ -187,6 +187,7 @@ async def download_artifact(request: Request) -> Response:
     allowed.update(f"attenuation-{mode}.svg" for mode in ("transmission", "removed", "mass", "linear", "channels"))
     allowed.update({"technique-diagram.svg", "attenuation-all-curves.csv", "attenuation-all-curves-settings.json", "attenuation-spectrum.csv",
                     "total-scattering-curves.csv", "total-scattering-summary.json", "attenuation-comparison.csv", "xray-workbench-citation.bib", "scattering-tools.json", "scattering-tools.csv"})
+    allowed.update({"guinier-residual-probe.svg", "tomography-acquisition-view.svg"})
     allowed.update(f"attenuation-plot-{mode}.csv" for mode in PLOT_DATA_MODES)
     if filename not in allowed:
         raise HTTPException(422, "Unsupported export filename.")

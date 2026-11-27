@@ -14,6 +14,7 @@ from collections.abc import Callable
 from functools import partial
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -179,6 +180,26 @@ def exercise_technique_guide(page: Any, checks: list[dict[str, Any]]) -> None:
     page.evaluate("(url) => history.replaceState(history.state, '', url)", original_url)
 
 
+def check_probe_figure_export(page: Any, checks: list[dict[str, Any]], filename: str, title: str) -> None:
+    probe = page.locator("#st-output .technique-probe")
+    readout = probe.locator(".technique-probe-readout").inner_text()
+    svg = probe.locator("svg")
+    live_markup = svg.evaluate("el => el.outerHTML")
+    save = probe.get_by_role("button", name="Save figure as SVG")
+    with page.expect_download() as pending:
+        save.press("Enter")
+    download = pending.value
+    source = Path(download.path()).read_text(encoding="utf-8")
+    tree = ElementTree.fromstring(source)
+    ns = "{http://www.w3.org/2000/svg}"
+    description = tree.findtext(f"{ns}desc", "")
+    visible = " ".join(" ".join(node.itertext()) for node in tree.iter(f"{ns}text"))
+    record(checks, f"probe-figure-download:{filename}", download.suggested_filename == filename and
+           tree.tag == f"{ns}svg" and tree.findtext(f"{ns}title") == title and readout in description and
+           readout in " ".join(visible.split()) and title in visible and "var(" not in source and
+           live_markup == svg.evaluate("el => el.outerHTML"))
+
+
 def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Callable[[str], None]) -> None:
     tool = page.locator("#st-tool")
     tool.select_option("guinier")
@@ -202,6 +223,8 @@ def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Calla
                            imported)
     record(checks, "guinier-import-matches-paste", from_file.value.json() == from_paste.value.json())
     guinier.wait_for(state="visible")
+    guinier.press("End")
+    check_probe_figure_export(page, checks, "guinier-residual-probe.svg", "Guinier residuals vs. q² (Å⁻²)")
     capture("guinier-probe")
     overflow(page, checks, "guinier-probe")
     maximum = page.locator('[data-st-tool=guinier] [data-arg=qmax_inv_angstrom]')
@@ -209,7 +232,7 @@ def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Calla
     maximum.fill("0.025")
     page.wait_for_function("() => document.querySelector('#st-status').textContent.includes('at least three')")
     record(checks, "guinier-probe-clears-after-error", guinier.count() == 0 and
-           page.locator("#st-export").is_disabled())
+           page.locator("#st-export").is_disabled() and page.locator("[data-probe-figure-export]").count() == 0)
     maximum.fill(old_maximum)
     guinier.wait_for(state="visible")
 
@@ -225,6 +248,8 @@ def exercise_live_probes(page: Any, checks: list[dict[str, Any]], capture: Calla
     view.press("Home")
     record(checks, "tomo-view-home", view.input_value() == view.get_attribute("min") and
            view_readout.inner_text() != last and view.evaluate("el => el === document.activeElement"))
+    view.press("End")
+    check_probe_figure_export(page, checks, "tomography-acquisition-view.svg", "Parallel-beam tomography view")
     capture("tomography-view-probe")
     overflow(page, checks, "tomography-view-probe")
     page.locator('[data-st-tool=tomo_sampling] [data-arg=planned_views]').fill("")

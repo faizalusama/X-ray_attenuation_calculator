@@ -68,6 +68,13 @@ body:has(#view-tools:not([hidden]) .technique-probe) .ideas-trigger {
   outline: 3px solid var(--wb-accent);
   outline-offset: 3px;
 }
+.technique-probe [data-probe-figure-export] {
+  margin-block-start: .65rem;
+  font-size: 14px;
+  min-height: 36px;
+  max-width: 100%;
+  white-space: normal;
+}
 .technique-probe figure { margin: .75rem 0; }
 .technique-probe svg { display: block; width: 100%; height: auto; max-height: 19rem; margin-inline: auto; }
 .technique-probe [role="status"] { font-variant-numeric: tabular-nums; }

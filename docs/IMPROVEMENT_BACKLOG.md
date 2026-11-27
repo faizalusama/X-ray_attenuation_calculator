@@ -4,6 +4,7 @@
 - Owner review of draft PR7; publishing approval remains pending.
 
 ## Completed
+- Codex, 2026-11-27: standalone SVG downloads for the Guinier and tomography probes. See WORK_PLAN.md.
 - Codex, 2026-11-25: local Guinier CSV import and direct links to technique families. See WORK_PLAN.md.
 - Codex, 2026-11-24: S8 Guinier observation probe, S9 tomography view probe and G1 technique field checks. See WORK_PLAN.md.
 - Codex, 2026-11-24: validated guide accessibility and S7 reference cases.

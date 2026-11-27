@@ -609,10 +609,36 @@ and populated browser audits for both tasks.
 
 ### Next eligible task
 
-- S10, READY, `codex/live-probe-figure-export`. The existing detector and
+- S10, ACCEPTED, `codex/live-probe-figure-export`. The existing detector and
   PDF diagrams have SVG export. Add the same ability to save the current
   Guinier residual probe and tomography view for lab notes. Worker owns
   only new `static/probe-figure-export.js` and
   `tests/test_probe_figure_export.cjs`. Check keyboard access, a standalone
   SVG in both themes, title and description, and the selected observation
   or acquisition angle. Keep the existing scientific JSON exports.
+
+## Daily integration - 27 November 2026
+
+- Accepted S10 from `codex/live-probe-figure-export` (b1d30f8).
+  The Save figure as SVG control captures the selected Guinier observation
+  or tomography angle. The file carries a visible title and readout, an
+  accessible description, literal theme colors and the current diagram.
+  The native download allowlist names just the two new files.
+- The worker and its integration passed pytest, Ruff, strict mypy, Node,
+  asset stamps, manifest verification and the pinned native digest.
+  The browser audit exercises keyboard download, matches the visible SVG
+  text to the current selection and checks that export preserves the live
+  diagram. No branch was rejected. The review queue is empty.
+- Starting revision 031b9db passed all 22 reported checks.
+  [Current draft checks](https://github.com/faizalusama/X-ray_attenuation_calculator/pull/7/checks)
+
+### Next eligible task
+
+- I4, READY, `codex/pdf-comparison-file-import`. The PDF Qmax comparison
+  currently accepts pasted normalized S(Q). Reuse the local file-reading
+  logic for its q,S CSV input. Worker owns only
+  `static/guinier-file-import.js` and `tests/test_guinier_file_import.cjs`
+  for the shared reader's options and regression coverage. Preserve the
+  current Guinier import behavior. Verify both Qmax results against the
+  same pasted text, file-size handling and manual-edit precedence. The
+  coordinator owns shared tool wiring, generated files and browser checks.

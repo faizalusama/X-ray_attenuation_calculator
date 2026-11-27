@@ -27,9 +27,18 @@
       tomo_sampling: globalThis.WorkbenchTomoViewProbe,
     }[answer.tool]?.create(answer);
     if (probe) {
+      const guinier = answer.tool === "guinier";
       const heading = document.createElement("h3");
-      heading.textContent = answer.tool === "guinier" ? "Explore fit residuals" : "Explore acquisition angles";
+      heading.textContent = guinier ? "Explore fit residuals" : "Explore acquisition angles";
       probe.prepend(heading);
+      const saveFigure = globalThis.WorkbenchProbeFigureExport?.createButton({
+        svg: probe.querySelector("svg"),
+        title: guinier ? "Guinier residuals vs. q² (Å⁻²)" : "Parallel-beam tomography view",
+        readout: probe.querySelector(".technique-probe-readout"),
+        filename: guinier ? "guinier-residual-probe.svg" : "tomography-acquisition-view.svg",
+        download: window.AttenuationWorkbench.download,
+      });
+      if (saveFigure) probe.append(saveFigure);
       $("#st-output .ts-plots").before(probe);
     }
     if (!window.Plotly) return;
